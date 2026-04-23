@@ -54,8 +54,8 @@ export default function LoginPage() {
 
       <main className={styles.card}>
         <div className={styles.headerBlock}>
-          <p className={styles.kicker}>System Access</p>
-          <h1 className={styles.title}>Welcome back</h1>
+          <p className={styles.kicker}>free5GC</p>
+          <h1 className={styles.title}>IT System</h1>
           <p className={styles.subtitle}>Sign in to continue to your control panel.</p>
         </div>
 

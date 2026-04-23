@@ -14,13 +14,11 @@ export default function HomePage() {
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <div>
-          <p className={styles.badge}>Framework</p>
-          <h1 className={styles.brand}>Starter Console</h1>
+          <p className={styles.badge}>free5GC</p>
+          <h1 className={styles.brand}>IT System</h1>
 
           <nav className={styles.nav}>
-            <a className={styles.navItem} href="#">Home</a>
-            <a className={styles.navItem} href="#">Module A</a>
-            <a className={styles.navItem} href="#">Module B</a>
+            <a className={styles.navItem} href="#">Dashboard</a>
           </nav>
         </div>
 
@@ -31,20 +29,8 @@ export default function HomePage() {
 
       <main className={styles.content}>
         <header className={styles.header}>
-          <h2>Home</h2>
-          <p>A clean framework canvas ready for your features.</p>
+          <h2>Dashboard</h2>
         </header>
-
-        <section className={styles.cardGrid}>
-          <article className={styles.card}>
-            <h3>Widget Area</h3>
-            <p>Place dashboard cards, tables, or charts here.</p>
-          </article>
-          <article className={styles.card}>
-            <h3>Feature Area</h3>
-            <p>Use this section as a starting point for module pages.</p>
-          </article>
-        </section>
       </main>
     </div>
   )
