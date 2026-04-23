@@ -1,0 +1,14 @@
+backend:
+  username: "admin"
+  password: "0000"
+
+  port: 8888
+
+  jwt:
+    secret: "full-stack-framework"
+    expiresIn: 1h
+
+  frontendFilePath: "build/frontend"
+
+logger:
+  level: "info"

@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  title: full-stack-framework API
+  description: Automatically generated OpenAPI spec from Postman collection "full-stack-framework"
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:5000
+    description: Default local server
+paths:
+  /api/login:
+    post:
+      summary: Login
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/logout:
+    post:
+      summary: Logout
+      operationId: logout
+      responses:
+        '204':
+          description: No Content
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: '0000'
+    LoginResponse:
+      type: object
+      required:
+        - message
+        - token
+      properties:
+        message:
+          type: string
+        token:
+          type: string
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string

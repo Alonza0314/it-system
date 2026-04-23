@@ -1,0 +1,109 @@
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #dbe5f0;
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(8px);
+}
+
+.badge {
+  display: inline-block;
+  margin: 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.brand {
+  margin: 0.8rem 0 1.2rem;
+  font-size: 1.3rem;
+  color: #0f172a;
+}
+
+.nav {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.navItem {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #334155;
+  font-weight: 600;
+  transition: background-color 120ms ease;
+}
+
+.navItem:hover {
+  background: #e2e8f0;
+}
+
+.logoutWrap {
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.content {
+  padding: 2rem;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  color: #0f172a;
+}
+
+.header p {
+  margin: 0.45rem 0 0;
+  color: #475569;
+}
+
+.cardGrid {
+  margin-top: 1.4rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.card h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.card p {
+  margin: 0.45rem 0 0;
+  color: #475569;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: 0;
+    border-bottom: 1px solid #dbe5f0;
+    gap: 1.2rem;
+  }
+}
