@@ -23,6 +23,16 @@ import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
+export interface AddTestcasesRequest {
+    'testcases': Array<Testcase>;
+}
+export interface DeleteTestcasesRequest {
+    'testcases': Array<Testcase>;
+}
+export interface GetTestcasesResponse {
+    'message': string;
+    'testcases'?: Array<Testcase>;
+}
 export interface LoginRequest {
     'username': string;
     'password': string;
@@ -34,12 +44,128 @@ export interface LoginResponse {
 export interface MessageResponse {
     'message'?: string;
 }
+export interface Testcase {
+    'name': string;
+    'link'?: string;
+}
 
 /**
  * DefaultApi - axios parameter creator
  */
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @summary Add testcases
+         * @param {AddTestcasesRequest} addTestcasesRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addTestcases: async (addTestcasesRequest: AddTestcasesRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'addTestcasesRequest' is not null or undefined
+            assertParamExists('addTestcases', 'addTestcasesRequest', addTestcasesRequest)
+            const localVarPath = `/api/admin/test/testcase`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addTestcasesRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete testcases
+         * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteTestcases: async (deleteTestcasesRequest: DeleteTestcasesRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deleteTestcasesRequest' is not null or undefined
+            assertParamExists('deleteTestcases', 'deleteTestcasesRequest', deleteTestcasesRequest)
+            const localVarPath = `/api/admin/test/testcase`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deleteTestcasesRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get testcases
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTestcases: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/test/testcase`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Login
@@ -115,6 +241,44 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Add testcases
+         * @param {AddTestcasesRequest} addTestcasesRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addTestcases(addTestcasesRequest: AddTestcasesRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addTestcases(addTestcasesRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.addTestcases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete testcases
+         * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteTestcases(deleteTestcasesRequest: DeleteTestcasesRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTestcases(deleteTestcasesRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteTestcases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get testcases
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getTestcases(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetTestcasesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTestcases(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getTestcases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Login
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
@@ -149,6 +313,35 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
+         * @summary Add testcases
+         * @param {AddTestcasesRequest} addTestcasesRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addTestcases(addTestcasesRequest: AddTestcasesRequest, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.addTestcases(addTestcasesRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete testcases
+         * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteTestcases(deleteTestcasesRequest: DeleteTestcasesRequest, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.deleteTestcases(deleteTestcasesRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get testcases
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTestcases(options?: RawAxiosRequestConfig): AxiosPromise<GetTestcasesResponse> {
+            return localVarFp.getTestcases(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Login
          * @param {LoginRequest} loginRequest 
          * @param {*} [options] Override http request option.
@@ -173,6 +366,38 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  * DefaultApi - object-oriented interface
  */
 export class DefaultApi extends BaseAPI {
+    /**
+     * 
+     * @summary Add testcases
+     * @param {AddTestcasesRequest} addTestcasesRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addTestcases(addTestcasesRequest: AddTestcasesRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).addTestcases(addTestcasesRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete testcases
+     * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteTestcases(deleteTestcasesRequest: DeleteTestcasesRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteTestcases(deleteTestcasesRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get testcases
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getTestcases(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getTestcases(options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Login

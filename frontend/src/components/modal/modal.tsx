@@ -8,6 +8,9 @@ interface ModalProps {
   title: string
   children: ReactNode
   onSubmit?: () => void
+  submitText?: string
+  cancelText?: string
+  submitDisabled?: boolean
 }
 
 export default function Modal({ 
@@ -15,7 +18,10 @@ export default function Modal({
   onClose, 
   title, 
   children,
-  onSubmit 
+  onSubmit,
+  submitText = 'Submit',
+  cancelText = 'Cancel',
+  submitDisabled = false,
 }: ModalProps) {
   if (!isOpen) return null
 
@@ -30,11 +36,11 @@ export default function Modal({
         </div>
         <div className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {cancelText}
           </Button>
           {onSubmit && (
-            <Button onClick={onSubmit}>
-              Submit
+            <Button onClick={onSubmit} disabled={submitDisabled}>
+              {submitText}
             </Button>
           )}
         </div>

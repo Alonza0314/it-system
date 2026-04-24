@@ -1,13 +1,16 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
 configuration.ts
+docs/AddTestcasesRequest.md
 docs/DefaultApi.md
+docs/DeleteTestcasesRequest.md
+docs/GetTestcasesResponse.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/MessageResponse.md
+docs/Testcase.md
 git_push.sh
 index.ts

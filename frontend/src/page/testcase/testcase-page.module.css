@@ -1,0 +1,101 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: #0f172a;
+}
+
+.header p {
+  margin: 0.35rem 0 0;
+  color: #475569;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid #dbe5f0;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+.table th,
+.table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: top;
+}
+
+.table th {
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 0.88rem;
+}
+
+.empty {
+  text-align: center;
+  color: #64748b;
+}
+
+.link {
+  color: #1d4ed8;
+  word-break: break-all;
+}
+
+.muted {
+  color: #94a3b8;
+}
+
+.modalQuestion {
+  margin: 0 0 1rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.formGroup {
+  margin-bottom: 0.85rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+@media (max-width: 900px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
