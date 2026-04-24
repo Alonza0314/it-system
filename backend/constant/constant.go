@@ -7,6 +7,7 @@ const (
 	BCK_LOG  = "BCK"
 	PROC_LOG = "PROC"
 	TEST_LOG = "TEST"
+	TNT_LOG  = "TNT"
 )
 
 // user level

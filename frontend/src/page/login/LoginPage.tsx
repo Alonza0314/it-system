@@ -25,6 +25,7 @@ export default function LoginPage() {
       const response = await api.login({ username, password })
       const token = response.data.token || ''
       localStorage.setItem('token', token)
+      localStorage.setItem('username', username.trim())
       addSuccess(response.data.message || 'Login successful')
       navigate('/', { replace: true })
     } catch (error: unknown) {

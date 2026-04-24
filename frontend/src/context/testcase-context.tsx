@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { Configuration, DefaultApi, type Testcase } from '../api'
+import { getUserHeader } from '../utils/auth'
 
 interface AddTestcasePayload {
   name: string
@@ -50,7 +51,9 @@ export function TestcaseProvider({ children }: { children: ReactNode }) {
     setIsLoading(true)
 
     try {
-      const response = await api.getTestcases()
+      const response = await api.getTestcases({
+        headers: getUserHeader(),
+      })
       setTestcases(response.data.testcases || [])
       setHasLoaded(true)
     } catch (error: unknown) {
@@ -71,9 +74,13 @@ export function TestcaseProvider({ children }: { children: ReactNode }) {
             link: payload.link,
           },
         ],
+      }, {
+        headers: getUserHeader(),
       })
 
-      const refreshResponse = await api.getTestcases()
+      const refreshResponse = await api.getTestcases({
+        headers: getUserHeader(),
+      })
       setTestcases(refreshResponse.data.testcases || [])
       setHasLoaded(true)
 
@@ -95,9 +102,13 @@ export function TestcaseProvider({ children }: { children: ReactNode }) {
             name,
           },
         ],
+      }, {
+        headers: getUserHeader(),
       })
 
-      const refreshResponse = await api.getTestcases()
+      const refreshResponse = await api.getTestcases({
+        headers: getUserHeader(),
+      })
       setTestcases(refreshResponse.data.testcases || [])
       setHasLoaded(true)
 

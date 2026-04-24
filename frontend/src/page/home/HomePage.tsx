@@ -1,23 +1,39 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTestcaseContext } from '../../context/testcase-context'
+import { useTenantContext } from '../../context/tenant-context'
 import styles from './home-page.module.css'
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const { testcases, hasLoaded, isLoading, refreshTestcases } = useTestcaseContext()
+  const { testcases, isLoading, refreshTestcases } = useTestcaseContext()
+  const {
+    tenants,
+    isLoading: isTenantLoading,
+    hasNoPermission,
+    refreshTenants,
+  } = useTenantContext()
 
-  const testcaseCountLabel = isLoading && !hasLoaded ? 'Loading...' : `${testcases.length}`
+  const testcaseCountLabel = isLoading
+    ? 'Loading...'
+    : `${testcases.length}`
+  const tenantCountLabel = isTenantLoading
+    ? 'Loading...'
+    : hasNoPermission
+      ? 'No Access'
+      : `${tenants.length}`
 
   async function handleRefresh() {
-    await refreshTestcases()
+    await Promise.all([
+      refreshTestcases(),
+      refreshTenants(),
+    ])
   }
 
   useEffect(() => {
-    if (!hasLoaded) {
-      refreshTestcases().catch(() => undefined)
-    }
-  }, [hasLoaded, refreshTestcases])
+    refreshTestcases().catch(() => undefined)
+    refreshTenants().catch(() => undefined)
+  }, [refreshTestcases, refreshTenants])
 
   return (
     <section className={styles.dashboard}>
@@ -29,22 +45,27 @@ export default function HomePage() {
       </header>
 
       <section className={styles.cardGrid}>
-        <article className={styles.card}>
-          <h3>Total Testcases</h3>
-          <p className={styles.metric}>{testcaseCountLabel}</p>
-        </article>
+        <button
+          type="button"
+          className={styles.cardButton}
+          onClick={() => navigate('/testcase')}
+        >
+          <article className={styles.card}>
+            <h3>Testcases</h3>
+            <p className={styles.metric}>{testcaseCountLabel}</p>
+          </article>
+        </button>
 
-        <article className={styles.card}>
-          <h3>Manage Testcases</h3>
-          <p>View, add, and delete testcases in one place.</p>
-          <button
-            type="button"
-            className={styles.linkButton}
-            onClick={() => navigate('/testcase')}
-          >
-            Go to Testcase Page
-          </button>
-        </article>
+        <button
+          type="button"
+          className={styles.cardButton}
+          onClick={() => navigate('/tenant')}
+        >
+          <article className={styles.card}>
+            <h3>Tenants</h3>
+            <p className={styles.metric}>{tenantCountLabel}</p>
+          </article>
+        </button>
       </section>
     </section>
   )

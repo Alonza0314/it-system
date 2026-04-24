@@ -3,6 +3,7 @@ package processor
 import (
 	"backend/internal/context"
 	"backend/logger"
+	"backend/model"
 	"time"
 )
 
@@ -14,6 +15,8 @@ type Processor struct {
 	jwtExpiresIn time.Duration
 
 	itContext *context.ItContext
+
+	tmpTenants []model.Tenant
 
 	*logger.BackendLogger
 }
@@ -27,6 +30,8 @@ func NewProcessor(username, password string, jwtSecret string, jwtExpiresIn time
 		jwtExpiresIn: jwtExpiresIn,
 
 		itContext: context.NewItContext(),
+
+		tmpTenants: make([]model.Tenant, 0),
 
 		BackendLogger: logger,
 	}

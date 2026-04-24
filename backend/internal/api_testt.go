@@ -37,7 +37,7 @@ func (b *backend) getAdminTestRoutes() util.Routes {
 }
 
 func (b *backend) handleGetTestcases(c *gin.Context) {
-	b.TestLog.Infof("Get testcases request from %s", c.ClientIP())
+	b.TestLog.Infof("Get testcases request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
 
 	response, errDetail := b.Processor.GetTestcases()
 	if errDetail != nil {
@@ -52,7 +52,7 @@ func (b *backend) handleGetTestcases(c *gin.Context) {
 }
 
 func (b *backend) handleAddTestcases(c *gin.Context) {
-	b.TestLog.Infof("Add testcases request from %s", c.ClientIP())
+	b.TestLog.Infof("Add testcases request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
 
 	var req model.RequestAddTestcases
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,7 +77,7 @@ func (b *backend) handleAddTestcases(c *gin.Context) {
 }
 
 func (b *backend) handleDeleteTestcases(c *gin.Context) {
-	b.TestLog.Infof("Delete testcases request from %s", c.ClientIP())
+	b.TestLog.Infof("Delete testcases request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
 
 	var req model.RequestDeleteTestcases
 	if err := c.ShouldBindJSON(&req); err != nil {

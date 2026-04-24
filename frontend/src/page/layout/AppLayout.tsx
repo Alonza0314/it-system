@@ -7,6 +7,7 @@ export default function AppLayout() {
 
   function handleLogout() {
     localStorage.removeItem('token')
+    localStorage.removeItem('username')
     navigate('/login', { replace: true })
   }
 
@@ -30,6 +31,12 @@ export default function AppLayout() {
               className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
             >
               Testcase
+            </NavLink>
+            <NavLink
+              to="/tenant"
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
+              Tenant
             </NavLink>
           </nav>
         </div>

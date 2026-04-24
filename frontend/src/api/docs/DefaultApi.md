@@ -4,11 +4,67 @@ All URIs are relative to *http://127.0.0.1:5000*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**addTenants**](#addtenants) | **POST** /api/admin/tenant | Add tenants|
 |[**addTestcases**](#addtestcases) | **POST** /api/admin/test/testcase | Add testcases|
+|[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
 |[**deleteTestcases**](#deletetestcases) | **DELETE** /api/admin/test/testcase | Delete testcases|
+|[**getTenants**](#gettenants) | **GET** /api/admin/tenant | Get tenants|
 |[**getTestcases**](#gettestcases) | **GET** /api/test/testcase | Get testcases|
 |[**login**](#login) | **POST** /api/login | Login|
 |[**logout**](#logout) | **POST** /api/logout | Logout|
+
+# **addTenants**
+> MessageResponse addTenants(addTenantsRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    AddTenantsRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let addTenantsRequest: AddTenantsRequest; //
+
+const { status, data } = await apiInstance.addTenants(
+    addTenantsRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **addTenantsRequest** | **AddTenantsRequest**|  | |
+
+
+### Return type
+
+**MessageResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addTestcases**
 > MessageResponse addTestcases(addTestcasesRequest)
@@ -65,6 +121,59 @@ const { status, data } = await apiInstance.addTestcases(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **deleteTenants**
+> MessageResponse deleteTenants(deleteTenantsRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    DeleteTenantsRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let deleteTenantsRequest: DeleteTenantsRequest; //
+
+const { status, data } = await apiInstance.deleteTenants(
+    deleteTenantsRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **deleteTenantsRequest** | **DeleteTenantsRequest**|  | |
+
+
+### Return type
+
+**MessageResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **deleteTestcases**
 > MessageResponse deleteTestcases(deleteTestcasesRequest)
 
@@ -117,6 +226,51 @@ const { status, data } = await apiInstance.deleteTestcases(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getTenants**
+> GetTenantsResponse getTenants()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getTenants();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**GetTenantsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

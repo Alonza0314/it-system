@@ -1,17 +1,17 @@
 {
   "info": {
     "_postman_id": "6d012a3d-a758-400e-967d-8d01edd361e8",
-    "name": "full-stack-framework",
+    "name": "free5gc-it-system",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "51528375",
     "_collection_link": "https://go.postman.co/collection/51528375-6d012a3d-a758-400e-967d-8d01edd361e8?source=collection_link"
   },
   "item": [
     {
-      "name": "Account",
+      "name": "account",
       "item": [
         {
-          "name": "Login",
+          "name": "login",
           "event": [
             {
               "listen": "test",
@@ -20,7 +20,8 @@
                   "console.log(pm.response.json());",
                   "",
                   "var data = JSON.parse(responseBody);",
-                  "pm.globals.set(\"TOKEN\", data.token);"
+                  "pm.globals.set(\"TOKEN\", data.token);",
+                  ""
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -283,7 +284,20 @@
           ]
         },
         {
-          "name": "Logout",
+          "name": "logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.globals.clear(\"TOCKEN\")"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -338,6 +352,583 @@
               ],
               "cookie": [],
               "body": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tenant",
+      "item": [
+        {
+          "name": "tenant",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenant"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:12:30 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "132"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Tenants retrieved successfully\",\n    \"tenants\": [\n        {\n            \"username\": \"alonza\",\n            \"role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"role\": \"default\"\n        }\n    ]\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 02:59:07 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "93"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:03:11 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "35"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Admin access required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "tenant",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenant"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:12:12 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "40"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Tenants added successfully\"\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 02:59:34 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "93"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:03:18 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "35"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Admin access required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "tenant",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "tenant"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:12:42 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "42"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Tenants deleted successfully\"\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:01:52 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "93"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 24 Apr 2026 03:03:29 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "35"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Admin access required\"\n}"
             }
           ]
         }
@@ -1180,7 +1771,11 @@
           "    key: \"Authorization\",",
           "    value: `Bearer ${token}`",
           "});",
-          ""
+          "",
+          "pm.request.headers.add({",
+          "    key: \"user\",",
+          "    value: \"admin\",",
+          "})"
         ]
       }
     },

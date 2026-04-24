@@ -23,11 +23,21 @@ import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
+export interface AddTenantsRequest {
+    'tenants': Array<Tenant>;
+}
 export interface AddTestcasesRequest {
     'testcases': Array<Testcase>;
 }
+export interface DeleteTenantsRequest {
+    'tenants': Array<Tenant>;
+}
 export interface DeleteTestcasesRequest {
     'testcases': Array<Testcase>;
+}
+export interface GetTenantsResponse {
+    'message': string;
+    'tenants'?: Array<Tenant>;
 }
 export interface GetTestcasesResponse {
     'message': string;
@@ -44,6 +54,10 @@ export interface LoginResponse {
 export interface MessageResponse {
     'message'?: string;
 }
+export interface Tenant {
+    'username': string;
+    'role': string;
+}
 export interface Testcase {
     'name': string;
     'link'?: string;
@@ -54,6 +68,45 @@ export interface Testcase {
  */
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @summary Add tenants
+         * @param {AddTenantsRequest} addTenantsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addTenants: async (addTenantsRequest: AddTenantsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'addTenantsRequest' is not null or undefined
+            assertParamExists('addTenants', 'addTenantsRequest', addTenantsRequest)
+            const localVarPath = `/api/admin/tenant`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addTenantsRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Add testcases
@@ -95,6 +148,45 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Delete tenants
+         * @param {DeleteTenantsRequest} deleteTenantsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteTenants: async (deleteTenantsRequest: DeleteTenantsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'deleteTenantsRequest' is not null or undefined
+            assertParamExists('deleteTenants', 'deleteTenantsRequest', deleteTenantsRequest)
+            const localVarPath = `/api/admin/tenant`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deleteTenantsRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Delete testcases
          * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
          * @param {*} [options] Override http request option.
@@ -126,6 +218,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(deleteTestcasesRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get tenants
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTenants: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/tenant`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -241,6 +367,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Add tenants
+         * @param {AddTenantsRequest} addTenantsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addTenants(addTenantsRequest: AddTenantsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addTenants(addTenantsRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.addTenants']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Add testcases
          * @param {AddTestcasesRequest} addTestcasesRequest 
          * @param {*} [options] Override http request option.
@@ -254,6 +393,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Delete tenants
+         * @param {DeleteTenantsRequest} deleteTenantsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteTenants(deleteTenantsRequest: DeleteTenantsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTenants(deleteTenantsRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteTenants']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Delete testcases
          * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
          * @param {*} [options] Override http request option.
@@ -263,6 +415,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTestcases(deleteTestcasesRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteTestcases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get tenants
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getTenants(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetTenantsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTenants(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getTenants']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -313,6 +477,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     return {
         /**
          * 
+         * @summary Add tenants
+         * @param {AddTenantsRequest} addTenantsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addTenants(addTenantsRequest: AddTenantsRequest, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.addTenants(addTenantsRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Add testcases
          * @param {AddTestcasesRequest} addTestcasesRequest 
          * @param {*} [options] Override http request option.
@@ -323,6 +497,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Delete tenants
+         * @param {DeleteTenantsRequest} deleteTenantsRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteTenants(deleteTenantsRequest: DeleteTenantsRequest, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.deleteTenants(deleteTenantsRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Delete testcases
          * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
          * @param {*} [options] Override http request option.
@@ -330,6 +514,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteTestcases(deleteTestcasesRequest: DeleteTestcasesRequest, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
             return localVarFp.deleteTestcases(deleteTestcasesRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get tenants
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTenants(options?: RawAxiosRequestConfig): AxiosPromise<GetTenantsResponse> {
+            return localVarFp.getTenants(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -368,6 +561,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
 export class DefaultApi extends BaseAPI {
     /**
      * 
+     * @summary Add tenants
+     * @param {AddTenantsRequest} addTenantsRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addTenants(addTenantsRequest: AddTenantsRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).addTenants(addTenantsRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Add testcases
      * @param {AddTestcasesRequest} addTestcasesRequest 
      * @param {*} [options] Override http request option.
@@ -379,6 +583,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Delete tenants
+     * @param {DeleteTenantsRequest} deleteTenantsRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteTenants(deleteTenantsRequest: DeleteTenantsRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteTenants(deleteTenantsRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Delete testcases
      * @param {DeleteTestcasesRequest} deleteTestcasesRequest 
      * @param {*} [options] Override http request option.
@@ -386,6 +601,16 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteTestcases(deleteTestcasesRequest: DeleteTestcasesRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteTestcases(deleteTestcasesRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get tenants
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getTenants(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getTenants(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

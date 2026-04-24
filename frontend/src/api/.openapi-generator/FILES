@@ -4,13 +4,17 @@ api.ts
 base.ts
 common.ts
 configuration.ts
+docs/AddTenantsRequest.md
 docs/AddTestcasesRequest.md
 docs/DefaultApi.md
+docs/DeleteTenantsRequest.md
 docs/DeleteTestcasesRequest.md
+docs/GetTenantsResponse.md
 docs/GetTestcasesResponse.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/MessageResponse.md
+docs/Tenant.md
 docs/Testcase.md
 git_push.sh
 index.ts

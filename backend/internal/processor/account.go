@@ -20,7 +20,9 @@ func (p *Processor) Login(req *model.RequestLogin) (*model.ResponseLogin, *model
 		}
 	}
 
-	claims := map[string]interface{}{}
+	claims := map[string]interface{}{
+		"user": req.Username,
+	}
 	if req.Username == constant.USER_LEVEL_ADMIN {
 		claims[constant.USER_LEVEL_CLAIM_TAG] = constant.USER_LEVEL_ADMIN
 	} else {

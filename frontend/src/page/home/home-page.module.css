@@ -16,8 +16,7 @@
   color: #0f172a;
 }
 
-.refreshButton,
-.linkButton {
+.refreshButton {
   border: 0;
   border-radius: 8px;
   padding: 0.55rem 0.85rem;
@@ -40,12 +39,26 @@
   gap: 1rem;
 }
 
+.cardButton {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
 .card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 1rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.cardButton:hover .card {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
 }
 
 .card h3 {
@@ -62,16 +75,6 @@
   font-size: clamp(2rem, 5vw, 2.8rem);
   font-weight: 800;
   color: #0f172a;
-}
-
-.linkButton {
-  margin-top: 0.8rem;
-  background: #1d4ed8;
-  color: #ffffff;
-}
-
-.linkButton:hover {
-  background: #1e40af;
 }
 
 @media (max-width: 900px) {
