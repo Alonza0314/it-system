@@ -33,6 +33,12 @@ export default function AppLayout() {
               Testcase
             </NavLink>
             <NavLink
+              to="/test"
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
+              Test
+            </NavLink>
+            <NavLink
               to="/tenant"
               className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
             >

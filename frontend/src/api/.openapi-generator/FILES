@@ -9,11 +9,14 @@ docs/AddTestcasesRequest.md
 docs/DefaultApi.md
 docs/DeleteTenantsRequest.md
 docs/DeleteTestcasesRequest.md
+docs/GetGithubPRsResponse.md
 docs/GetTenantsResponse.md
 docs/GetTestcasesResponse.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/MessageResponse.md
+docs/NfPRs.md
+docs/PR.md
 docs/Tenant.md
 docs/Testcase.md
 git_push.sh

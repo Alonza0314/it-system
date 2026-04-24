@@ -4,11 +4,13 @@ import "backend/model"
 
 type ItContext struct {
 	testcaseContext *testcaseContext
+	githubContext   *githubContext
 }
 
 func NewItContext() *ItContext {
 	return &ItContext{
 		testcaseContext: newTestcaseContext(),
+		githubContext:   newGithubContext(),
 	}
 }
 
@@ -26,4 +28,8 @@ func (ctx *ItContext) AddTestcases(testcases []testcase) error {
 
 func (ctx *ItContext) DeleteTestcases(testcases []testcase) error {
 	return ctx.testcaseContext.deleteTestcases(testcases)
+}
+
+func (ctx *ItContext) GetPrList() ([]nf, error) {
+	return ctx.githubContext.getPrList()
 }

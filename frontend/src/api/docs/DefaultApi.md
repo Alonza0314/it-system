@@ -8,6 +8,7 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**addTestcases**](#addtestcases) | **POST** /api/admin/test/testcase | Add testcases|
 |[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
 |[**deleteTestcases**](#deletetestcases) | **DELETE** /api/admin/test/testcase | Delete testcases|
+|[**getGithubPRs**](#getgithubprs) | **GET** /api/github | Get Github PRs|
 |[**getTenants**](#gettenants) | **GET** /api/admin/tenant | Get tenants|
 |[**getTestcases**](#gettestcases) | **GET** /api/test/testcase | Get testcases|
 |[**login**](#login) | **POST** /api/login | Login|
@@ -225,6 +226,51 @@ const { status, data } = await apiInstance.deleteTestcases(
 |**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getGithubPRs**
+> GetGithubPRsResponse getGithubPRs()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getGithubPRs();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**GetGithubPRsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

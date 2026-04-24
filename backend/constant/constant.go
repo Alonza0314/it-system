@@ -8,6 +8,7 @@ const (
 	PROC_LOG = "PROC"
 	TEST_LOG = "TEST"
 	TNT_LOG  = "TNT"
+	GIT_LOG  = "GIT"
 )
 
 // user level
@@ -16,3 +17,24 @@ const (
 	USER_LEVEL_ADMIN     = "admin"
 	USER_LEVEL_DEFAULT   = "default"
 )
+
+// github
+const (
+	GITHUB_FREE5GC_BASE_API_URL = "https://api.github.com/repos/free5gc/%s/pulls"
+	AMF                         = "amf"
+	AUSF                        = "ausf"
+	BSF                         = "bsf"
+	CHF                         = "chf"
+	N3IWF                       = "n3iwf"
+	NEF                         = "nef"
+	NRF                         = "nrf"
+	NSSF                        = "nssf"
+	PCF                         = "pcf"
+	SMF                         = "smf"
+	TNGF                        = "tngf"
+	UDM                         = "udm"
+	UDR                         = "udr"
+	UPF                         = "go-upf"
+)
+
+var NF_LIST = []string{AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNGF, UDM, UDR, UPF}

@@ -139,8 +139,11 @@ func addServices(router *gin.Engine, b *backend) {
 	adminTestGroup := adminGroup.Group("/test")
 	addRoutes(adminTestGroup, b.getAdminTestRoutes())
 
-	adminTenantRoutes := adminGroup.Group("/tenant")
-	addRoutes(adminTenantRoutes, b.getAdminTenantRoutes())
+	adminTenantGroup := adminGroup.Group("/tenant")
+	addRoutes(adminTenantGroup, b.getAdminTenantRoutes())
+
+	githubGroup := authGroup.Group("/github")
+	addRoutes(githubGroup, b.getGithubRoutes())
 }
 
 func addRoutes(group *gin.RouterGroup, routes util.Routes) {

@@ -6,6 +6,7 @@ import TestcasePage from './page/testcase/TestcasePage'
 import { TestcaseProvider } from './context/testcase-context'
 import { TenantProvider } from './context/tenant-context'
 import TenantPage from './page/tenant/TenantPage'
+import TestPage from './page/test/TestPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
@@ -33,6 +34,7 @@ export default function App() {
             <Route index element={<HomePage />} />
             <Route path="testcase" element={<TestcasePage />} />
             <Route path="tenant" element={<TenantPage />} />
+            <Route path="test" element={<TestPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
