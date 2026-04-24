@@ -1,8 +1,8 @@
-# full-stack-framework
+# free5GC Integration Test System
 
-This is framework project for quickly build a website with full-stack (React + go).
+A free5GC developer friendly integration test system.
 
-## Develop Environment
+## System Environment
 
 | DevOpts | Version |
 | - | - |
