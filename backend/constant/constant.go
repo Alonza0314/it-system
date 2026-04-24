@@ -6,9 +6,12 @@ const (
 	ACC_LOG  = "ACC"
 	BCK_LOG  = "BCK"
 	PROC_LOG = "PROC"
+	TEST_LOG = "TEST"
 )
 
-// api prefix
+// user level
 const (
-	API_PREFIX = "/api"
+	USER_LEVEL_CLAIM_TAG = "user_level"
+	USER_LEVEL_ADMIN     = "admin"
+	USER_LEVEL_DEFAULT   = "default"
 )

@@ -1,7 +1,9 @@
 package processor
 
 import (
+	"backend/constant"
 	"backend/model"
+	"fmt"
 	"net/http"
 
 	"github.com/free-ran-ue/util"
@@ -17,12 +19,19 @@ func (p *Processor) Login(req *model.RequestLogin) (*model.ResponseLogin, *model
 		}
 	}
 
-	token, err := util.CreateJWT(p.jwtSecret, req.Username, p.jwtExpiresIn, nil)
+	claims := map[string]interface{}{}
+	if req.Username == constant.USER_LEVEL_ADMIN {
+		claims[constant.USER_LEVEL_CLAIM_TAG] = constant.USER_LEVEL_ADMIN
+	} else {
+		claims[constant.USER_LEVEL_CLAIM_TAG] = constant.USER_LEVEL_DEFAULT
+	}
+
+	token, err := util.CreateJWT(p.jwtSecret, req.Username, p.jwtExpiresIn, claims)
 	if err != nil {
 		p.ProcLog.Errorf("Failed to create JWT for username %s: %v", req.Username, err)
 		return nil, &model.ErrorDetail{
 			HttpStatus: http.StatusInternalServerError,
-			Detail:     "Failed to create JWT",
+			Detail:     fmt.Sprintf("Failed to create JWT for username %s: %v", req.Username, err),
 		}
 	}
 

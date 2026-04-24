@@ -2,7 +2,6 @@ package internal
 
 import (
 	"backend/config"
-	"backend/constant"
 	"backend/internal/processor"
 	"backend/logger"
 	"context"
@@ -62,9 +61,10 @@ func NewBackend(config *config.Config, logger *logger.BackendLogger) *backend {
 		BackendLogger: logger,
 	}
 
-	b.router = util.NewGinRouter(constant.API_PREFIX, b.iniRoutes())
+	b.router = util.NewGinRouter("", nil)
 	b.router.NoRoute(b.returnPages())
 
+	addServices(b.router, b)
 	addMiddleware(b.router)
 
 	return b
@@ -120,10 +120,40 @@ func (b *backend) Stop() {
 	}
 }
 
-func (b *backend) iniRoutes() util.Routes {
-	routes := make(util.Routes, 0)
+func addServices(router *gin.Engine, b *backend) {
+	router.RedirectTrailingSlash = false
 
-	routes = append(routes, b.getAccountRoutes()...)
+	apiGroup := router.Group("/api")
 
-	return routes
+	authGroup := apiGroup.Group("")
+	authGroup.Use(addAuthMiddleware(b))
+
+	adminGroup := apiGroup.Group("/admin")
+	adminGroup.Use(addAdminAuthMiddleware(b))
+
+	accountGroup := apiGroup.Group("")
+	addRoutes(accountGroup, b.getAccountRoutes())
+
+	testGroup := authGroup.Group("/test")
+	addRoutes(testGroup, b.getTestRoutes())
+	adminTestGroup := adminGroup.Group("/test")
+	addRoutes(adminTestGroup, b.getAdminTestRoutes())
+
+}
+
+func addRoutes(group *gin.RouterGroup, routes util.Routes) {
+	for _, route := range routes {
+		switch route.Method {
+		case "GET":
+			group.GET(route.Pattern, route.HandlerFunc)
+		case "POST":
+			group.POST(route.Pattern, route.HandlerFunc)
+		case "PUT":
+			group.PUT(route.Pattern, route.HandlerFunc)
+		case "DELETE":
+			group.DELETE(route.Pattern, route.HandlerFunc)
+		case "PATCH":
+			group.PATCH(route.Pattern, route.HandlerFunc)
+		}
+	}
 }

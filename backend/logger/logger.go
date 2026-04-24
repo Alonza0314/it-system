@@ -15,6 +15,7 @@ type BackendLogger struct {
 	AccLog  loggergoModel.LoggerInterface
 	BckLog  loggergoModel.LoggerInterface
 	ProcLog loggergoModel.LoggerInterface
+	TestLog loggergoModel.LoggerInterface
 }
 
 func NewBackendLogger(level loggergoUtil.LogLevelString, filePath string, debugMode bool) *BackendLogger {
@@ -28,5 +29,6 @@ func NewBackendLogger(level loggergoUtil.LogLevelString, filePath string, debugM
 		AccLog:  logger.WithTags(constant.ACC_LOG),
 		BckLog:  logger.WithTags(constant.BCK_LOG),
 		ProcLog: logger.WithTags(constant.PROC_LOG),
+		TestLog: logger.WithTags(constant.TEST_LOG),
 	}
 }
