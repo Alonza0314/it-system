@@ -13,9 +13,8 @@ func (p *Processor) GetTenants() (*model.ResponseGetTenants, *model.ErrorDetail)
 
 func (p *Processor) AddTenant(req *model.RequestAddTenant) (*model.ResponseAddTenant, *model.ErrorDetail) {
 	// TODO: Replace with real logic to add tenant, e.g., to a database
-	for _, tenant := range req.Tenants {
-		p.tmpTenants = append(p.tmpTenants, tenant)
-	}
+	p.tmpTenants = append(p.tmpTenants, req.Tenants...)
+
 	response := &model.ResponseAddTenant{
 		Message: "Tenants added successfully",
 	}
