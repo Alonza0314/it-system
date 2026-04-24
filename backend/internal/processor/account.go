@@ -12,6 +12,7 @@ import (
 func (p *Processor) Login(req *model.RequestLogin) (*model.ResponseLogin, *model.ErrorDetail) {
 	p.ProcLog.Debugf("Processing login for username: %s", req.Username)
 
+	// TODO: Replace with real authentication logic, e.g., check against a database
 	if req.Username != p.username || req.Password != p.password {
 		return nil, &model.ErrorDetail{
 			HttpStatus: http.StatusUnauthorized,
