@@ -55,3 +55,7 @@ And run:
         └─/test
             └─/testcase(POST, DELETE)
 ```
+
+## Test Flow
+
+![testFlow](./image/testFlow.png)
