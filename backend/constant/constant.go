@@ -9,6 +9,7 @@ const (
 	TEST_LOG = "TEST"
 	TNT_LOG  = "TNT"
 	GIT_LOG  = "GIT"
+	RUN_LOG  = "RUN"
 )
 
 // user level
@@ -45,13 +46,21 @@ const (
 	BUCKET_TENANT   = "tenant"
 	BUCKET_TESTCASE = "testcase"
 	BUCKET_TASK_ID  = "taskId"
+	BUCKET_RUNNER   = "runner"
 )
 
 // task status
 const (
-	TASK_STATUS_PENDING   = "pending"
-	TASK_STATUS_RUNNING   = "running"
-	TASK_STATUS_SUCCESS   = "success"
-	TASK_STATUS_FAILED    = "failed"
-	TASK_STATUS_CANCELED  = "canceled"
+	TASK_STATUS_PENDING  = "pending"
+	TASK_STATUS_RUNNING  = "running"
+	TASK_STATUS_SUCCESS  = "success"
+	TASK_STATUS_FAILED   = "failed"
+	TASK_STATUS_CANCELED = "canceled"
+)
+
+// runner status
+const (
+	RUNNER_STATUS_OFFLINE = "offline"
+	RUNNER_STATUS_IDLE    = "idle"
+	RUNNER_STATUS_RUNNING = "running"
 )

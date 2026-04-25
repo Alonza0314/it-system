@@ -1,0 +1,80 @@
+package internal
+
+import (
+	"backend/model"
+	"net/http"
+
+	"github.com/free-ran-ue/util"
+	"github.com/gin-gonic/gin"
+)
+
+func (b *backend) getRunnerRoutes() util.Routes {
+	return util.Routes{
+		{
+			Name:        "Register Runner",
+			Method:      http.MethodPost,
+			Pattern:     "",
+			HandlerFunc: b.handleRegisterRunner,
+		},
+		{
+			Name:        "Delete Runner",
+			Method:      http.MethodDelete,
+			Pattern:     "",
+			HandlerFunc: b.handleDeleteRunner,
+		},
+	}
+}
+
+func (b *backend) getAdminRunnerRoutes() util.Routes {
+	return util.Routes{}
+}
+
+func (b *backend) handleRegisterRunner(c *gin.Context) {
+	b.RunLog.Infof("Register Runner request from %s", c.ClientIP())
+
+	var req model.RequestRegisterRunner
+	if err := c.ShouldBindJSON(&req); err != nil {
+		b.RunLog.Warnf("Invalid request body from %s: %v", c.ClientIP(), err)
+		c.JSON(http.StatusBadRequest, model.ResponseRegisterRunner{
+			Message: "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	response, errDetail := b.Processor.RegisterRunner(&req)
+	if errDetail != nil {
+		b.RunLog.Errorf("Register Runner failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseRegisterRunner{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.RunLog.Infof("Register Runner successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleDeleteRunner(c *gin.Context) {
+	b.RunLog.Infof("Delete Runner request from %s", c.ClientIP())
+
+	runnerName := c.Query("name")
+	if runnerName == "" {
+		b.RunLog.Warnf("Runner name is empty for delete request from %s", c.ClientIP())
+		c.JSON(http.StatusBadRequest, model.ResponseDeleteRunner{
+			Message: "Runner name is required",
+		})
+		return
+	}
+
+	response, errDetail := b.Processor.DeleteRunner(runnerName)
+	if errDetail != nil {
+		b.RunLog.Errorf("Delete Runner failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseDeleteRunner{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.RunLog.Infof("Delete Runner successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}

@@ -15,6 +15,8 @@ type BackendIE struct {
 
 	JWT JWTIE `yaml:"jwt" valid:"required"`
 
+	RunnerCheckTimeInterval time.Duration `yaml:"runnerCheckTimeInterval" valid:"required"`
+
 	FrontendFilePath string `yaml:"frontendFilePath" valid:"required"`
 
 	DBPath string `yaml:"dbPath" valid:"required"`

@@ -56,7 +56,7 @@ func NewBackend(config *config.Config, logger *logger.BackendLogger) *backend {
 
 		frontendFilePath: config.Backend.FrontendFilePath,
 
-		Processor: *processor.NewProcessor(config.Backend.Username, config.Backend.Password, config.Backend.DBPath, config.Backend.JWT.Secret, config.Backend.JWT.ExpiresIn, logger),
+		Processor: *processor.NewProcessor(config.Backend.Username, config.Backend.Password, config.Backend.DBPath, config.Backend.JWT.Secret, config.Backend.JWT.ExpiresIn, config.Backend.RunnerCheckTimeInterval, logger),
 
 		BackendLogger: logger,
 	}
@@ -150,6 +150,11 @@ func addServices(router *gin.Engine, b *backend) {
 
 	githubGroup := authGroup.Group("/github")
 	addRoutes(githubGroup, b.getGithubRoutes())
+
+	runnerGroup := authGroup.Group("/runner")
+	addRoutes(runnerGroup, b.getRunnerRoutes())
+	adminRunnerGroup := adminGroup.Group("/runner")
+	addRoutes(adminRunnerGroup, b.getAdminRunnerRoutes())
 }
 
 func addRoutes(group *gin.RouterGroup, routes util.Routes) {

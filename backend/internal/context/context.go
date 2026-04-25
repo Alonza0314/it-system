@@ -3,25 +3,33 @@ package context
 import (
 	"backend/constant"
 	"backend/model"
+	"time"
 )
 
 type ItContext struct {
 	githubContext  *githubContext
 	bboltDbContext *bboltDbContext
 	taskContext    *taskContext
+	runnerContext  *runnerContext
 }
 
-func NewItContext(dbPath string) *ItContext {
+func NewItContext(dbPath string, runnerCheckTimeInterval time.Duration) *ItContext {
 	dbContext := newBboltDbContext(dbPath)
+
 	return &ItContext{
 		githubContext:  newGithubContext(),
 		bboltDbContext: dbContext,
 		taskContext:    newTaskContext(dbContext),
+		runnerContext:  newRunnerContext(dbContext, runnerCheckTimeInterval),
 	}
 }
 
 func ReleaseItContext(ctx *ItContext) error {
 	if err := releaseBboltDbContext(ctx.bboltDbContext); err != nil {
+		return err
+	}
+
+	if err := releaseRunnerContext(ctx.runnerContext); err != nil {
 		return err
 	}
 
@@ -89,6 +97,18 @@ func (ctx *ItContext) CreateTask(username string, createTime int64, tests []stri
 
 func (ctx *ItContext) CancelTask(id uint64) error {
 	return ctx.taskContext.cancelTask(id)
+}
+
+func (ctx *ItContext) RunnerExists(name string) bool {
+	return ctx.runnerContext.runnerExists(name)
+}
+
+func (ctx *ItContext) RegisterRunner(name, ip string) error {
+	return ctx.runnerContext.registerRunner(name, ip)
+}
+
+func (ctx *ItContext) DeleteRunner(name string) error {
+	return ctx.runnerContext.deleteRunner(name)
 }
 
 func convertTaskToResponseTask(tasks []task) []model.TaskSimple {

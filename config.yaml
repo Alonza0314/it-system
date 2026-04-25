@@ -7,6 +7,8 @@ backend:
   jwt:
     secret: "full-stack-framework"
     expiresIn: 1h
+  
+  runnerCheckTimeInterval: 30s
 
   frontendFilePath: "build/frontend"
 

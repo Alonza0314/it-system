@@ -124,7 +124,7 @@ func (p *Processor) GetTask(id uint64) (*model.ResponseGetTask, *model.ErrorDeta
 	if err != nil {
 		return nil, &model.ErrorDetail{
 			HttpStatus: http.StatusNotFound,
-			Detail:     err.Error(),
+			Detail:     fmt.Sprintf("Task with ID %d not found", id),
 		}
 	}
 
