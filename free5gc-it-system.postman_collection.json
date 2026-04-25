@@ -543,6 +543,59 @@
               ],
               "cookie": [],
               "body": "{\n    \"message\": \"Admin access required\"\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 14:08:41 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "67"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Failed to load tenants from database: <nil>\"\n}"
             }
           ]
         },
@@ -746,6 +799,122 @@
               ],
               "cookie": [],
               "body": "{\n    \"message\": \"Admin access required\"\n}"
+            },
+            {
+              "name": "409",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 14:09:55 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "42"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Tenant alonza already exists\"\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 14:08:54 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "82"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Failed to check if tenant alonza exists in database: <nil>\"\n}"
             }
           ]
         },
@@ -929,6 +1098,112 @@
               ],
               "cookie": [],
               "body": "{\n    \"message\": \"Admin access required\"\n}"
+            },
+            {
+              "name": "404",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 14:10:21 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "37"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Tenant alonza not found\"\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "tenant"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 14:09:09 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "82"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Failed to check if tenant alonza exists in database: <nil>\"\n}"
             }
           ]
         }
@@ -1369,6 +1644,65 @@
                   "body": "{\n    \"message\": \"Admin access required\"\n}"
                 },
                 {
+                  "name": "409",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/testcase",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "admin",
+                        "test",
+                        "testcase"
+                      ]
+                    }
+                  },
+                  "status": "Conflict",
+                  "code": 409,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 14:53:00 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "44"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Testcase test-1 already exists\"\n}"
+                },
+                {
                   "name": "500",
                   "originalRequest": {
                     "method": "POST",
@@ -1435,7 +1769,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\"\n        }\n    ]\n}",
+                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\"\n        },\n        {\n            \"name\": \"test-2\"\n        }\n    ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1688,6 +2022,65 @@
                   ],
                   "cookie": [],
                   "body": "{\n    \"message\": \"Admin access required\"\n}"
+                },
+                {
+                  "name": "404",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\"\n        }\n    ]\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/testcase",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "admin",
+                        "test",
+                        "testcase"
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 14:53:19 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "39"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Testcase test-1 not found\"\n}"
                 },
                 {
                   "name": "500",

@@ -114,6 +114,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '500':
           description: Internal Server Error
           content:
@@ -157,6 +163,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '500':
           description: Internal Server Error
           content:
@@ -185,6 +197,12 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -220,6 +238,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
 
     delete:
       summary: Delete tenants
@@ -247,6 +277,18 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
           content:
             application/json:
               schema:
