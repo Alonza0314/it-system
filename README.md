@@ -54,9 +54,11 @@ And run:
     │   └─/tasks(GET)
     │   └─/task(GET, POST, DELETE)
     └─/github(GET)
+    └─/runner(POST)
     └─/admin
         └─/test
-            └─/testcase(POST, DELETE)
+        │  └─/testcase(POST, DELETE)
+        └─/runner(DELETE)
 ```
 
 ## Test Flow
