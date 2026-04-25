@@ -28,7 +28,7 @@ func newGithubContext() *githubContext {
 	return &githubContext{}
 }
 
-func (gCtx *githubContext) getPrList(nf string) ([]pr, error) {
+func (ctx *githubContext) getPrList(nf string) ([]pr, error) {
 	apiUrl := fmt.Sprintf(constant.GITHUB_FREE5GC_BASE_API_URL, nf)
 	responseRaw, err := util.SendHttpRequest(apiUrl, http.MethodGet, nil, nil)
 	if err != nil {
