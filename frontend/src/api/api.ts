@@ -37,7 +37,7 @@ export interface DeleteTestcasesRequest {
 }
 export interface GetGithubPRsResponse {
     'message': string;
-    'nfs'?: Array<NfPRs>;
+    'prs': Array<PR>;
 }
 export interface GetTenantsResponse {
     'message': string;
@@ -57,10 +57,6 @@ export interface LoginResponse {
 }
 export interface MessageResponse {
     'message'?: string;
-}
-export interface NfPRs {
-    'name': string;
-    'prs'?: Array<PR>;
 }
 export interface PR {
     'number': number;
@@ -239,10 +235,13 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Get Github PRs
+         * @param {GetGithubPRsNfEnum} nf Target network function
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGithubPRs: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getGithubPRs: async (nf: GetGithubPRsNfEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'nf' is not null or undefined
+            assertParamExists('getGithubPRs', 'nf', nf)
             const localVarPath = `/api/github`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -258,6 +257,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (nf !== undefined) {
+                localVarQueryParameter['nf'] = nf;
+            }
 
             localVarHeaderParameter['Accept'] = 'application/json';
 
@@ -466,11 +469,12 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Get Github PRs
+         * @param {GetGithubPRsNfEnum} nf Target network function
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getGithubPRs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetGithubPRsResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getGithubPRs(options);
+        async getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetGithubPRsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getGithubPRs(nf, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getGithubPRs']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -576,11 +580,12 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Get Github PRs
+         * @param {GetGithubPRsNfEnum} nf Target network function
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGithubPRs(options?: RawAxiosRequestConfig): AxiosPromise<GetGithubPRsResponse> {
-            return localVarFp.getGithubPRs(options).then((request) => request(axios, basePath));
+        getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig): AxiosPromise<GetGithubPRsResponse> {
+            return localVarFp.getGithubPRs(nf, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -673,11 +678,12 @@ export class DefaultApi extends BaseAPI {
     /**
      * 
      * @summary Get Github PRs
+     * @param {GetGithubPRsNfEnum} nf Target network function
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getGithubPRs(options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getGithubPRs(options).then((request) => request(this.axios, this.basePath));
+    public getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getGithubPRs(nf, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -722,5 +728,22 @@ export class DefaultApi extends BaseAPI {
     }
 }
 
+export const GetGithubPRsNfEnum = {
+    Amf: 'amf',
+    Ausf: 'ausf',
+    Bsf: 'bsf',
+    Chf: 'chf',
+    N3iwf: 'n3iwf',
+    Nef: 'nef',
+    Nrf: 'nrf',
+    Nssf: 'nssf',
+    Pcf: 'pcf',
+    Smf: 'smf',
+    Tngf: 'tngf',
+    Udm: 'udm',
+    Udr: 'udr',
+    Upf: 'upf',
+} as const;
+export type GetGithubPRsNfEnum = typeof GetGithubPRsNfEnum[keyof typeof GetGithubPRsNfEnum];
 
 

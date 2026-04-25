@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **message** | **string** |  | [default to undefined]
-**nfs** | [**Array&lt;NfPRs&gt;**](NfPRs.md) |  | [optional] [default to undefined]
+**prs** | [**Array&lt;PR&gt;**](PR.md) |  | [default to undefined]
 
 ## Example
 
@@ -15,7 +15,7 @@ import { GetGithubPRsResponse } from './api';
 
 const instance: GetGithubPRsResponse = {
     message,
-    nfs,
+    prs,
 };
 ```
 

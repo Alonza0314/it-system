@@ -1769,13 +1769,19 @@
               "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
             },
             "url": {
-              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github",
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github?nf=amf",
               "host": [
                 "{{SHEMA}}{{BACKEND_URL}}"
               ],
               "path": [
                 "api",
                 "github"
+              ],
+              "query": [
+                {
+                  "key": "nf",
+                  "value": "amf"
+                }
               ]
             }
           },
@@ -1790,13 +1796,19 @@
                   "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
                 },
                 "url": {
-                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github",
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github?nf=amf",
                   "host": [
                     "{{SHEMA}}{{BACKEND_URL}}"
                   ],
                   "path": [
                     "api",
                     "github"
+                  ],
+                  "query": [
+                    {
+                      "key": "nf",
+                      "value": "amf"
+                    }
                   ]
                 }
               },
@@ -1822,15 +1834,73 @@
                 },
                 {
                   "key": "Date",
-                  "value": "Fri, 24 Apr 2026 09:28:17 GMT"
+                  "value": "Sat, 25 Apr 2026 12:43:59 GMT"
                 },
                 {
-                  "key": "Transfer-Encoding",
-                  "value": "chunked"
+                  "key": "Content-Length",
+                  "value": "787"
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"message\": \"PRs retrieved successfully\",\n    \"nfs\": [\n        {\n            \"name\": \"amf\",\n            \"prs\": [\n                {\n                    \"number\": 212,\n                    \"title\": \"gmm/handler: reject EAP-AKA' AuthenticationResponse with no EAPMessage\"\n                },\n                {\n                    \"number\": 207,\n                    \"title\": \"ngap/handler: don't deref a nil targetUe in handleHandoverRequestAcknowledgeMain\"\n                },\n                {\n                    \"number\": 205,\n                    \"title\": \"fix/ran snssai validation\"\n                },\n                {\n                    \"number\": 204,\n                    \"title\": \"fix: include UE location in N2 handover complete notification to SMF\"\n                },\n                {\n                    \"number\": 202,\n                    \"title\": \"fix(notifier): add OAuth2 token to namf-callback outbound calls; fix SCTP EBADF teardown\"\n                },\n                {\n                    \"number\": 178,\n                    \"title\": \"Ipv6 support\"\n                },\n                {\n                    \"number\": 177,\n                    \"title\": \"Adding unit test cases for init.go and convert.go of AMF\"\n                },\n                {\n                    \"number\": 168,\n                    \"title\": \"fix: AMF-UE-NGAP-ID shall be unique within an AMF Set as specified in TS 23.501\"\n                },\n                {\n                    \"number\": 165,\n                    \"title\": \"test: HandleCreateUEContext\"\n                }\n            ]\n        },\n        {\n            \"name\": \"ausf\",\n            \"prs\": [\n                {\n                    \"number\": 55,\n                    \"title\": \"sbi/processor: bounds-check decodeEapAkaPrime against truncated EAP packets\"\n                },\n                {\n                    \"number\": 34,\n                    \"title\": \"Feature: Add IPv6 support\"\n                }\n            ]\n        },\n        {\n            \"name\": \"bsf\",\n            \"prs\": [\n                {\n                    \"number\": 6,\n                    \"title\": \"feat: add OAuth\"\n                },\n                {\n                    \"number\": 5,\n                    \"title\": \"fix: add OAuth2 authorization middleware for nbsf-management API\"\n                }\n            ]\n        },\n        {\n            \"name\": \"chf\",\n            \"prs\": [\n                {\n                    \"number\": 73,\n                    \"title\": \"fix(processor): defer CULock.Unlock in ChargingDataCreate to prevent panic-induced DoS\"\n                },\n                {\n                    \"number\": 65,\n                    \"title\": \"fix(notifier): add OAuth2 token to nchf-callback outbound call to SMF\"\n                }\n            ]\n        },\n        {\n            \"name\": \"n3iwf\",\n            \"prs\": [\n                {\n                    \"number\": 65,\n                    \"title\": \"fix: validate IKE Message ID\"\n                },\n                {\n                    \"number\": 64,\n                    \"title\": \"ike/handler: reject short INTERNAL_IP4_ADDRESS Configuration attribute\"\n                },\n                {\n                    \"number\": 63,\n                    \"title\": \"gre: bounds-check GRE header fields during Unmarshal\"\n                },\n                {\n                    \"number\": 62,\n                    \"title\": \"ike/handler: reject CREATE_CHILD_SA response with empty Proposals\"\n                },\n                {\n                    \"number\": 61,\n                    \"title\": \"ike/xfrm: enable ESP anti-replay protection by setting ReplayWindow\"\n                }\n            ]\n        },\n        {\n            \"name\": \"nef\",\n            \"prs\": [\n                {\n                    \"number\": 24,\n                    \"title\": \"fix(sbi): add inbound OAuth2 middleware to nnef-callback route\"\n                },\n                {\n                    \"number\": 23,\n                    \"title\": \"fix(sbi): enforce inbound OAuth2 on NEF service routes\"\n                }\n            ]\n        },\n        {\n            \"name\": \"nrf\",\n            \"prs\": [\n                {\n                    \"number\": 85,\n                    \"title\": \"sbi/processor: reject NF registration missing mandatory IEs\"\n                },\n                {\n                    \"number\": 82,\n                    \"title\": \"fix(nfm): add self-signed OAuth2 token to NF status notifications\"\n                },\n                {\n                    \"number\": 69,\n                    \"title\": \"Feature: Add IPv6 support\"\n                },\n                {\n                    \"number\": 52,\n                    \"title\": \"Modify for scp\"\n                }\n            ]\n        },\n        {\n            \"name\": \"nssf\"\n        },\n        {\n            \"name\": \"pcf\",\n            \"prs\": [\n                {\n                    \"number\": 64,\n                    \"title\": \"fix(sbi): add inbound OAuth2 middleware to npcf-callback route\"\n                },\n                {\n                    \"number\": 29,\n                    \"title\": \"feat: support traffic influence\"\n                }\n            ]\n        },\n        {\n            \"name\": \"smf\",\n            \"prs\": [\n                {\n                    \"number\": 213,\n                    \"title\": \"context/ngap: skip unknown QFI in PDUSessionResourceModifyResponse\"\n                },\n                {\n                    \"number\": 212,\n                    \"title\": \"context/ngap: skip DC tunnel update when PathSwitchRequest has no IEExtensions\"\n                },\n                {\n                    \"number\": 201,\n                    \"title\": \"fix: notify PCF with AN_CH_COR trigger after N2 handover completes\"\n                },\n                {\n                    \"number\": 200,\n                    \"title\": \"feat: include UE location info in SM Policy Association Create request\"\n                },\n                {\n                    \"number\": 196,\n                    \"title\": \"fix(notifier): add OAuth2 token to namf-callback and nnef-callback outbound calls; add nsmf-callback inbound auth\"\n                },\n                {\n                    \"number\": 192,\n                    \"title\": \"fix: correct ApiFullVersion and Scheme in NRF registration\"\n                },\n                {\n                    \"number\": 191,\n                    \"title\": \"feat: update QER when PCF notifies AMBR change\"\n                },\n                {\n                    \"number\": 171,\n                    \"title\": \"Feature: Add IPv6 support\"\n                },\n                {\n                    \"number\": 129,\n                    \"title\": \"refactor: improve config validation code\"\n                },\n                {\n                    \"number\": 120,\n                    \"title\": \"refactor: introduce UPNode as common interface for UPF and gNB nodes\"\n                },\n                {\n                    \"number\": 108,\n                    \"title\": \"Refactor SMF code for readability, conciseness, and modularity\"\n                }\n            ]\n        },\n        {\n            \"name\": \"tngf\",\n            \"prs\": [\n                {\n                    \"number\": 42,\n                    \"title\": \"fix: implement IKE SA management and cleanup logic (#1000)\"\n                },\n                {\n                    \"number\": 40,\n                    \"title\": \"fix: add Message ID validation for IKE CREATE_CHILD_SA and INFORMATION (#995)\"\n                },\n                {\n                    \"number\": 29,\n                    \"title\": \"fix: reject invalid peer DH public values in IKE_SA_INIT (#972)\"\n                },\n                {\n                    \"number\": 18,\n                    \"title\": \"Feat ue deregister\"\n                }\n            ]\n        },\n        {\n            \"name\": \"udm\",\n            \"prs\": [\n                {\n                    \"number\": 83,\n                    \"title\": \"fix: require auth on inbound UDM SDM callback route\"\n                },\n                {\n                    \"number\": 81,\n                    \"title\": \"test: UDRError\"\n                },\n                {\n                    \"number\": 48,\n                    \"title\": \"feature: Add IPv6 support\"\n                }\n            ]\n        },\n        {\n            \"name\": \"udr\",\n            \"prs\": [\n                {\n                    \"number\": 57,\n                    \"title\": \"fix(callback): add OAuth2 token to outbound callback notifications\"\n                },\n                {\n                    \"number\": 50,\n                    \"title\": \"Feature: Add IPv6 support\"\n                },\n                {\n                    \"number\": 38,\n                    \"title\": \"Feat/r17 update\"\n                }\n            ]\n        },\n        {\n            \"name\": \"go-upf\",\n            \"prs\": [\n                {\n                    \"number\": 91,\n                    \"title\": \"Improve PDI parsing and validate mandatory PDR fields\"\n                },\n                {\n                    \"number\": 81,\n                    \"title\": \"Prevent nil reference when SMF respond with SEID 0\"\n                },\n                {\n                    \"number\": 79,\n                    \"title\": \"UPF: Add minimal Nupf_EventExposure (EES) with USER_DATA_USAGE_MEASURES; refactor aligned to v1.2.7\"\n                },\n                {\n                    \"number\": 73,\n                    \"title\": \"Fix/pfcp\"\n                }\n            ]\n        }\n    ]\n}"
+              "body": "{\n    \"message\": \"PRs retrieved successfully\",\n    \"prs\": [\n        {\n            \"number\": 212,\n            \"title\": \"gmm/handler: reject EAP-AKA' AuthenticationResponse with no EAPMessage\"\n        },\n        {\n            \"number\": 207,\n            \"title\": \"ngap/handler: don't deref a nil targetUe in handleHandoverRequestAcknowledgeMain\"\n        },\n        {\n            \"number\": 205,\n            \"title\": \"fix/ran snssai validation\"\n        },\n        {\n            \"number\": 204,\n            \"title\": \"fix: include UE location in N2 handover complete notification to SMF\"\n        },\n        {\n            \"number\": 202,\n            \"title\": \"fix(notifier): add OAuth2 token to namf-callback outbound calls; fix SCTP EBADF teardown\"\n        },\n        {\n            \"number\": 178,\n            \"title\": \"Ipv6 support\"\n        },\n        {\n            \"number\": 177,\n            \"title\": \"Adding unit test cases for init.go and convert.go of AMF\"\n        },\n        {\n            \"number\": 168,\n            \"title\": \"fix: AMF-UE-NGAP-ID shall be unique within an AMF Set as specified in TS 23.501\"\n        },\n        {\n            \"number\": 165,\n            \"title\": \"test: HandleCreateUEContext\"\n        }\n    ]\n}"
+            },
+            {
+              "name": "400",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github?nf=amfs",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "github"
+                  ],
+                  "query": [
+                    {
+                      "key": "nf",
+                      "value": "amfs"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 12:40:05 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "125"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid NF parameter, must be one of: amf, ausf, bsf, chf, n3iwf, nef, nrf, nssf, pcf, smf, tngf, udm, udr, upf\"\n}"
             },
             {
               "name": "401",
@@ -1842,13 +1912,19 @@
                   "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
                 },
                 "url": {
-                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github",
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github?nf=amf",
                   "host": [
                     "{{SHEMA}}{{BACKEND_URL}}"
                   ],
                   "path": [
                     "api",
                     "github"
+                  ],
+                  "query": [
+                    {
+                      "key": "nf",
+                      "value": "amf"
+                    }
                   ]
                 }
               },
@@ -1894,13 +1970,19 @@
                   "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\"\n        },\n        {\n            \"username\": \"nicole\"\n        }\n    ]\n}"
                 },
                 "url": {
-                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github",
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/github?nf=amf",
                   "host": [
                     "{{SHEMA}}{{BACKEND_URL}}"
                   ],
                   "path": [
                     "api",
                     "github"
+                  ],
+                  "query": [
+                    {
+                      "key": "nf",
+                      "value": "amf"
+                    }
                   ]
                 }
               },

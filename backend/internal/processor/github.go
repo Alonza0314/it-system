@@ -6,31 +6,26 @@ import (
 	"net/http"
 )
 
-func (p *Processor) GetGithubPRs() (*model.ResponseGetGithubPRs, *model.ErrorDetail) {
-	nfs, err := p.itContext.GetPrList()
+func (p *Processor) GetGithubPRs(nf string) (*model.ResponseGetGithubPRs, *model.ErrorDetail) {
+	prs, err := p.itContext.GetPrList(nf)
 	if err != nil {
 		return nil, &model.ErrorDetail{
 			HttpStatus: http.StatusInternalServerError,
 			Detail:     fmt.Sprintf("Failed to get PR list: %v", err),
 		}
 	}
-	p.GitLog.Debugf("Retrieved %d NFs", len(nfs))
-	p.GitLog.Tracef("PRs details: %+v", nfs)
+	p.GitLog.Debugf("Retrieved %d PRs", len(prs))
+	p.GitLog.Tracef("PRs details: %+v", prs)
 
 	response := &model.ResponseGetGithubPRs{
 		Message: "PRs retrieved successfully",
-		NFs:     make([]model.NfPRs, 0, len(nfs)),
+		PRs:     make([]model.PR, len(prs)),
 	}
-	for i, nf := range nfs {
-		response.NFs = append(response.NFs, model.NfPRs{
-			Name: nf.Name(),
-			PRs:  make([]model.PR, 0, len(nf.PRs())),
-		})
-		for _, pr := range nf.PRs() {
-			response.NFs[i].PRs = append(response.NFs[i].PRs, model.PR{
-				Number: pr.Number(),
-				Title:  pr.Title(),
-			})
+
+	for i, pr := range prs {
+		response.PRs[i] = model.PR{
+			Number: pr.Number(),
+			Title:  pr.Title(),
 		}
 	}
 

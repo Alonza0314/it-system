@@ -30,6 +30,6 @@ func (ctx *ItContext) DeleteTestcases(testcases []testcase) error {
 	return ctx.testcaseContext.deleteTestcases(testcases)
 }
 
-func (ctx *ItContext) GetPrList() ([]nf, error) {
-	return ctx.githubContext.getPrList()
+func (ctx *ItContext) GetPrList(nf string) ([]pr, error) {
+	return ctx.githubContext.getPrList(nf)
 }

@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
-import { Configuration, DefaultApi } from '../../api'
+import { useEffect, useMemo, useState } from 'react'
+import { Configuration, DefaultApi, type GetGithubPRsNfEnum } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import { useNotifications } from '../../hooks/useNotifications'
 import NfPrSelector, { type PrOption } from '../../components/test/NfPrSelector'
+import { useTestcaseContext } from '../../context/testcase-context'
 import styles from './test-page.module.css'
 
 interface NfDef {
@@ -25,52 +26,79 @@ const NF_ORDER: NfDef[] = [
   { label: 'TNGF', apiName: 'tngf' },
   { label: 'UDM', apiName: 'udm' },
   { label: 'UDR', apiName: 'udr' },
-  { label: 'UPF', apiName: 'go-upf' },
+  { label: 'UPF', apiName: 'upf' },
 ]
 
 const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 
 export default function TestPage() {
   const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
+  const { testcases, hasLoaded: hasTestcasesLoaded, refreshTestcases } = useTestcaseContext()
 
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [isLoadingPrs, setIsLoadingPrs] = useState(false)
   const [prsByNf, setPrsByNf] = useState<Record<string, PrOption[]>>({})
+  const [loadingByNf, setLoadingByNf] = useState<Record<string, boolean>>({})
+  const [hasFetchedByNf, setHasFetchedByNf] = useState<Record<string, boolean>>({})
   const [enabledNf, setEnabledNf] = useState<Record<string, boolean>>({})
   const [selectedPrByNf, setSelectedPrByNf] = useState<Record<string, string>>({})
+  const [selectedTestcases, setSelectedTestcases] = useState<string[]>([])
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,
     accessToken: () => localStorage.getItem('token') || '',
   })), [])
 
+  const allSelected = testcases.length > 0 && selectedTestcases.length === testcases.length
+
+  useEffect(() => {
+    if (!isFormOpen || hasTestcasesLoaded) {
+      return
+    }
+
+    refreshTestcases().catch((error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to load testcases'
+      addError(message)
+    })
+  }, [isFormOpen, hasTestcasesLoaded, refreshTestcases, addError])
+
   async function handleToggleNewTest() {
     const nextOpen = !isFormOpen
     setIsFormOpen(nextOpen)
 
     if (!nextOpen) {
+      setPrsByNf({})
+      setLoadingByNf({})
+      setHasFetchedByNf({})
+      setEnabledNf({})
+      setSelectedPrByNf({})
+      setSelectedTestcases([])
+      return
+    }
+  }
+
+  async function loadPrsForNf(apiName: string) {
+    if (!isFormOpen || hasFetchedByNf[apiName] || loadingByNf[apiName]) {
       return
     }
 
-    setIsLoadingPrs(true)
+    setLoadingByNf((prev) => ({ ...prev, [apiName]: true }))
     try {
-      const response = await api.getGithubPRs({
+      const response = await api.getGithubPRs(apiName as GetGithubPRsNfEnum, {
         headers: getUserHeader(),
       })
 
-      const byNf: Record<string, PrOption[]> = {}
-      for (const nf of response.data.nfs || []) {
-        if (!nf.name) {
-          continue
-        }
-        byNf[nf.name.toLowerCase()] = (nf.prs || []).map((item) => ({
+      setPrsByNf((prev) => ({
+        ...prev,
+        [apiName]: (response.data.prs || []).map((item) => ({
           number: item.number,
           title: item.title,
-        }))
-      }
-
-      setPrsByNf(byNf)
-      addSuccess('PR list loaded')
+        })),
+      }))
+      setHasFetchedByNf((prev) => ({ ...prev, [apiName]: true }))
+      addSuccess(`${apiName.toUpperCase()} PR list loaded`)
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&
@@ -81,12 +109,19 @@ export default function TestPage() {
           : 'Failed to load PR list'
       addError(message)
     } finally {
-      setIsLoadingPrs(false)
+      setLoadingByNf((prev) => ({ ...prev, [apiName]: false }))
     }
   }
 
   function updateNfToggle(apiName: string, checked: boolean) {
     setEnabledNf((prev) => ({ ...prev, [apiName]: checked }))
+
+    if (checked) {
+      loadPrsForNf(apiName).catch(() => {
+        // Error notification is handled in loadPrsForNf
+      })
+    }
+
     if (!checked) {
       setSelectedPrByNf((prev) => ({ ...prev, [apiName]: '' }))
     }
@@ -94,6 +129,28 @@ export default function TestPage() {
 
   function updateSelectedPr(apiName: string, value: string) {
     setSelectedPrByNf((prev) => ({ ...prev, [apiName]: value }))
+  }
+
+  function toggleAllTestcases(checked: boolean) {
+    if (checked) {
+      setSelectedTestcases(testcases.map((item) => item.name))
+      return
+    }
+
+    setSelectedTestcases([])
+  }
+
+  function toggleSingleTestcase(name: string, checked: boolean) {
+    setSelectedTestcases((prev) => {
+      if (checked) {
+        if (prev.includes(name)) {
+          return prev
+        }
+        return [...prev, name]
+      }
+
+      return prev.filter((item) => item !== name)
+    })
   }
 
   return (
@@ -110,43 +167,64 @@ export default function TestPage() {
           type="button"
           className={styles.newTestButton}
           onClick={handleToggleNewTest}
-          disabled={isLoadingPrs}
         >
-          {isLoadingPrs ? 'Loading PRs...' : isFormOpen ? 'Close New Test' : 'New Test'}
+          {isFormOpen ? 'Close New Test' : 'New Test'}
         </button>
       </header>
 
       <section className={`${styles.formPanel} ${isFormOpen ? styles.formPanelOpen : ''}`} aria-hidden={!isFormOpen}>
         <div className={styles.formInner}>
-          {isLoadingPrs ? (
-            <div className={styles.loaderWrap}>
-              <div className={styles.loaderHead}>
-                <span className={styles.spinner} aria-hidden="true" />
-                <p>Loading PR list from GitHub...</p>
+          <div className={styles.formGrid}>
+            {NF_ORDER.map((nf) => (
+              <NfPrSelector
+                key={nf.apiName}
+                label={nf.label}
+                checked={Boolean(enabledNf[nf.apiName])}
+                options={prsByNf[nf.apiName] || []}
+                selectedPr={selectedPrByNf[nf.apiName] || ''}
+                disabled={Boolean(loadingByNf[nf.apiName])}
+                onToggle={(checked) => updateNfToggle(nf.apiName, checked)}
+                onSelectPr={(value) => updateSelectedPr(nf.apiName, value)}
+              />
+            ))}
+
+            <section className={styles.testcasePicker}>
+              <div className={styles.testcaseHeader}>
+                <h3>Testcases</h3>
+                <p>Multi-select with quick All option</p>
               </div>
-              <div className={styles.loaderRows}>
-                <div className={styles.loaderRow} />
-                <div className={styles.loaderRow} />
-                <div className={styles.loaderRow} />
-                <div className={styles.loaderRow} />
+
+              <div className={styles.testcaseOptions}>
+                <label className={`${styles.testcaseOption} ${styles.allOption}`}>
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={(event) => toggleAllTestcases(event.target.checked)}
+                    disabled={testcases.length === 0}
+                  />
+                  <span>All</span>
+                </label>
+
+                {testcases.map((item) => {
+                  const checked = selectedTestcases.includes(item.name)
+                  return (
+                    <label key={item.name} className={styles.testcaseOption}>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(event) => toggleSingleTestcase(item.name, event.target.checked)}
+                      />
+                      <span>{item.name}</span>
+                    </label>
+                  )
+                })}
+
+                {testcases.length === 0 && (
+                  <p className={styles.noTestcases}>No testcase options available.</p>
+                )}
               </div>
-            </div>
-          ) : (
-            <div className={styles.formGrid}>
-              {NF_ORDER.map((nf) => (
-                <NfPrSelector
-                  key={nf.apiName}
-                  label={nf.label}
-                  checked={Boolean(enabledNf[nf.apiName])}
-                  options={prsByNf[nf.apiName] || []}
-                  selectedPr={selectedPrByNf[nf.apiName] || ''}
-                  disabled={isLoadingPrs}
-                  onToggle={(checked) => updateNfToggle(nf.apiName, checked)}
-                  onSelectPr={(value) => updateSelectedPr(nf.apiName, value)}
-                />
-              ))}
-            </div>
-          )}
+            </section>
+          </div>
         </div>
       </section>
 

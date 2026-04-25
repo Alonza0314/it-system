@@ -256,6 +256,29 @@ paths:
     get:
       summary: Get Github PRs
       operationId: getGithubPRs
+      parameters:
+        - name: nf
+          in: query
+          description: Target network function
+          required: true
+          schema:
+            type: string
+            enum:
+              - amf
+              - ausf
+              - bsf
+              - chf
+              - n3iwf
+              - nef
+              - nrf
+              - nssf
+              - pcf
+              - smf
+              - tngf
+              - udm
+              - udr
+              - upf
+            example: amf
       security:
         - bearerAuth: []
       responses:
@@ -265,6 +288,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetGithubPRsResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
           content:
@@ -407,27 +436,16 @@ components:
         title:
           type: string
           example: "gmm/handler: reject EAP-AKA' AuthenticationResponse with no EAPMessage"
-    NfPRs:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          example: amf
-        prs:
-          type: array
-          items:
-            $ref: '#/components/schemas/PR'
     GetGithubPRsResponse:
       type: object
       required:
         - message
+        - prs
       properties:
         message:
           type: string
           example: PRs retrieved successfully
-        nfs:
+        prs:
           type: array
           items:
-            $ref: '#/components/schemas/NfPRs'
+            $ref: '#/components/schemas/PR'

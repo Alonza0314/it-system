@@ -34,7 +34,8 @@ const (
 	TNGF                        = "tngf"
 	UDM                         = "udm"
 	UDR                         = "udr"
-	UPF                         = "go-upf"
+	UPF                         = "upf"
+	GO_UPF                      = "go-upf"
 )
 
 var NF_LIST = []string{AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNGF, UDM, UDR, UPF}

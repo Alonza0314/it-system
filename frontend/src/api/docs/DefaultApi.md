@@ -245,11 +245,18 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-const { status, data } = await apiInstance.getGithubPRs();
+let nf: 'amf' | 'ausf' | 'bsf' | 'chf' | 'n3iwf' | 'nef' | 'nrf' | 'nssf' | 'pcf' | 'smf' | 'tngf' | 'udm' | 'udr' | 'upf'; //Target network function (default to undefined)
+
+const { status, data } = await apiInstance.getGithubPRs(
+    nf
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **nf** | [**&#39;amf&#39; | &#39;ausf&#39; | &#39;bsf&#39; | &#39;chf&#39; | &#39;n3iwf&#39; | &#39;nef&#39; | &#39;nrf&#39; | &#39;nssf&#39; | &#39;pcf&#39; | &#39;smf&#39; | &#39;tngf&#39; | &#39;udm&#39; | &#39;udr&#39; | &#39;upf&#39;**]**Array<&#39;amf&#39; &#124; &#39;ausf&#39; &#124; &#39;bsf&#39; &#124; &#39;chf&#39; &#124; &#39;n3iwf&#39; &#124; &#39;nef&#39; &#124; &#39;nrf&#39; &#124; &#39;nssf&#39; &#124; &#39;pcf&#39; &#124; &#39;smf&#39; &#124; &#39;tngf&#39; &#124; &#39;udm&#39; &#124; &#39;udr&#39; &#124; &#39;upf&#39;>** | Target network function | defaults to undefined|
 
 
 ### Return type
@@ -270,6 +277,7 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OK |  -  |
+|**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal Server Error |  -  |
 

@@ -61,6 +61,62 @@
   gap: 0.8rem;
 }
 
+.testcasePicker {
+  margin-top: 0.25rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+}
+
+.testcaseHeader h3 {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1rem;
+}
+
+.testcaseHeader p {
+  margin: 0.3rem 0 0;
+  color: #334155;
+  font-size: 0.88rem;
+}
+
+.testcaseOptions {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.testcaseOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 0.35rem 0.62rem;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+.testcaseOption input {
+  margin: 0;
+}
+
+.allOption {
+  border-color: #60a5fa;
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.noTestcases {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 .loaderWrap {
   display: grid;
   gap: 0.9rem;
