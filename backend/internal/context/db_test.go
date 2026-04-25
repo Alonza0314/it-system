@@ -135,8 +135,8 @@ func TestDB(t *testing.T) {
 		testDbOperationWithMap(t)
 	})
 
-	t.Run("TestDbLoadAll", func(t *testing.T) {
-		testDbLoadAll(t)
+	t.Run("TestDbLoadAllAndExists", func(t *testing.T) {
+		testDbLoadAllAndExists(t)
 	})
 }
 
@@ -205,7 +205,7 @@ func testDbOperationWithMap(t *testing.T) {
 	}
 }
 
-func testDbLoadAll(t *testing.T) {
+func testDbLoadAllAndExists(t *testing.T) {
 	for _, testCase := range testDbLoadAllCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			err := ctx.SaveToDb(BUCKET2, testCase.key, testCase.value)
@@ -220,6 +220,14 @@ func testDbLoadAll(t *testing.T) {
 
 			if !reflect.DeepEqual(result, testCase.expectedValue) {
 				t.Errorf("Expected value: %v, got: %v", testCase.expectedValue, result)
+			}
+
+			exists, err := ctx.ExistsInDb(BUCKET2, testCase.key)
+			if err != nil {
+				t.Errorf("Error checking existence: %v", err)
+			}
+			if !exists {
+				t.Errorf("Expected key %s to exist", testCase.key)
 			}
 		})
 	}

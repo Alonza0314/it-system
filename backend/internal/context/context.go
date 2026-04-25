@@ -68,3 +68,7 @@ func (ctx *ItContext) UpdateDb(bucket, key, value string) error {
 func (ctx *ItContext) RemoveFromDb(bucket, key string) error {
 	return ctx.bboltDbContext.Remove([]byte(bucket), []byte(key))
 }
+
+func (ctx *ItContext) ExistsInDb(bucket, key string) (bool, error) {
+	return ctx.bboltDbContext.Exists([]byte(bucket), []byte(key))
+}

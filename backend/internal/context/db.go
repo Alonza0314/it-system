@@ -43,6 +43,10 @@ func (ctx *bboltDbContext) Remove(bucket, key []byte) error {
 	return dbRemove(ctx.dbPath, bucket, key)
 }
 
+func (ctx *bboltDbContext) Exists(bucket, key []byte) (bool, error) {
+	return dbExists(ctx.dbPath, bucket, key)
+}
+
 func closeDBWithErr(db *bolt.DB, errPtr *error) {
 	if closeErr := db.Close(); closeErr != nil {
 		wrappedCloseErr := fmt.Errorf("failed to close db: %w", closeErr)
@@ -159,4 +163,28 @@ func dbRemove(dbPath string, bucket, key []byte) (err error) {
 	})
 
 	return err
+}
+
+func dbExists(dbPath string, bucket, key []byte) (exists bool, err error) {
+	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		return false, err
+	}
+	defer closeDBWithErr(db, &err)
+
+	err = db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		if b == nil {
+			exists = false
+			return nil
+		}
+		v := b.Get(key)
+		exists = v != nil
+		return nil
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
