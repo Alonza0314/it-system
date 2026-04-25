@@ -31,6 +31,10 @@ func (ctx *bboltDbContext) Load(bucket, key []byte) ([]byte, error) {
 	return dbLoad(ctx.dbPath, bucket, key)
 }
 
+func (ctx *bboltDbContext) LoadAll(bucket []byte) (map[string][]byte, error) {
+	return dbLoadAll(ctx.dbPath, bucket)
+}
+
 func (ctx *bboltDbContext) Update(bucket, key, value []byte) error {
 	return dbUpdate(ctx.dbPath, bucket, key, value)
 }
@@ -90,6 +94,35 @@ func dbLoad(dbPath string, bucket, key []byte) (value []byte, err error) {
 	}
 
 	return value, nil
+}
+
+func dbLoadAll(dbPath string, bucket []byte) (result map[string][]byte, err error) {
+	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		return nil, err
+	}
+	defer closeDBWithErr(db, &err)
+
+	result = make(map[string][]byte)
+
+	err = db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		if b == nil {
+			return nil
+		}
+
+		return b.ForEach(func(k, v []byte) error {
+			value := make([]byte, len(v))
+			copy(value, v)
+			result[string(k)] = value
+			return nil
+		})
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func dbUpdate(dbPath string, bucket, key, value []byte) (err error) {

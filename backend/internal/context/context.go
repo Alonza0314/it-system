@@ -36,18 +36,35 @@ func (ctx *ItContext) GetPrList(nf string) ([]pr, error) {
 	return ctx.githubContext.getPrList(nf)
 }
 
-func (ctx *ItContext) SaveToDb(bucket, key, value []byte) error {
-	return ctx.bboltDbContext.Save(bucket, key, value)
+func (ctx *ItContext) SaveToDb(bucket, key, value string) error {
+	return ctx.bboltDbContext.Save([]byte(bucket), []byte(key), []byte(value))
 }
 
-func (ctx *ItContext) LoadFromDb(bucket, key []byte) ([]byte, error) {
-	return ctx.bboltDbContext.Load(bucket, key)
+func (ctx *ItContext) LoadFromDb(bucket, key string) (string, error) {
+	value, err := ctx.bboltDbContext.Load([]byte(bucket), []byte(key))
+	if err != nil {
+		return "", err
+	}
+	return string(value), nil
 }
 
-func (ctx *ItContext) UpdateDb(bucket, key, value []byte) error {
-	return ctx.bboltDbContext.Update(bucket, key, value)
+func (ctx *ItContext) LoadAllFromDb(bucket string) (map[string]string, error) {
+	rawResult, err := ctx.bboltDbContext.LoadAll([]byte(bucket))
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string]string)
+	for k, v := range rawResult {
+		result[k] = string(v)
+	}
+	return result, nil
 }
 
-func (ctx *ItContext) RemoveFromDb(bucket, key []byte) error {
-	return ctx.bboltDbContext.Remove(bucket, key)
+func (ctx *ItContext) UpdateDb(bucket, key, value string) error {
+	return ctx.bboltDbContext.Update([]byte(bucket), []byte(key), []byte(value))
+}
+
+func (ctx *ItContext) RemoveFromDb(bucket, key string) error {
+	return ctx.bboltDbContext.Remove([]byte(bucket), []byte(key))
 }

@@ -11,6 +11,7 @@ const (
 	DB_DIR  = ".db_test"
 	DB_PATH = ".db_test/test.db"
 	BUCKET  = "test"
+	BUCKET2 = "test2"
 	SAVE    = "save"
 	LOAD    = "load"
 	UPDATE  = "update"
@@ -94,6 +95,31 @@ var testDbCasesWithMap = []struct {
 	},
 }
 
+var testDbLoadAllCases = []struct {
+	name          string
+	key           string
+	value         string
+	expectedValue map[string]string
+}{
+	{
+		name:  "testDbLoadAll-1",
+		key:   "testKey1",
+		value: "testValue1",
+		expectedValue: map[string]string{
+			"testKey1": "testValue1",
+		},
+	},
+	{
+		name:  "testDbLoadAll-2",
+		key:   "testKey2",
+		value: "testValue2",
+		expectedValue: map[string]string{
+			"testKey1": "testValue1",
+			"testKey2": "testValue2",
+		},
+	},
+}
+
 func TestDB(t *testing.T) {
 	defer func() {
 		if err := os.RemoveAll(DB_DIR); err != nil {
@@ -108,6 +134,10 @@ func TestDB(t *testing.T) {
 	t.Run("TestDbOpreationWithMap", func(t *testing.T) {
 		testDbOperationWithMap(t)
 	})
+
+	t.Run("TestDbLoadAll", func(t *testing.T) {
+		testDbLoadAll(t)
+	})
 }
 
 func testDbOperation(t *testing.T) {
@@ -115,25 +145,25 @@ func testDbOperation(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			switch testCase.method {
 			case SAVE:
-				err := ctx.SaveToDb([]byte(BUCKET), []byte(testCase.key), []byte(testCase.value))
+				err := ctx.SaveToDb(BUCKET, testCase.key, testCase.value)
 				if err != nil {
 					t.Errorf("Error saving value: %v", err)
 				}
 			case LOAD:
-				value, err := ctx.LoadFromDb([]byte(BUCKET), []byte(testCase.key))
+				value, err := ctx.LoadFromDb(BUCKET, testCase.key)
 				if err != nil {
 					t.Errorf("Error loading value: %v", err)
 				}
-				if string(value) != testCase.expectedValue {
-					t.Errorf("Expected value: %v, got: %v", testCase.expectedValue, string(value))
+				if value != testCase.expectedValue {
+					t.Errorf("Expected value: %v, got: %v", testCase.expectedValue, value)
 				}
 			case UPDATE:
-				err := ctx.UpdateDb([]byte(BUCKET), []byte(testCase.key), []byte(testCase.value))
+				err := ctx.UpdateDb(BUCKET, testCase.key, testCase.value)
 				if err != nil {
 					t.Errorf("Error updating value: %v", err)
 				}
 			case REMOVE:
-				err := ctx.RemoveFromDb([]byte(BUCKET), []byte(testCase.key))
+				err := ctx.RemoveFromDb(BUCKET, testCase.key)
 				if err != nil {
 					t.Errorf("Error removing value: %v", err)
 				}
@@ -151,25 +181,45 @@ func testDbOperationWithMap(t *testing.T) {
 				if err != nil {
 					t.Errorf("Error marshalling value: %v", err)
 				}
-				err = ctx.SaveToDb([]byte(BUCKET), []byte(testCase.key), jsonValue)
+				err = ctx.SaveToDb(BUCKET, testCase.key, string(jsonValue))
 				if err != nil {
 					t.Errorf("Error saving value: %v", err)
 				}
 			case LOAD:
-				value, err := ctx.LoadFromDb([]byte(BUCKET), []byte(testCase.key))
+				value, err := ctx.LoadFromDb(BUCKET, testCase.key)
 				if err != nil {
 					t.Errorf("Error loading value: %v", err)
 				}
 				var loadedValue struct {
 					Map map[string]string `json:"map"`
 				}
-				err = json.Unmarshal(value, &loadedValue)
+				err = json.Unmarshal([]byte(value), &loadedValue)
 				if err != nil {
 					t.Errorf("Error unmarshalling value: %v", err)
 				}
 				if !reflect.DeepEqual(loadedValue.Map, testCase.expectedValue.Map) {
 					t.Errorf("Expected value: %v, got: %v", testCase.expectedValue.Map, loadedValue.Map)
 				}
+			}
+		})
+	}
+}
+
+func testDbLoadAll(t *testing.T) {
+	for _, testCase := range testDbLoadAllCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			err := ctx.SaveToDb(BUCKET2, testCase.key, testCase.value)
+			if err != nil {
+				t.Errorf("Error saving value: %v", err)
+			}
+
+			result, err := ctx.LoadAllFromDb(BUCKET2)
+			if err != nil {
+				t.Errorf("Error loading all values: %v", err)
+			}
+
+			if !reflect.DeepEqual(result, testCase.expectedValue) {
+				t.Errorf("Expected value: %v, got: %v", testCase.expectedValue, result)
 			}
 		})
 	}
