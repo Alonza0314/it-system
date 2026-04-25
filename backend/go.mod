@@ -7,6 +7,7 @@ require (
 	github.com/free-ran-ue/util v0.0.3
 	github.com/gin-gonic/gin v1.12.0
 	github.com/spf13/cobra v1.10.2
+	go.etcd.io/bbolt v1.4.3
 )
 
 require (

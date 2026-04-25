@@ -1,4 +1,4 @@
-.PHONY: backend frontend clean run
+.PHONY: backend frontend clean run tidy test
 
 BACKEND_SRC := $(shell find backend -name "*.go")
 FRONTEND_SRC := $(shell find frontend -type f ! -path "frontend/dist/*" ! -path "frontend/node_modules/*")
@@ -48,3 +48,9 @@ clean:
 
 run:
 	./build/system -c config.yaml
+
+tidy:
+	cd backend && go mod tidy
+
+test:
+	cd backend && go test -v ./...

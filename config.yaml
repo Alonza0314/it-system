@@ -10,5 +10,7 @@ backend:
 
   frontendFilePath: "build/frontend"
 
+  dbPath: ".db/it-system.db"
+
 logger:
   level: "info"

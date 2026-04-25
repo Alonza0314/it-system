@@ -21,7 +21,7 @@ type Processor struct {
 	*logger.BackendLogger
 }
 
-func NewProcessor(username, password string, jwtSecret string, jwtExpiresIn time.Duration, logger *logger.BackendLogger) *Processor {
+func NewProcessor(username, password, dbPath, jwtSecret string, jwtExpiresIn time.Duration, logger *logger.BackendLogger) *Processor {
 	return &Processor{
 		username: username,
 		password: password,
@@ -29,7 +29,7 @@ func NewProcessor(username, password string, jwtSecret string, jwtExpiresIn time
 		jwtSecret:    jwtSecret,
 		jwtExpiresIn: jwtExpiresIn,
 
-		itContext: context.NewItContext(),
+		itContext: context.NewItContext(dbPath),
 
 		tmpTenants: make([]model.Tenant, 0),
 

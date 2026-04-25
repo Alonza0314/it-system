@@ -16,6 +16,8 @@ type BackendIE struct {
 	JWT JWTIE `yaml:"jwt" valid:"required"`
 
 	FrontendFilePath string `yaml:"frontendFilePath" valid:"required"`
+
+	DBPath string `yaml:"dbPath" valid:"required"`
 }
 
 type JWTIE struct {
