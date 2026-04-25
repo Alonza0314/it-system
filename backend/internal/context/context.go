@@ -1,18 +1,14 @@
 package context
 
-import "backend/model"
-
 type ItContext struct {
-	testcaseContext *testcaseContext
-	githubContext   *githubContext
-	bboltDbContext  *bboltDbContext
+	githubContext  *githubContext
+	bboltDbContext *bboltDbContext
 }
 
 func NewItContext(dbPath string) *ItContext {
 	return &ItContext{
-		testcaseContext: newTestcaseContext(),
-		githubContext:   newGithubContext(),
-		bboltDbContext:  newBboltDbContext(dbPath),
+		githubContext:  newGithubContext(),
+		bboltDbContext: newBboltDbContext(dbPath),
 	}
 }
 
@@ -21,22 +17,6 @@ func ReleaseItContext(ctx *ItContext) error {
 		return err
 	}
 	return nil
-}
-
-func (ctx *ItContext) ConvertToTestcase(modelTestcases []model.Testcase) []testcase {
-	return ctx.testcaseContext.ConvertToTestcase(modelTestcases)
-}
-
-func (ctx *ItContext) GetTestcases() ([]testcase, error) {
-	return ctx.testcaseContext.getTestcases()
-}
-
-func (ctx *ItContext) AddTestcases(testcases []testcase) error {
-	return ctx.testcaseContext.addTestcases(testcases)
-}
-
-func (ctx *ItContext) DeleteTestcases(testcases []testcase) error {
-	return ctx.testcaseContext.deleteTestcases(testcases)
 }
 
 func (ctx *ItContext) GetPrList(nf string) ([]pr, error) {
