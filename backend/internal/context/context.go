@@ -16,6 +16,13 @@ func NewItContext(dbPath string) *ItContext {
 	}
 }
 
+func ReleaseItContext(ctx *ItContext) error {
+	if err := releaseBboltDbContext(ctx.bboltDbContext); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (ctx *ItContext) ConvertToTestcase(modelTestcases []model.Testcase) []testcase {
 	return ctx.testcaseContext.ConvertToTestcase(modelTestcases)
 }

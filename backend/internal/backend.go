@@ -118,6 +118,12 @@ func (b *backend) Stop() {
 	} else {
 		b.BckLog.Infoln("Backend server stopped successfully")
 	}
+
+	if err := processor.ReleaseProcessor(&b.Processor); err != nil {
+		b.BckLog.Errorf("Failed to release processor resources: %v", err)
+	} else {
+		b.BckLog.Infoln("Processor resources released successfully")
+	}
 }
 
 func addServices(router *gin.Engine, b *backend) {

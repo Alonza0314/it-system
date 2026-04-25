@@ -31,3 +31,7 @@ func NewProcessor(username, password, dbPath, jwtSecret string, jwtExpiresIn tim
 		BackendLogger: logger,
 	}
 }
+
+func ReleaseProcessor(p *Processor) error {
+	return context.ReleaseItContext(p.itContext)
+}
