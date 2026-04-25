@@ -16,6 +16,8 @@ func (p *Processor) GetTenants() (*model.ResponseGetTenants, *model.ErrorDetail)
 			Detail:     fmt.Sprintf("Failed to load tenants from database: %v", err),
 		}
 	}
+	p.ProcLog.Debugf("Retrieved %d tenants", len(tenantMap))
+	p.ProcLog.Tracef("Tenants details: %+v", tenantMap)
 
 	tenants := make([]model.Tenant, 0, len(tenantMap))
 	for username, role := range tenantMap {
@@ -49,6 +51,8 @@ func (p *Processor) AddTenant(req *model.RequestAddTenant) (*model.ResponseAddTe
 			}
 		}
 	}
+	p.ProcLog.Debugf("Adding %d tenants", len(req.Tenants))
+	p.ProcLog.Tracef("Tenants to add details: %+v", req.Tenants)
 
 	for _, tenant := range req.Tenants {
 		if err := p.itContext.SaveToDb(constant.BUCKET_TENANT, tenant.Username, tenant.Role); err != nil {
@@ -83,6 +87,8 @@ func (p *Processor) DeleteTenant(req *model.RequestDeleteTenant) (*model.Respons
 			}
 		}
 	}
+	p.ProcLog.Debugf("Deleting %d tenants", len(req.Tenants))
+	p.ProcLog.Tracef("Tenants to delete details: %+v", req.Tenants)
 
 	for _, tenant := range req.Tenants {
 		if err := p.itContext.RemoveFromDb(constant.BUCKET_TENANT, tenant.Username); err != nil {
