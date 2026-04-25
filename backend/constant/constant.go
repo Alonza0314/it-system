@@ -39,3 +39,9 @@ const (
 )
 
 var NF_LIST = []string{AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNGF, UDM, UDR, UPF}
+
+// db
+const (
+	BUCKET_TENANT   = "tenant"
+	BUCKET_TESTCASE = "testcase"
+)

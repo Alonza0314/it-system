@@ -1,4 +1,4 @@
-.PHONY: backend frontend clean run tidy test
+.PHONY: backend frontend clean run tidy test lint
 
 BACKEND_SRC := $(shell find backend -name "*.go")
 FRONTEND_SRC := $(shell find frontend -type f ! -path "frontend/dist/*" ! -path "frontend/node_modules/*")
@@ -54,3 +54,6 @@ tidy:
 
 test:
 	cd backend && go test -v ./...
+
+lint:
+	cd backend && golangci-lint run

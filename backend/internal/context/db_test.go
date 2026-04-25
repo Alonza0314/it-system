@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	DB_DIR  = ".db"
-	DB_PATH = ".db/test.db"
+	DB_DIR  = ".db_test"
+	DB_PATH = ".db_test/test.db"
 	BUCKET  = "test"
 	SAVE    = "save"
 	LOAD    = "load"
@@ -94,10 +94,23 @@ var testDbCasesWithMap = []struct {
 	},
 }
 
-func TestDbOperation(t *testing.T) {
-	os.Mkdir(DB_DIR, 0755)
-	defer os.RemoveAll(DB_DIR)
+func TestDB(t *testing.T) {
+	defer func() {
+		if err := os.RemoveAll(DB_DIR); err != nil {
+			t.Fatalf("Failed to remove DB directory: %v", err)
+		}
+	}()
 
+	t.Run("TestDbOpreation", func(t *testing.T) {
+		testDbOperation(t)
+	})
+
+	t.Run("TestDbOpreationWithMap", func(t *testing.T) {
+		testDbOperationWithMap(t)
+	})
+}
+
+func testDbOperation(t *testing.T) {
 	for _, testCase := range testDbCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			switch testCase.method {
@@ -129,10 +142,7 @@ func TestDbOperation(t *testing.T) {
 	}
 }
 
-func TestDbOperationWithMap(t *testing.T) {
-	os.Mkdir(DB_DIR, 0755)
-	defer os.RemoveAll(DB_DIR)
-
+func testDbOperationWithMap(t *testing.T) {
 	for _, testCase := range testDbCasesWithMap {
 		t.Run(testCase.name, func(t *testing.T) {
 			switch testCase.method {

@@ -1,6 +1,7 @@
 package context
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -38,31 +39,43 @@ func (ctx *bboltDbContext) Remove(bucket, key []byte) error {
 	return dbRemove(ctx.dbPath, bucket, key)
 }
 
-func dbSave(dbPath string, bucket, key, value []byte) error {
+func closeDBWithErr(db *bolt.DB, errPtr *error) {
+	if closeErr := db.Close(); closeErr != nil {
+		wrappedCloseErr := fmt.Errorf("failed to close db: %w", closeErr)
+		if *errPtr != nil {
+			*errPtr = errors.Join(*errPtr, wrappedCloseErr)
+			return
+		}
+		*errPtr = wrappedCloseErr
+	}
+}
+
+func dbSave(dbPath string, bucket, key, value []byte) (err error) {
 	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer closeDBWithErr(db, &err)
 
-	return db.Update(func(tx *bolt.Tx) error {
+	err = db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists(bucket)
 		if err != nil {
 			return err
 		}
 		return b.Put(key, value)
 	})
+
+	return err
 }
 
-func dbLoad(dbPath string, bucket, key []byte) ([]byte, error) {
+func dbLoad(dbPath string, bucket, key []byte) (value []byte, err error) {
 	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer closeDBWithErr(db, &err)
 
-	var value []byte
-	if err := db.View(func(tx *bolt.Tx) error {
+	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucket)
 		if b == nil {
 			return fmt.Errorf("bucket %s not found", bucket)
@@ -71,41 +84,46 @@ func dbLoad(dbPath string, bucket, key []byte) ([]byte, error) {
 		value = make([]byte, len(v))
 		copy(value, v)
 		return nil
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
 	return value, nil
 }
 
-func dbUpdate(dbPath string, bucket, key, value []byte) error {
+func dbUpdate(dbPath string, bucket, key, value []byte) (err error) {
 	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer closeDBWithErr(db, &err)
 
-	return db.Update(func(tx *bolt.Tx) error {
+	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucket)
 		if b == nil {
 			return fmt.Errorf("bucket %s not found", bucket)
 		}
 		return b.Put(key, value)
 	})
+
+	return err
 }
 
-func dbRemove(dbPath string, bucket, key []byte) error {
+func dbRemove(dbPath string, bucket, key []byte) (err error) {
 	db, err := bolt.Open(dbPath, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer closeDBWithErr(db, &err)
 
-	return db.Update(func(tx *bolt.Tx) error {
+	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(bucket)
 		if b == nil {
 			return fmt.Errorf("bucket %s not found", bucket)
 		}
 		return b.Delete(key)
 	})
+
+	return err
 }
