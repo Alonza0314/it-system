@@ -16,6 +16,11 @@ func (b *backend) getRunnerRoutes() util.Routes {
 			Pattern:     "",
 			HandlerFunc: b.handleRegisterRunner,
 		},
+	}
+}
+
+func (b *backend) getAdminRunnerRoutes() util.Routes {
+	return util.Routes{
 		{
 			Name:        "Delete Runner",
 			Method:      http.MethodDelete,
@@ -23,10 +28,6 @@ func (b *backend) getRunnerRoutes() util.Routes {
 			HandlerFunc: b.handleDeleteRunner,
 		},
 	}
-}
-
-func (b *backend) getAdminRunnerRoutes() util.Routes {
-	return util.Routes{}
 }
 
 func (b *backend) handleRegisterRunner(c *gin.Context) {
