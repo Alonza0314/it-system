@@ -1,14 +1,22 @@
 package context
 
+import (
+	"backend/constant"
+	"backend/model"
+)
+
 type ItContext struct {
 	githubContext  *githubContext
 	bboltDbContext *bboltDbContext
+	taskContext    *taskContext
 }
 
 func NewItContext(dbPath string) *ItContext {
+	dbContext := newBboltDbContext(dbPath)
 	return &ItContext{
 		githubContext:  newGithubContext(),
-		bboltDbContext: newBboltDbContext(dbPath),
+		bboltDbContext: dbContext,
+		taskContext:    newTaskContext(dbContext),
 	}
 }
 
@@ -16,6 +24,7 @@ func ReleaseItContext(ctx *ItContext) error {
 	if err := releaseBboltDbContext(ctx.bboltDbContext); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -32,6 +41,7 @@ func (ctx *ItContext) LoadFromDb(bucket, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(value), nil
 }
 
@@ -45,6 +55,7 @@ func (ctx *ItContext) LoadAllFromDb(bucket string) (map[string]string, error) {
 	for k, v := range rawResult {
 		result[k] = string(v)
 	}
+
 	return result, nil
 }
 
@@ -58,4 +69,61 @@ func (ctx *ItContext) RemoveFromDb(bucket, key string) error {
 
 func (ctx *ItContext) ExistsInDb(bucket, key string) (bool, error) {
 	return ctx.bboltDbContext.Exists([]byte(bucket), []byte(key))
+}
+
+func (ctx *ItContext) GetPendingTasks() []model.TaskSimple {
+	return convertTaskToResponseTask(ctx.taskContext.getPendingQueue())
+}
+
+func (ctx *ItContext) GetOngoingTasks() []model.TaskSimple {
+	return convertTaskToResponseTask(ctx.taskContext.getOngoingQueue())
+}
+
+func (ctx *ItContext) GetTask(id uint64) (*task, error) {
+	return ctx.taskContext.getTaskById(id)
+}
+
+func (ctx *ItContext) CreateTask(username string, createTime int64, tests []string, nfPrList []model.NfPr) error {
+	return ctx.taskContext.createTask(username, createTime, convertTestsToPipelines(tests), convertNfPrListToNfPr(nfPrList))
+}
+
+func (ctx *ItContext) CancelTask(id uint64) error {
+	return ctx.taskContext.cancelTask(id)
+}
+
+func convertTaskToResponseTask(tasks []task) []model.TaskSimple {
+	simpleTasks := make([]model.TaskSimple, len(tasks))
+	for i, t := range tasks {
+		simpleTasks[i] = model.TaskSimple{
+			Id:         t.ID(),
+			Username:   t.Username(),
+			CreateTime: t.CreateTime(),
+		}
+	}
+
+	return simpleTasks
+}
+
+func convertTestsToPipelines(tests []string) []pipeline {
+	pipelines := make([]pipeline, len(tests))
+	for i, test := range tests {
+		pipelines[i] = pipeline{
+			name:   test,
+			status: constant.TASK_STATUS_PENDING,
+		}
+	}
+
+	return pipelines
+}
+
+func convertNfPrListToNfPr(nfPrList []model.NfPr) []nfPr {
+	nfPrs := make([]nfPr, len(nfPrList))
+	for i, np := range nfPrList {
+		nfPrs[i] = nfPr{
+			nfName: np.NfName,
+			pr:     np.PR,
+		}
+	}
+
+	return nfPrs
 }

@@ -77,6 +77,146 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
 
+  /api/test/tasks:
+    get:
+      summary: Get tasks
+      operationId: getTasks
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGetTasks'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/test/task:
+    get:
+      summary: Get task
+      operationId: getTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: Task ID
+          required: true
+          schema:
+            type: integer
+            format: uint64
+            minimum: 1
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGetTask'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    post:
+      summary: Submit task
+      operationId: submitTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestSubmitTask'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    delete:
+      summary: Cancel task
+      operationId: cancelTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: Task ID
+          required: true
+          schema:
+            type: integer
+            format: uint64
+            minimum: 1
+            example: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
   /api/admin/test/testcase:
     post:
       summary: Add testcases
@@ -406,6 +546,99 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Testcase'
+    TaskSimple:
+      type: object
+      required:
+        - id
+        - username
+        - createTime
+      properties:
+        id:
+          type: integer
+          format: uint64
+          example: 1
+        username:
+          type: string
+          example: admin
+        createTime:
+          type: integer
+          format: int64
+          example: 1777143861
+    NfPr:
+      type: object
+      required:
+        - nfName
+        - pr
+      properties:
+        nfName:
+          type: string
+          example: amf
+        pr:
+          type: integer
+          example: 100
+    ResponseGetTasks:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Tasks retrieved successfully
+        pendingTask:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskSimple'
+        ongoingTask:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskSimple'
+    ResponseGetTask:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Task retrieved successfully
+        id:
+          type: integer
+          format: uint64
+          example: 1
+        username:
+          type: string
+          example: admin
+        createTime:
+          type: integer
+          format: int64
+          example: 1777143861
+        tests:
+          type: array
+          items:
+            type: string
+          example:
+            - test-1
+            - test-2
+        nfPrList:
+          type: array
+          items:
+            $ref: '#/components/schemas/NfPr'
+    RequestSubmitTask:
+      type: object
+      required:
+        - tests
+        - nfPrList
+      properties:
+        tests:
+          type: array
+          items:
+            type: string
+          example:
+            - test-1
+            - test-2
+        nfPrList:
+          type: array
+          items:
+            $ref: '#/components/schemas/NfPr'
     AddTestcasesRequest:
       type: object
       required:

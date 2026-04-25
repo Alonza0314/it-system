@@ -3,6 +3,7 @@ package internal
 import (
 	"backend/model"
 	"net/http"
+	"strconv"
 
 	"github.com/free-ran-ue/util"
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,30 @@ func (b *backend) getTestRoutes() util.Routes {
 			Method:      http.MethodGet,
 			Pattern:     "/testcase",
 			HandlerFunc: b.handleGetTestcases,
+		},
+		{
+			Name:        "Get tasks",
+			Method:      http.MethodGet,
+			Pattern:     "/tasks",
+			HandlerFunc: b.handleGetTasks,
+		},
+		{
+			Name:        "Get task",
+			Method:      http.MethodGet,
+			Pattern:     "/task",
+			HandlerFunc: b.handleGetTask,
+		},
+		{
+			Name:        "Submit task",
+			Method:      http.MethodPost,
+			Pattern:     "/task",
+			HandlerFunc: b.handleSubmitTask,
+		},
+		{
+			Name:        "Cancel task",
+			Method:      http.MethodDelete,
+			Pattern:     "/task",
+			HandlerFunc: b.handleCancelTask,
 		},
 	}
 }
@@ -99,5 +124,113 @@ func (b *backend) handleDeleteTestcases(c *gin.Context) {
 
 	b.TestLog.Infof("Delete testcases successful for %s", c.ClientIP())
 	c.JSON(http.StatusOK, response)
+}
 
+func (b *backend) handleGetTasks(c *gin.Context) {
+	b.TestLog.Infof("Get tasks request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	response, errDetail := b.Processor.GetTasks()
+	if errDetail != nil {
+		b.TestLog.Errorf("Get tasks failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseGetTasks{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.TestLog.Infof("Get tasks successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleGetTask(c *gin.Context) {
+	b.TestLog.Infof("Get task request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	id := c.Query("id")
+	if id == "" {
+		b.TestLog.Warnf("Get task request missing id from %s", c.ClientIP())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Missing id parameter",
+		})
+		return
+	}
+
+	uint64Id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		b.TestLog.Warnf("Invalid task id %s from %s", id, c.ClientIP())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid id parameter",
+		})
+		return
+	}
+
+	response, errDetail := b.Processor.GetTask(uint64Id)
+	if errDetail != nil {
+		b.TestLog.Errorf("Get task failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseGetTask{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.TestLog.Infof("Get task successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleSubmitTask(c *gin.Context) {
+	b.TestLog.Infof("Submit task request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	var req model.RequestSubmitTask
+	if err := c.ShouldBindJSON(&req); err != nil {
+		b.TestLog.Warnf("Invalid submit task request from %s: %v\n", c.ClientIP(), err)
+		c.JSON(http.StatusBadRequest, model.ResponseSubmitTask{
+			Message: "Invalid request",
+		})
+		return
+	}
+
+	response, errDetail := b.Processor.SubmitTask(&req, c.GetHeader("user"))
+	if errDetail != nil {
+		b.TestLog.Warnf("Submit task failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseSubmitTask{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.TestLog.Infof("Submit task successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleCancelTask(c *gin.Context) {
+	b.TestLog.Infof("Cancel task request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	id := c.Query("id")
+	if id == "" {
+		b.TestLog.Warnf("Cancel task request missing id from %s", c.ClientIP())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Missing id parameter",
+		})
+		return
+	}
+
+	uint64Id, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		b.TestLog.Warnf("Invalid task id %s from %s", id, c.ClientIP())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid id parameter",
+		})
+		return
+	}
+
+	response, errDetail := b.Processor.CancelTask(uint64Id)
+	if errDetail != nil {
+		b.TestLog.Warnf("Cancel task failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, gin.H{
+			"message": errDetail.Detail,
+		})
+		return
+	}
+
+	b.TestLog.Infof("Cancel task successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
 }

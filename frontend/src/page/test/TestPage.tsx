@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Configuration, DefaultApi, type GetGithubPRsNfEnum } from '../../api'
+import { Configuration, DefaultApi, type GetGithubPRsNfEnum, type RequestSubmitTask, type TaskSimple } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import { useNotifications } from '../../hooks/useNotifications'
 import NfPrSelector, { type PrOption } from '../../components/test/NfPrSelector'
+import TaskCard from '../../components/test/TaskCard'
 import { useTestcaseContext } from '../../context/testcase-context'
 import styles from './test-page.module.css'
 
@@ -35,13 +36,17 @@ export default function TestPage() {
   const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
   const { testcases, hasLoaded: hasTestcasesLoaded, refreshTestcases } = useTestcaseContext()
 
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isSubmittingTask, setIsSubmittingTask] = useState(false)
   const [prsByNf, setPrsByNf] = useState<Record<string, PrOption[]>>({})
   const [loadingByNf, setLoadingByNf] = useState<Record<string, boolean>>({})
   const [hasFetchedByNf, setHasFetchedByNf] = useState<Record<string, boolean>>({})
   const [enabledNf, setEnabledNf] = useState<Record<string, boolean>>({})
   const [selectedPrByNf, setSelectedPrByNf] = useState<Record<string, string>>({})
   const [selectedTestcases, setSelectedTestcases] = useState<string[]>([])
+  const [pendingTasks, setPendingTasks] = useState<TaskSimple[]>([])
+  const [ongoingTasks, setOngoingTasks] = useState<TaskSimple[]>([])
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,
@@ -49,6 +54,47 @@ export default function TestPage() {
   })), [])
 
   const allSelected = testcases.length > 0 && selectedTestcases.length === testcases.length
+
+  function extractErrorMessage(error: unknown, fallback: string) {
+    return (
+      typeof error === 'object'
+      && error !== null
+      && 'response' in error
+      && typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
+    )
+      ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || fallback
+      : fallback
+  }
+
+  function resetFormState() {
+    setPrsByNf({})
+    setLoadingByNf({})
+    setHasFetchedByNf({})
+    setEnabledNf({})
+    setSelectedPrByNf({})
+    setSelectedTestcases([])
+  }
+
+  async function refreshTaskQueues() {
+    setIsLoadingTasks(true)
+    try {
+      const response = await api.getTasks({
+        headers: getUserHeader(),
+      })
+      setPendingTasks(response.data.pendingTask || [])
+      setOngoingTasks(response.data.ongoingTask || [])
+    } catch (error: unknown) {
+      addError(extractErrorMessage(error, 'Failed to load tasks'))
+    } finally {
+      setIsLoadingTasks(false)
+    }
+  }
+
+  useEffect(() => {
+    refreshTaskQueues().catch(() => {
+      addError('Failed to load tasks')
+    })
+  }, [])
 
   useEffect(() => {
     if (!isFormOpen || hasTestcasesLoaded) {
@@ -69,12 +115,7 @@ export default function TestPage() {
     setIsFormOpen(nextOpen)
 
     if (!nextOpen) {
-      setPrsByNf({})
-      setLoadingByNf({})
-      setHasFetchedByNf({})
-      setEnabledNf({})
-      setSelectedPrByNf({})
-      setSelectedTestcases([])
+      resetFormState()
       return
     }
   }
@@ -110,6 +151,51 @@ export default function TestPage() {
       addError(message)
     } finally {
       setLoadingByNf((prev) => ({ ...prev, [apiName]: false }))
+    }
+  }
+
+  async function handleSubmitTask() {
+    if (selectedTestcases.length === 0) {
+      addError('Please select at least one testcase')
+      return
+    }
+
+    const enabledNfNames = NF_ORDER
+      .map((nf) => nf.apiName)
+      .filter((apiName) => Boolean(enabledNf[apiName]))
+
+    if (enabledNfNames.length === 0) {
+      addError('Please enable at least one NF')
+      return
+    }
+
+    const missingPrNf = enabledNfNames.filter((apiName) => !selectedPrByNf[apiName])
+    if (missingPrNf.length > 0) {
+      addError(`Please select PR for: ${missingPrNf.join(', ')}`)
+      return
+    }
+
+    const payload: RequestSubmitTask = {
+      tests: selectedTestcases,
+      nfPrList: enabledNfNames.map((apiName) => ({
+        nfName: apiName,
+        pr: Number(selectedPrByNf[apiName]),
+      })),
+    }
+
+    setIsSubmittingTask(true)
+    try {
+      const response = await api.submitTask(payload, {
+        headers: getUserHeader(),
+      })
+      addSuccess(response.data.message || 'Task submitted successfully')
+      setIsFormOpen(false)
+      resetFormState()
+      await refreshTaskQueues()
+    } catch (error: unknown) {
+      addError(extractErrorMessage(error, 'Failed to submit task'))
+    } finally {
+      setIsSubmittingTask(false)
     }
   }
 
@@ -224,19 +310,65 @@ export default function TestPage() {
                 )}
               </div>
             </section>
+
+            <div className={styles.submitRow}>
+              <button
+                type="button"
+                className={styles.submitButton}
+                onClick={handleSubmitTask}
+                disabled={isSubmittingTask}
+              >
+                {isSubmittingTask ? 'Submitting...' : 'Submit Task'}
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
       <section className={styles.columns}>
         <article className={styles.columnCard}>
-          <h3>Column 1</h3>
+          <h3>Pending Queue</h3>
+          <div className={styles.queueList}>
+            {isLoadingTasks ? (
+              <p className={styles.queueHint}>Loading pending tasks...</p>
+            ) : pendingTasks.length === 0 ? (
+              <p className={styles.queueHint}>No pending tasks</p>
+            ) : (
+              pendingTasks.map((task) => (
+                <TaskCard
+                  key={`pending-${task.id}`}
+                  id={task.id}
+                  username={task.username}
+                  createTime={task.createTime}
+                  status="pending"
+                />
+              ))
+            )}
+          </div>
         </article>
         <article className={styles.columnCard}>
-          <h3>Column 2</h3>
+          <h3>Ongoing Queue</h3>
+          <div className={styles.queueList}>
+            {isLoadingTasks ? (
+              <p className={styles.queueHint}>Loading ongoing tasks...</p>
+            ) : ongoingTasks.length === 0 ? (
+              <p className={styles.queueHint}>No ongoing tasks</p>
+            ) : (
+              ongoingTasks.map((task) => (
+                <TaskCard
+                  key={`ongoing-${task.id}`}
+                  id={task.id}
+                  username={task.username}
+                  createTime={task.createTime}
+                  status="ongoing"
+                />
+              ))
+            )}
+          </div>
         </article>
         <article className={styles.columnCard}>
-          <h3>Column 3</h3>
+          <h3>History Record</h3>
+          <p className={styles.queueHint}>Reserved for future history records.</p>
         </article>
       </section>
     </section>

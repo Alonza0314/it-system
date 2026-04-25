@@ -15,7 +15,12 @@ docs/GetTestcasesResponse.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/MessageResponse.md
+docs/NfPr.md
 docs/PR.md
+docs/RequestSubmitTask.md
+docs/ResponseGetTask.md
+docs/ResponseGetTasks.md
+docs/TaskSimple.md
 docs/Tenant.md
 docs/Testcase.md
 git_push.sh

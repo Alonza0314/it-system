@@ -44,7 +44,6 @@ frontend:
 
 clean:
 	rm -rf build
-	rm -rf build
 
 run:
 	./build/system -c config.yaml

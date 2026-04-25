@@ -5,6 +5,7 @@ import (
 	"backend/model"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func (p *Processor) GetTestcases() (*model.ResponseGetTestcases, *model.ErrorDetail) {
@@ -102,5 +103,72 @@ func (p *Processor) DeleteTestcases(req *model.RequestDeleteTestcases) (*model.R
 
 	return &model.ResponseDeleteTestcases{
 		Message: "Testcases deleted successfully",
+	}, nil
+}
+
+func (p *Processor) GetTasks() (*model.ResponseGetTasks, *model.ErrorDetail) {
+	pendingTasks, ongoingTasks := p.itContext.GetPendingTasks(), p.itContext.GetOngoingTasks()
+	p.ProcLog.Debugf("Retrieved %d pending tasks and %d ongoing tasks", len(pendingTasks), len(ongoingTasks))
+	p.ProcLog.Tracef("Pending tasks details: %+v", pendingTasks)
+	p.ProcLog.Tracef("Ongoing tasks details: %+v", ongoingTasks)
+
+	return &model.ResponseGetTasks{
+		Message:     "Tasks retrieved successfully",
+		PendingTask: pendingTasks,
+		OngoingTask: ongoingTasks,
+	}, nil
+}
+
+func (p *Processor) GetTask(id uint64) (*model.ResponseGetTask, *model.ErrorDetail) {
+	task, err := p.itContext.GetTask(id)
+	if err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusNotFound,
+			Detail:     err.Error(),
+		}
+	}
+
+	response := &model.ResponseGetTask{
+		Message:    "Task retrieved successfully",
+		Id:         task.ID(),
+		Username:   task.Username(),
+		CreateTime: task.CreateTime(),
+		Tests:      task.Tests(),
+	}
+
+	for _, nfPr := range task.NFPrList() {
+		response.NFPrList = append(response.NFPrList, model.NfPr{
+			NfName: nfPr.NFName(),
+			PR:     nfPr.PR(),
+		})
+	}
+
+	return response, nil
+}
+
+func (p *Processor) SubmitTask(req *model.RequestSubmitTask, username string) (*model.ResponseSubmitTask, *model.ErrorDetail) {
+	nowTime := time.Now().Unix()
+	if err := p.itContext.CreateTask(username, nowTime, req.Tests, req.NFPrList); err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to create task: %v", err),
+		}
+	}
+
+	return &model.ResponseSubmitTask{
+		Message: "Task submitted successfully",
+	}, nil
+}
+
+func (p *Processor) CancelTask(id uint64) (*model.ResponseCancelTask, *model.ErrorDetail) {
+	if err := p.itContext.CancelTask(id); err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to cancel task: %v", err),
+		}
+	}
+
+	return &model.ResponseCancelTask{
+		Message: "Task cancelled successfully",
 	}, nil
 }

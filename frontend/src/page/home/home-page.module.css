@@ -47,6 +47,10 @@
   cursor: pointer;
 }
 
+.taskCardButton {
+  grid-column: 1 / -1;
+}
+
 .card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -77,9 +81,69 @@
   color: #0f172a;
 }
 
+.taskCard {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.taskHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.taskHeader .metric {
+  margin: 0;
+}
+
+.queueSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.queueBlock {
+  border: 1px solid #dbe5f0;
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.queueLabel {
+  margin: 0;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.queueValue {
+  margin: 0.35rem 0 0;
+  color: #0f172a;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+}
+
+.subMetric {
+  margin-top: 0.3rem;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
 @media (max-width: 900px) {
   .header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .taskHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .queueSummary {
+    grid-template-columns: 1fr;
   }
 }

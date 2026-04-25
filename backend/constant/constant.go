@@ -44,4 +44,14 @@ var NF_LIST = []string{AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNG
 const (
 	BUCKET_TENANT   = "tenant"
 	BUCKET_TESTCASE = "testcase"
+	BUCKET_TASK_ID  = "taskId"
+)
+
+// task status
+const (
+	TASK_STATUS_PENDING   = "pending"
+	TASK_STATUS_RUNNING   = "running"
+	TASK_STATUS_SUCCESS   = "success"
+	TASK_STATUS_FAILED    = "failed"
+	TASK_STATUS_CANCELED  = "canceled"
 )

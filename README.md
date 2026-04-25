@@ -51,7 +51,7 @@ And run:
     └─/logout(POST)
     └─/test
     │   └─/testcase(GET)
-    └─/github(GET)
+    └─/github?repo(GET)
     └─/admin
         └─/test
             └─/testcase(POST, DELETE)

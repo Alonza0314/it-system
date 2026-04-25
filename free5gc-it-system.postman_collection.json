@@ -2143,6 +2143,882 @@
               ]
             }
           ]
+        },
+        {
+          "name": "task",
+          "item": [
+            {
+              "name": "tasks",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/tasks",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "test",
+                    "tasks"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/tasks",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "tasks"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:04:44 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "110"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Tasks retrieved successfully\",\n    \"pendingTask\": [\n        {\n            \"id\": 1,\n            \"username\": \"admin\",\n            \"createTime\": 1777143861\n        }\n    ]\n}"
+                },
+                {
+                  "name": "401",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/tasks",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "tasks"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:05:58 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "93"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "task",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "test",
+                    "task"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:05:05 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "184"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Task retrieved successfully\",\n    \"id\": 1,\n    \"username\": \"admin\",\n    \"createTime\": 1777143861,\n    \"tests\": [\n        \"test-1\",\n        \"test-2\"\n    ],\n    \"nfPrList\": [\n        {\n            \"nfName\": \"amf\",\n            \"pr\": 100\n        },\n        {\n            \"nfName\": \"smf\",\n            \"pr\": 200\n        }\n    ]\n}"
+                },
+                {
+                  "name": "400",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=a",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:08:23 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "34"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid id parameter\"\n}"
+                },
+                {
+                  "name": "401",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:06:09 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "93"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+                },
+                {
+                  "name": "404",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Not Found",
+                  "code": 404,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:09:16 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "38"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"task with id 1 not found\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "task",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "test",
+                    "task"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:04:21 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "41"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Task submitted successfully\"\n}"
+                },
+                {
+                  "name": "400",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:03:57 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "29"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid request\"\n}"
+                },
+                {
+                  "name": "401",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:06:17 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "93"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+                },
+                {
+                  "name": "500",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ]
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:10:10 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "52"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Failed to create task: <nil>\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "task",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "test",
+                    "task"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:05:23 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "41"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Task cancelled successfully\"\n}"
+                },
+                {
+                  "name": "400",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=a",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "a"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Bad Request",
+                  "code": 400,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:08:34 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "34"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid id parameter\"\n}"
+                },
+                {
+                  "name": "401",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:06:24 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "93"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+                },
+                {
+                  "name": "500",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "test",
+                        "task"
+                      ],
+                      "query": [
+                        {
+                          "key": "id",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sat, 25 Apr 2026 19:11:15 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "52"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Failed to cancel task: <nil>\"\n}"
+                }
+              ]
+            }
+          ]
         }
       ]
     },

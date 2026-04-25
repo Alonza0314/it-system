@@ -58,9 +58,35 @@ export interface LoginResponse {
 export interface MessageResponse {
     'message'?: string;
 }
+export interface NfPr {
+    'nfName': string;
+    'pr': number;
+}
 export interface PR {
     'number': number;
     'title': string;
+}
+export interface RequestSubmitTask {
+    'tests': Array<string>;
+    'nfPrList': Array<NfPr>;
+}
+export interface ResponseGetTask {
+    'message': string;
+    'id'?: number;
+    'username'?: string;
+    'createTime'?: number;
+    'tests'?: Array<string>;
+    'nfPrList'?: Array<NfPr>;
+}
+export interface ResponseGetTasks {
+    'message': string;
+    'pendingTask'?: Array<TaskSimple>;
+    'ongoingTask'?: Array<TaskSimple>;
+}
+export interface TaskSimple {
+    'id': number;
+    'username': string;
+    'createTime': number;
 }
 export interface Tenant {
     'username': string;
@@ -148,6 +174,47 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(addTestcasesRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Cancel task
+         * @param {number} id Task ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelTask: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('cancelTask', 'id', id)
+            const localVarPath = `/api/test/task`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (id !== undefined) {
+                localVarQueryParameter['id'] = id;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -261,6 +328,81 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             if (nf !== undefined) {
                 localVarQueryParameter['nf'] = nf;
             }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get task
+         * @param {number} id Task ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTask: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getTask', 'id', id)
+            const localVarPath = `/api/test/task`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (id !== undefined) {
+                localVarQueryParameter['id'] = id;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get tasks
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTasks: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/test/tasks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             localVarHeaderParameter['Accept'] = 'application/json';
 
@@ -405,6 +547,45 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Submit task
+         * @param {RequestSubmitTask} requestSubmitTask 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        submitTask: async (requestSubmitTask: RequestSubmitTask, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'requestSubmitTask' is not null or undefined
+            assertParamExists('submitTask', 'requestSubmitTask', requestSubmitTask)
+            const localVarPath = `/api/test/task`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(requestSubmitTask, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -438,6 +619,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.addTestcases(addTestcasesRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.addTestcases']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Cancel task
+         * @param {number} id Task ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cancelTask(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cancelTask(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.cancelTask']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -477,6 +671,31 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getGithubPRs(nf, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getGithubPRs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get task
+         * @param {number} id Task ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getTask(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseGetTask>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTask(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getTask']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get tasks
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getTasks(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ResponseGetTasks>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTasks(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getTasks']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -528,6 +747,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.logout']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Submit task
+         * @param {RequestSubmitTask} requestSubmitTask 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async submitTask(requestSubmitTask: RequestSubmitTask, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.submitTask(requestSubmitTask, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.submitTask']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -559,6 +791,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Cancel task
+         * @param {number} id Task ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelTask(id: number, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.cancelTask(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Delete tenants
          * @param {DeleteTenantsRequest} deleteTenantsRequest 
          * @param {*} [options] Override http request option.
@@ -586,6 +828,25 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig): AxiosPromise<GetGithubPRsResponse> {
             return localVarFp.getGithubPRs(nf, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get task
+         * @param {number} id Task ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTask(id: number, options?: RawAxiosRequestConfig): AxiosPromise<ResponseGetTask> {
+            return localVarFp.getTask(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get tasks
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getTasks(options?: RawAxiosRequestConfig): AxiosPromise<ResponseGetTasks> {
+            return localVarFp.getTasks(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -624,6 +885,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         logout(options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.logout(options).then((request) => request(axios, basePath));
         },
+        /**
+         * 
+         * @summary Submit task
+         * @param {RequestSubmitTask} requestSubmitTask 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        submitTask(requestSubmitTask: RequestSubmitTask, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.submitTask(requestSubmitTask, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -651,6 +922,17 @@ export class DefaultApi extends BaseAPI {
      */
     public addTestcases(addTestcasesRequest: AddTestcasesRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).addTestcases(addTestcasesRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Cancel task
+     * @param {number} id Task ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cancelTask(id: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).cancelTask(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -684,6 +966,27 @@ export class DefaultApi extends BaseAPI {
      */
     public getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getGithubPRs(nf, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get task
+     * @param {number} id Task ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getTask(id: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getTask(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get tasks
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getTasks(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getTasks(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -725,6 +1028,17 @@ export class DefaultApi extends BaseAPI {
      */
     public logout(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).logout(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Submit task
+     * @param {RequestSubmitTask} requestSubmitTask 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public submitTask(requestSubmitTask: RequestSubmitTask, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).submitTask(requestSubmitTask, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
