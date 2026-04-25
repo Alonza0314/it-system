@@ -10,6 +10,7 @@ import (
 func (p *Processor) GetTenants() (*model.ResponseGetTenants, *model.ErrorDetail) {
 	tenantMap, err := p.itContext.LoadAllFromDb(constant.BUCKET_TENANT)
 	if err != nil {
+		p.ProcLog.Errorf("Failed to load tenants from database: %v", err)
 		return nil, &model.ErrorDetail{
 			HttpStatus: http.StatusInternalServerError,
 			Detail:     fmt.Sprintf("Failed to load tenants from database: %v", err),
@@ -35,6 +36,7 @@ func (p *Processor) AddTenant(req *model.RequestAddTenant) (*model.ResponseAddTe
 	for _, tenant := range req.Tenants {
 		exists, err := p.itContext.ExistsInDb(constant.BUCKET_TENANT, tenant.Username)
 		if err != nil {
+			p.ProcLog.Errorf("Failed to check if tenant %s exists in database: %v", tenant.Username, err)
 			return nil, &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
 				Detail:     fmt.Sprintf("Failed to check if tenant %s exists in database: %v", tenant.Username, err),
@@ -50,6 +52,7 @@ func (p *Processor) AddTenant(req *model.RequestAddTenant) (*model.ResponseAddTe
 
 	for _, tenant := range req.Tenants {
 		if err := p.itContext.SaveToDb(constant.BUCKET_TENANT, tenant.Username, tenant.Role); err != nil {
+			p.ProcLog.Errorf("Failed to save tenant %s to database: %v", tenant.Username, err)
 			return nil, &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
 				Detail:     fmt.Sprintf("Failed to save tenant %s to database: %v", tenant.Username, err),
@@ -67,6 +70,7 @@ func (p *Processor) DeleteTenant(req *model.RequestDeleteTenant) (*model.Respons
 	for _, tenant := range req.Tenants {
 		exists, err := p.itContext.ExistsInDb(constant.BUCKET_TENANT, tenant.Username)
 		if err != nil {
+			p.ProcLog.Errorf("Failed to check if tenant %s exists in database: %v", tenant.Username, err)
 			return nil, &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
 				Detail:     fmt.Sprintf("Failed to check if tenant %s exists in database: %v", tenant.Username, err),
@@ -82,6 +86,7 @@ func (p *Processor) DeleteTenant(req *model.RequestDeleteTenant) (*model.Respons
 
 	for _, tenant := range req.Tenants {
 		if err := p.itContext.RemoveFromDb(constant.BUCKET_TENANT, tenant.Username); err != nil {
+			p.ProcLog.Errorf("Failed to remove tenant %s from database: %v", tenant.Username, err)
 			return nil, &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
 				Detail:     fmt.Sprintf("Failed to remove tenant %s from database: %v", tenant.Username, err),
