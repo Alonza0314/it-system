@@ -50,7 +50,8 @@ And run:
     └─/login(POST)
     └─/logout(POST)
     └─/test
-        └─/testcase(GET)
+    │   └─/testcase(GET)
+    └─/github(GET)
     └─/admin
         └─/test
             └─/testcase(POST, DELETE)
