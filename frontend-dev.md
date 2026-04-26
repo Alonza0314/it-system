@@ -1,212 +1,153 @@
-# Frontend Development Memory (for AI handoff)
+# Frontend Dev README (Session Handoff)
 
-## Purpose
-This document is the single source of truth for frontend development handoff.
-Goal: when switching machine or chat session, AI can continue without re-learning architecture and style.
+## TL;DR (New Session 3-Min Start)
+1. Workspace: `/home/alonza/it-system`
+2. Frontend: `/home/alonza/it-system/frontend`
+3. Install: `yarn install`
+4. Run: `yarn dev`
+5. Validate: `yarn build` and `yarn lint`
+6. Core routes to smoke test:
+   - `/login`
+   - `/` (dashboard)
+   - `/runner`
+   - `/testcase`
+   - `/tenant`
+   - `/test`
+   - `/test/task/:id`
 
-## Project Scope
-- Workspace root: /home/alonza/it-system
-- Frontend root: /home/alonza/it-system/frontend
-- Stack: React 19 + TypeScript + Vite + React Router + Axios
-- Package manager: Yarn only
+## Critical Rules
+- Use Yarn only. Never use npm/pnpm.
+- `frontend/src/api` is generated (typescript-axios). OpenAPI changed -> regenerate first.
+- Prefer minimal/local edits unless user asks for refactor.
+- Reuse shared components (`Button`, `Modal`, `Switch`, `NotificationContainer`).
 
-## Package Manager Rule (Critical)
-Use Yarn for all frontend tasks.
-Do not use npm.
-Do not use pnpm.
+## Stack and Runtime
+- React 19 + TypeScript + Vite + React Router + Axios
+- API base URL:
+  - `VITE_API_BASE_URL` if set
+  - fallback: `${protocol}//${hostname}:8888`
+- Local storage:
+  - token key: `token`
+  - username key: `username`
+- Extra backend header from `getUserHeader()`:
+  - `user: <username-from-localStorage-or-jwt>`
 
-Recommended commands:
-- Install deps: yarn install
-- Dev server: yarn dev
-- Build: yarn build
-- Lint: yarn lint
-- Preview build: yarn preview
+## App Structure
 
-## Build and Integration Notes
-- Root Makefile already uses Yarn for frontend build.
-- Frontend module Makefile delegates to root Makefile.
-- Frontend build output goes to frontend/dist and copied to build/frontend by root Makefile.
+### Entry and Router
+- Entry: `frontend/src/main.tsx`
+- App router: `frontend/src/App.tsx`
+- Auth guard: `RequireAuth` (token check)
 
-## Environment and Runtime
-- API base path is resolved in page/context layer with:
-  - VITE_API_BASE_URL if provided
-  - fallback: protocol + hostname + :8888
-- Auth token is stored in localStorage key: token
-- Username is stored in localStorage key: username
-- Additional backend header:
-  - key: user
-  - value: username resolved from localStorage or JWT claims
+### Main pages
+- `frontend/src/page/login/LoginPage.tsx`
+- `frontend/src/page/home/HomePage.tsx`
+- `frontend/src/page/runner/RunnerPage.tsx`
+- `frontend/src/page/test/TestPage.tsx`
+- `frontend/src/page/test/TaskDetailPage.tsx`
+- `frontend/src/page/testcase/TestcasePage.tsx`
+- `frontend/src/page/tenant/TenantPage.tsx`
 
-## Routing and App Shell
-- Entry: frontend/src/main.tsx
-- Router root: frontend/src/App.tsx
-- Protected routes use RequireAuth (token check only).
-- Main layout with sidebar navigation:
-  - Dashboard
-  - Testcase
-  - Test
-  - Tenant
+### Contexts
+- `frontend/src/context/testcase-context.tsx`
+- `frontend/src/context/tenant-context.tsx`
 
-## Directory Responsibilities
-- frontend/src/page
-  - login: auth page and sign-in flow
-  - layout: app shell and sidebar
-  - home: dashboard cards and refresh
-  - testcase: testcase CRUD page
-  - tenant: tenant CRUD page with permission fallback
-  - test: test creation panel with NF switch and PR selection
-- frontend/src/context
-  - testcase-context.tsx: testcase state, loading, refresh/add/delete
-  - tenant-context.tsx: tenant state, loading, permission handling, refresh/add/delete
-- frontend/src/components
-  - button, modal, switch
-  - notifications + errorBox + successBox
-  - test/NfPrSelector
-  - stats/stats-card (available component)
-- frontend/src/api
-  - generated OpenAPI client (typescript-axios)
-  - do not manually edit generated files unless intentional temporary patch
+### API layer
+- Generated API client: `frontend/src/api/*`
+- Manual helper for runner APIs: `frontend/src/api/runner.ts`
 
-## OpenAPI Generator Workflow
-Source of API contract is openapi.yaml in workspace root.
-Generated client path is fixed:
-- output: frontend/src/api
-- generator command script: openapi-generator-docker.sh
+## OpenAPI Regeneration Flow
+Source spec: `/home/alonza/it-system/openapi.yaml`
 
-Generator command behavior:
-- Uses Docker image openapitools/openapi-generator-cli
-- Input spec: /local/openapi.yaml
-- Generator: typescript-axios
-- Output: /local/frontend/src/api
+When API contract changes:
+1. Regenerate client into `frontend/src/api`
+2. Fix compile errors (if response shape changed)
+3. Run `yarn build`
 
-After OpenAPI changes:
-1. regenerate frontend api client
-2. verify compile with yarn build
-3. adjust page/context usage if response shapes changed
+Generator script:
+- `/home/alonza/it-system/openapi-generator-docker.sh`
 
-## API Usage Pattern in Frontend
-Current project pattern is direct page/context invocation of generated DefaultApi.
-No separate service layer currently.
+## Current UX/Behavior Contracts (Do Not Break)
 
-Common pattern:
-- create DefaultApi with Configuration(basePath, accessToken callback)
-- call generated method directly in page or context
-- pass extra headers using getUserHeader when needed
-- parse backend message from error.response.data.message
+### 1) Test Page (`frontend/src/page/test/TestPage.tsx`)
+- `New Test` only toggles form open/close.
+- Opening form does NOT bulk fetch all NF PRs.
+- NF switch ON -> fetch that NF PR list only (`getGithubPRs(nf)`).
+- Per-form cache exists; same NF should not re-fetch while form is open.
+- Form close resets temporary states:
+  - `prsByNf`
+  - `loadingByNf`
+  - `hasFetchedByNf`
+  - `enabledNf`
+  - `selectedPrByNf`
+  - `selectedTestcases`
+- Submit now has confirmation modal before actual API call.
+- Submit modal must show selected testcases and NF/PR list.
 
-Examples by responsibility:
-- login page directly calls api.login
-- testcase and tenant pages use context methods
-- test page directly calls api.getGithubPRs for per-NF PR list
+### 2) Task Detail Page (`frontend/src/page/test/TaskDetailPage.tsx`)
+- Cancel task action must use confirmation modal.
+- Do not use browser native `confirm()`.
 
-## Test Page Behavior Contract (Important)
-File: frontend/src/page/test/TestPage.tsx
+### 3) Runner Page (`frontend/src/page/runner/RunnerPage.tsx`)
+- Poll runner list every 30 seconds while mounted.
+- Runner cards are square grid layout (not full-row list).
+- Delete runner must use shared `Modal` confirmation flow.
+- Do not use browser native `confirm()`.
 
-Current required behavior:
-- New Test button only toggles form open/close.
-- When form opens:
-  - no bulk GitHub request is sent immediately
-- Each NF switch ON triggers request for that NF only.
-- Request API:
-  - getGithubPRs(nf)
-  - response uses data.prs
-- In-form cache behavior:
-  - fetched PR list is cached per NF in local state
-  - same NF should not re-request while form remains open
-  - toggling switch OFF then ON again should reuse cached data (no duplicate request)
-- Cache reset behavior:
-  - when form closes, clear per-form temporary state:
-    - prsByNf
-    - loadingByNf
-    - hasFetchedByNf
-    - enabledNf
-    - selectedPrByNf
-    - selectedTestcases
+### 4) Dashboard (`frontend/src/page/home/HomePage.tsx`)
+- Poll tasks + runners every 30 seconds while mounted.
+- Includes KPI and detail summary for:
+  - testcases
+  - tenants
+  - tasks (pending/ongoing)
+  - runners (offline/idle/running)
 
-NF mapping contract:
-- apiName must match backend/OpenAPI enum exactly.
-- UPF apiName is upf (not go-upf).
+## Visual Design System (Current Baseline)
+Current style is: minimalist + modern + light theme + restrained colors.
 
-## UI and Visual Style Baseline (Do Not Drift)
-This codebase currently uses a soft, light dashboard style.
-Keep future UI consistent with these rules.
+### Tokens
+- Global tokens in `frontend/src/index.css` (`--bg`, `--surface`, `--accent`, etc.)
+- Prefer token usage over hardcoded colors for new UI.
 
-### Typography and overall tone
-- Sans-serif UI with Segoe UI / Noto Sans fallback.
-- Medium to bold headings, clear hierarchy, readable spacing.
-- Tone: professional, clean, slightly modern glass effect on some surfaces.
+### Tone
+- Clean, premium, low-noise surfaces.
+- Subtle accent color (blue family) with soft status tints.
+- No heavy gradients, no random palette per page.
 
-### Color language
-- Base background: light slate/gray gradients.
-- Core text: deep slate (#0f172a family).
-- Accent system mainly blue/cyan tones for structure and focus.
-- Success and error toast colors are green/red semantic.
+### Components
+- Primary action -> shared `Button` (accent style)
+- Confirm flows -> shared `Modal`
+- Operation feedback -> `NotificationContainer`
 
-Important existing mixed accent:
-- Shared primary Button and active Switch use indigo-purple gradient.
-- Page-level action buttons are often solid blue.
-Preserve this current behavior unless doing a full design refactor.
-Do not introduce new random accent palettes page-by-page.
+## Error and Loading Pattern
+- Parse backend error message from `error.response.data.message` when present.
+- Fallback to deterministic message.
+- Use toast notifications for success/error.
+- Keep scoped loading flags (`isLoading`, `isSubmitting`, per-item loading).
 
-### Surfaces and shapes
-- Rounded corners around 8 to 20px.
-- Cards/tables use white or translucent white surface.
-- Borders are subtle slate/blue tints.
-- Shadows are soft and non-heavy.
+## Build / Makefile Notes
+- Root Makefile already orchestrates frontend build with Yarn.
+- Frontend dist output: `frontend/dist`
+- Root build sync target: `build/frontend`
 
-### Motion and interaction
-- Subtle transitions only (hover lift, fade/slide, panel open animation).
-- Notifications slide in from right.
-- Form panel in Test page uses expand/collapse animation.
+## Fast Verification Checklist
+1. `yarn install`
+2. `yarn dev`
+3. Login success
+4. Dashboard data loads and 30s polling works
+5. Runner delete shows modal and works
+6. Test submit shows modal and works
+7. Task detail cancel shows modal and works
+8. `yarn build` and `yarn lint`
 
-### Layout behavior
-- Sidebar + content two-column desktop shell.
-- Mobile/tablet: stack to single column at medium breakpoints.
-- Tables remain readable with horizontal overflow wrapper.
+## Known Caveats
+- `frontend/src/api` changes may be overwritten by regeneration.
+- Notification IDs are timestamp-based; rapid operations may be close in time.
 
-### Component consistency rules
-- Reuse shared Button, Modal, Switch components.
-- Reuse NotificationContainer for operation feedback.
-- For forms, use existing input border, radius, and focus ring pattern.
-- For page headers, keep heading + action alignment pattern.
-
-## Error Handling and UX Pattern
-- Extract backend message from response.data.message when available.
-- Fallback to deterministic message string if unavailable.
-- Show result via notification boxes, not alert().
-- Keep loading flags explicit and scoped (global page vs per-item).
-
-## TypeScript and Lint Rules
-- TS strict mode enabled.
-- noUnusedLocals and noUnusedParameters enabled.
-- React hooks linting enabled.
-- Prefer explicit interfaces for payload and context contracts.
-
-## AI Implementation Rules for Future Sessions
-When AI edits frontend in this repo, follow these rules:
-
-1. Keep Yarn-only commands.
-2. Prefer minimal, local changes; avoid broad refactors unless requested.
-3. Respect direct generated API usage pattern already used by pages/contexts.
-4. If API schema changed, regenerate frontend/src/api first, then fix compile errors.
-5. Keep visual style aligned with current light-slate + blue system and existing component patterns.
-6. Do not invent a new design system or dark theme unless explicitly requested.
-7. Preserve responsive behavior in each page-level CSS module.
-8. Preserve notification-based feedback flow.
-
-## Fast Onboarding Checklist (for new machine/session)
-1. Confirm in frontend/package.json that packageManager is Yarn.
-2. Run yarn install in frontend.
-3. Verify backend URL strategy via VITE_API_BASE_URL or default :8888 fallback.
-4. If API changed, regenerate client from openapi.yaml into frontend/src/api.
-5. Run yarn build and yarn lint.
-6. Start with yarn dev and validate login + dashboard + testcase + tenant + test page basic flow.
-
-## Known Current Caveats
-- frontend/src/api is generated output; local patches can be overwritten on regeneration.
-- Notification IDs are timestamp-based; very rapid operations may still be close in time.
-- Some unused demo styles/components may remain for future expansion (for example stats card).
-
-## Last Verified Snapshot
-- Architecture scanned from current workspace frontend source.
-- Includes current Test page per-NF lazy PR loading and per-form cache reset behavior.
+## Session Update Rules (for future AI sessions)
+When continuing this frontend work:
+1. Keep Yarn-only workflow.
+2. Preserve behavior contracts above unless user explicitly asks to change them.
+3. Keep style aligned to current token-based minimalist system.
+4. Avoid introducing page-specific one-off visual systems.
+5. Run at least error checks and ideally `yarn build` after meaningful changes.
