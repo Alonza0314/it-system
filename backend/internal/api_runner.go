@@ -9,6 +9,10 @@ import (
 )
 
 func (b *backend) getRunnerRoutes() util.Routes {
+	return util.Routes{}
+}
+
+func (b *backend) getAdminRunnerRoutes() util.Routes {
 	return util.Routes{
 		{
 			Name:        "Register Runner",
@@ -16,11 +20,6 @@ func (b *backend) getRunnerRoutes() util.Routes {
 			Pattern:     "",
 			HandlerFunc: b.handleRegisterRunner,
 		},
-	}
-}
-
-func (b *backend) getAdminRunnerRoutes() util.Routes {
-	return util.Routes{
 		{
 			Name:        "Delete Runner",
 			Method:      http.MethodDelete,

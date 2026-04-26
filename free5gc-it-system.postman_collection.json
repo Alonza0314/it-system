@@ -2507,7 +2507,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n    \"message\": \"task with id 1 not found\"\n}"
+                  "body": "{\n    \"message\": \"Task with ID 1 not found\"\n}"
                 }
               ]
             },
@@ -3286,6 +3286,631 @@
               ],
               "cookie": [],
               "body": "{\n    \"message\": \"Failed to get PR list: <nil>\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runner",
+      "item": [
+        {
+          "name": "runner",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "runner"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 20:58:59 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "44"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runner registered successfully\"\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 20:57:13 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "71"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token has invalid claims: token is expired\"\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 26 Apr 2026 06:56:07 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "35"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Admin access required\"\n}"
+            },
+            {
+              "name": "409",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 20:59:46 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "54"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runner with the same name already exists\"\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 21:05:19 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "56"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Failed to register runner: <nil>\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "runner",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner?name=runner",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "runner"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "runner"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner?name=runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "runner"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 20:59:10 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "41"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runner deleted successfully\"\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner?name=runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "runner"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 20:58:32 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "71"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token has invalid claims: token is expired\"\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner?name=runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "runner"
+                    }
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 21:23:17 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "35"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Admin access required\"\n}"
+            },
+            {
+              "name": "404",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner?name=runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "runner"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 20:59:28 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "30"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runner not found\"\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/runner?name=runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "runner"
+                  ],
+                  "query": [
+                    {
+                      "key": "name",
+                      "value": "runner"
+                    }
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 25 Apr 2026 21:05:12 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "54"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Failed to delete runner: <nil>\"\n}"
             }
           ]
         }
