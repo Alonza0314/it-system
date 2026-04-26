@@ -4,6 +4,7 @@ import { Configuration, DefaultApi, type ResponseGetTask } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import { useNotifications } from '../../hooks/useNotifications'
+import Modal from '../../components/modal/modal'
 import Button from '../../components/button/button'
 import styles from './task-detail-page.module.css'
 
@@ -25,6 +26,7 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState<ResponseGetTask | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
 
   const taskId = Number(id)
 
@@ -89,6 +91,14 @@ export default function TaskDetailPage() {
     }
   }
 
+  function openCancelModal() {
+    setIsCancelModalOpen(true)
+  }
+
+  function closeCancelModal() {
+    setIsCancelModalOpen(false)
+  }
+
   return (
     <section className={styles.page}>
       <NotificationContainer
@@ -104,7 +114,7 @@ export default function TaskDetailPage() {
         </div>
         <div className={styles.actions}>
           <Button variant="secondary" onClick={() => navigate('/test')}>Back</Button>
-          <Button onClick={handleCancelTask} disabled={isCancelling || isLoading}>
+          <Button onClick={openCancelModal} disabled={isCancelling || isLoading}>
             {isCancelling ? 'Cancelling...' : 'Cancel Task'}
           </Button>
         </div>
@@ -162,6 +172,19 @@ export default function TaskDetailPage() {
           </>
         )}
       </article>
+
+      <Modal
+        isOpen={isCancelModalOpen}
+        onClose={closeCancelModal}
+        title="Confirm Cancel Task"
+        onSubmit={handleCancelTask}
+        submitText={isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
+        submitDisabled={isCancelling || isLoading}
+      >
+        <p className={styles.confirmMessage}>
+          Are you sure you want to cancel task "#{taskId}"?
+        </p>
+      </Modal>
     </section>
   )
 }

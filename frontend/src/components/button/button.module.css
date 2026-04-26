@@ -1,14 +1,14 @@
 .button {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
+  padding: 0.62rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 140ms ease, transform 120ms ease, box-shadow 140ms ease;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  border: none;
+  border: 1px solid var(--border);
 }
 
 .button:disabled {
@@ -19,23 +19,23 @@
 }
 
 .primary {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.25);
-  border: none;
-  color: white;
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
 }
 
 .primary:hover {
-  background: linear-gradient(135deg, #4338ca, #7e22ce);
-  box-shadow: 0 6px 16px rgba(147, 51, 234, 0.4);
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
 .secondary {
-  background-color: #e2e8f0;
-  color: #1e293b;
+  background-color: #ffffff;
+  color: var(--text);
 }
 
 .secondary:hover {
-  background-color: #cbd5e1;
+  background-color: #f0f0f2;
 }

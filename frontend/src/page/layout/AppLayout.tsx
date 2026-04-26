@@ -27,6 +27,12 @@ export default function AppLayout() {
               Dashboard
             </NavLink>
             <NavLink
+              to="/runner"
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
+              Runner
+            </NavLink>
+            <NavLink
               to="/testcase"
               className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
             >

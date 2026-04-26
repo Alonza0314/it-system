@@ -39,6 +39,10 @@ export interface GetGithubPRsResponse {
     'message': string;
     'prs': Array<PR>;
 }
+export interface GetRunnersResponse {
+    'message': string;
+    'runners'?: Array<Runner>;
+}
 export interface GetTenantsResponse {
     'message': string;
     'tenants'?: Array<Tenant>;
@@ -66,6 +70,10 @@ export interface PR {
     'number': number;
     'title': string;
 }
+export interface RegisterRunnerRequest {
+    'name': string;
+    'ip': string;
+}
 export interface RequestSubmitTask {
     'tests': Array<string>;
     'nfPrList': Array<NfPr>;
@@ -82,6 +90,12 @@ export interface ResponseGetTasks {
     'message': string;
     'pendingTask'?: Array<TaskSimple>;
     'ongoingTask'?: Array<TaskSimple>;
+}
+export interface Runner {
+    'name': string;
+    'ip': string;
+    'onGoingTask': number;
+    'status': string;
 }
 export interface TaskSimple {
     'id': number;
@@ -223,6 +237,47 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Delete runner
+         * @param {string} name Runner name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteRunner: async (name: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'name' is not null or undefined
+            assertParamExists('deleteRunner', 'name', name)
+            const localVarPath = `/api/admin/runner`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Delete tenants
          * @param {DeleteTenantsRequest} deleteTenantsRequest 
          * @param {*} [options] Override http request option.
@@ -328,6 +383,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             if (nf !== undefined) {
                 localVarQueryParameter['nf'] = nf;
             }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get runners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRunners: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/runner`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             localVarHeaderParameter['Accept'] = 'application/json';
 
@@ -549,6 +638,45 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Register runner
+         * @param {RegisterRunnerRequest} registerRunnerRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerRunner: async (registerRunnerRequest: RegisterRunnerRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'registerRunnerRequest' is not null or undefined
+            assertParamExists('registerRunner', 'registerRunnerRequest', registerRunnerRequest)
+            const localVarPath = `/api/admin/runner`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(registerRunnerRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Submit task
          * @param {RequestSubmitTask} requestSubmitTask 
          * @param {*} [options] Override http request option.
@@ -636,6 +764,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Delete runner
+         * @param {string} name Runner name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteRunner(name: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRunner(name, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteRunner']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Delete tenants
          * @param {DeleteTenantsRequest} deleteTenantsRequest 
          * @param {*} [options] Override http request option.
@@ -671,6 +812,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getGithubPRs(nf, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getGithubPRs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get runners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getRunners(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetRunnersResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getRunners(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getRunners']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -749,6 +902,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Register runner
+         * @param {RegisterRunnerRequest} registerRunnerRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async registerRunner(registerRunnerRequest: RegisterRunnerRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.registerRunner(registerRunnerRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.registerRunner']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Submit task
          * @param {RequestSubmitTask} requestSubmitTask 
          * @param {*} [options] Override http request option.
@@ -801,6 +967,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Delete runner
+         * @param {string} name Runner name
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteRunner(name: string, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.deleteRunner(name, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Delete tenants
          * @param {DeleteTenantsRequest} deleteTenantsRequest 
          * @param {*} [options] Override http request option.
@@ -828,6 +1004,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig): AxiosPromise<GetGithubPRsResponse> {
             return localVarFp.getGithubPRs(nf, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get runners
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getRunners(options?: RawAxiosRequestConfig): AxiosPromise<GetRunnersResponse> {
+            return localVarFp.getRunners(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -887,6 +1072,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Register runner
+         * @param {RegisterRunnerRequest} registerRunnerRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registerRunner(registerRunnerRequest: RegisterRunnerRequest, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.registerRunner(registerRunnerRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Submit task
          * @param {RequestSubmitTask} requestSubmitTask 
          * @param {*} [options] Override http request option.
@@ -937,6 +1132,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Delete runner
+     * @param {string} name Runner name
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteRunner(name: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteRunner(name, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Delete tenants
      * @param {DeleteTenantsRequest} deleteTenantsRequest 
      * @param {*} [options] Override http request option.
@@ -966,6 +1172,16 @@ export class DefaultApi extends BaseAPI {
      */
     public getGithubPRs(nf: GetGithubPRsNfEnum, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getGithubPRs(nf, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get runners
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getRunners(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getRunners(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1028,6 +1244,17 @@ export class DefaultApi extends BaseAPI {
      */
     public logout(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).logout(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Register runner
+     * @param {RegisterRunnerRequest} registerRunnerRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public registerRunner(registerRunnerRequest: RegisterRunnerRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).registerRunner(registerRunnerRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

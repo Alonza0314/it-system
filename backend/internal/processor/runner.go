@@ -45,3 +45,10 @@ func (p *Processor) DeleteRunner(name string) (*model.ResponseDeleteRunner, *mod
 		Message: "Runner deleted successfully",
 	}, nil
 }
+
+func (p *Processor) GetRunners() (*model.ResponseGetRunners, *model.ErrorDetail) {
+	return &model.ResponseGetRunners{
+		Message: "Runners retrieved successfully",
+		Runners: p.itContext.GetRunners(),
+	}, nil
+}

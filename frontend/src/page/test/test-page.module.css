@@ -13,16 +13,16 @@
 .header h2 {
   margin: 0;
   font-size: clamp(1.6rem, 3vw, 2.2rem);
-  color: #0f172a;
+  color: var(--text);
 }
 
 .newTestButton {
-  border: 0;
-  border-radius: 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
   padding: 0.6rem 0.9rem;
   color: #ffffff;
   font-weight: 600;
-  background: #1d4ed8;
+  background: var(--accent);
   cursor: pointer;
 }
 
@@ -32,7 +32,7 @@
 }
 
 .newTestButton:hover:not(:disabled) {
-  background: #1e40af;
+  background: var(--accent-strong);
 }
 
 .formPanel {
@@ -50,9 +50,9 @@
 }
 
 .formInner {
-  border: 1px solid #dbe5f0;
-  border-radius: 14px;
-  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
   padding: 1rem;
 }
 
@@ -68,17 +68,17 @@
 }
 
 .submitButton {
-  border: 0;
-  border-radius: 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
   padding: 0.6rem 1rem;
   color: #ffffff;
   font-weight: 600;
-  background: #2563eb;
+  background: var(--accent);
   cursor: pointer;
 }
 
 .submitButton:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--accent-strong);
 }
 
 .submitButton:disabled {
@@ -88,21 +88,21 @@
 
 .testcasePicker {
   margin-top: 0.25rem;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.9rem;
-  background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+  background: var(--accent-soft);
 }
 
 .testcaseHeader h3 {
   margin: 0;
-  color: #1e3a8a;
+  color: var(--text);
   font-size: 1rem;
 }
 
 .testcaseHeader p {
   margin: 0.3rem 0 0;
-  color: #334155;
+  color: var(--text-muted);
   font-size: 0.88rem;
 }
 
@@ -117,11 +117,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.35rem 0.62rem;
   background: #ffffff;
-  color: #0f172a;
+  color: var(--text);
   font-size: 0.88rem;
 }
 
@@ -130,15 +130,15 @@
 }
 
 .allOption {
-  border-color: #60a5fa;
-  background: #dbeafe;
-  color: #1e3a8a;
+  border-color: var(--accent);
+  background: #dcecff;
+  color: var(--accent-strong);
   font-weight: 600;
 }
 
 .noTestcases {
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -189,10 +189,11 @@
 
 .columnCard {
   min-height: 260px;
-  border: 1px dashed #cbd5e1;
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 0.9rem;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--surface);
+  border-top: 3px solid var(--accent);
   display: grid;
   gap: 0.7rem;
   align-content: start;
@@ -200,7 +201,7 @@
 
 .columnCard h3 {
   margin: 0;
-  color: #334155;
+  color: var(--text);
   font-size: 1rem;
 }
 
@@ -211,8 +212,58 @@
 
 .queueHint {
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.92rem;
+}
+
+.confirmBody {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.confirmTitle {
+  margin: 0;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.confirmSection {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.confirmLabel {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.confirmChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.confirmChip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--surface-muted);
+}
+
+.confirmList {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--text);
+  display: grid;
+  gap: 0.25rem;
 }
 
 @media (max-width: 980px) {

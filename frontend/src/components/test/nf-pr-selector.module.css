@@ -11,7 +11,7 @@
 
 .label {
   margin: 0;
-  color: #0f172a;
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -26,23 +26,23 @@
 
 .select {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   padding: 0.55rem 0.65rem;
   font-size: 0.9rem;
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .select:disabled {
-  background: #f8fafc;
-  color: #94a3b8;
+  background: #f1f1f3;
+  color: #9d9da3;
 }
 
 .select:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.16);
 }
 
 @media (max-width: 760px) {

@@ -3295,6 +3295,121 @@
       "name": "runner",
       "item": [
         {
+          "name": "runners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/runner",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "runner"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 26 Apr 2026 11:22:27 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "125"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runners retrieved successfully\",\n    \"runners\": [\n        {\n            \"name\": \"runner\",\n            \"ip\": \"10.0.0.1\",\n            \"onGoingTask\": 0,\n            \"status\": \"offline\"\n        }\n    ]\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/runner",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "runner"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 26 Apr 2026 11:21:48 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "93"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token is malformed: token contains an invalid number of segments\"\n}"
+            }
+          ]
+        },
+        {
           "name": "runner",
           "request": {
             "method": "POST",

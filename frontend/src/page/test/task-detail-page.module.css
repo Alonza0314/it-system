@@ -13,12 +13,12 @@
 .header h2 {
   margin: 0;
   font-size: clamp(1.5rem, 3vw, 2.1rem);
-  color: #0f172a;
+  color: var(--text);
 }
 
 .header p {
   margin: 0.3rem 0 0;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .actions {
@@ -28,15 +28,15 @@
 }
 
 .card {
-  border: 1px solid #dbe5f0;
-  border-radius: 14px;
-  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
   padding: 1rem;
 }
 
 .loading {
   margin: 0;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .metaGrid {
@@ -47,7 +47,7 @@
 
 .metaGrid p {
   margin: 0;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .section {
@@ -56,7 +56,7 @@
 
 .section h3 {
   margin: 0 0 0.5rem;
-  color: #0f172a;
+  color: var(--text);
   font-size: 1rem;
 }
 
@@ -70,22 +70,28 @@
 }
 
 .tag {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.32rem 0.6rem;
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--text);
+  background: var(--surface-muted);
   font-size: 0.87rem;
 }
 
 .empty {
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
+}
+
+.confirmMessage {
+  margin: 0;
+  color: var(--text);
+  font-weight: 600;
 }
 
 .tableWrap {
   overflow-x: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 10px;
 }
 
@@ -98,12 +104,12 @@
 .table td {
   text-align: left;
   padding: 0.65rem 0.8rem;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid #ededf1;
 }
 
 .table th {
-  background: #f8fafc;
-  color: #334155;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 @media (max-width: 980px) {

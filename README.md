@@ -54,6 +54,7 @@ And run:
     │   └─/tasks(GET)
     │   └─/task(GET, POST, DELETE)
     └─/github(GET)
+    └─/runner(GET)
     └─/admin
         └─/test
         │  └─/testcase(POST, DELETE)

@@ -50,9 +50,6 @@ export default function LoginPage() {
         successes={successes}
         onClose={removeNotification}
       />
-
-      <div className={styles.heroGlow} aria-hidden="true" />
-
       <main className={styles.card}>
         <div className={styles.headerBlock}>
           <p className={styles.kicker}>free5GC</p>

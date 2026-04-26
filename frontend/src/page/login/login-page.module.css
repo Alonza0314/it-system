@@ -3,12 +3,7 @@
   display: grid;
   place-items: center;
   padding: 1.5rem;
-  background:
-    radial-gradient(circle at 10% 15%, rgba(14, 165, 233, 0.22), transparent 38%),
-    radial-gradient(circle at 85% 0%, rgba(251, 146, 60, 0.22), transparent 42%),
-    linear-gradient(160deg, #f8fafc 0%, #eef2ff 100%);
-  position: relative;
-  overflow: hidden;
+  background: var(--bg);
 }
 
 .heroGlow {
@@ -24,12 +19,12 @@
 
 .card {
   width: min(460px, 100%);
-  background: rgba(255, 255, 255, 0.76);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
+  border-radius: 22px;
   padding: 2rem;
-  box-shadow: 0 25px 70px rgba(15, 23, 42, 0.18);
+  box-shadow: var(--shadow-md);
   animation: reveal 340ms ease-out;
 }
 
@@ -43,19 +38,19 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #0369a1;
+  color: var(--accent-strong);
 }
 
 .title {
   margin: 0.35rem 0 0;
   font-size: clamp(1.8rem, 3vw, 2.4rem);
   line-height: 1.1;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .subtitle {
   margin: 0.55rem 0 0;
-  color: #334155;
+  color: var(--text-muted);
 }
 
 .form {
@@ -66,24 +61,24 @@
 .label {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .input {
   width: 100%;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.8rem 0.9rem;
   font-size: 0.98rem;
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--text);
+  background: var(--surface-muted);
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.16);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.16);
 }
 
 .actionRow {

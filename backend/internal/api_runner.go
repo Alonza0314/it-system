@@ -9,7 +9,14 @@ import (
 )
 
 func (b *backend) getRunnerRoutes() util.Routes {
-	return util.Routes{}
+	return util.Routes{
+		{
+			Name:        "Get Runners",
+			Method:      http.MethodGet,
+			Pattern:     "",
+			HandlerFunc: b.handleGetRunners,
+		},
+	}
 }
 
 func (b *backend) getAdminRunnerRoutes() util.Routes {
@@ -76,5 +83,22 @@ func (b *backend) handleDeleteRunner(c *gin.Context) {
 	}
 
 	b.RunLog.Infof("Delete Runner successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleGetRunners(c *gin.Context) {
+	b.RunLog.Infof("Get Runners request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	response, errDetail := b.Processor.GetRunners()
+	if errDetail != nil {
+		b.RunLog.Errorf("Get Runners failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseGetRunners{
+			Message: errDetail.Detail,
+			Runners: nil,
+		})
+		return
+	}
+
+	b.RunLog.Infof("Get Runners successful for %s", c.ClientIP())
 	c.JSON(http.StatusOK, response)
 }

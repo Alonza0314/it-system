@@ -7,21 +7,29 @@ import (
 	"time"
 )
 
-type runner struct {
+type runnerWithoutLock struct {
+	name           string
 	ip             string
 	status         string
 	onGoingtask    uint64
 	lastActiveTime int64
-	rwLock         sync.RWMutex
 }
 
-func newRunner(ip string) *runner {
+type runner struct {
+	runnerWithoutLock
+	rwLock sync.RWMutex
+}
+
+func newRunner(name, ip string) *runner {
 	return &runner{
-		ip:             ip,
-		status:         constant.RUNNER_STATUS_OFFLINE,
-		onGoingtask:    0,
-		lastActiveTime: 0,
-		rwLock:         sync.RWMutex{},
+		runnerWithoutLock: runnerWithoutLock{
+			name:           name,
+			ip:             ip,
+			status:         constant.RUNNER_STATUS_OFFLINE,
+			onGoingtask:    0,
+			lastActiveTime: 0,
+		},
+		rwLock: sync.RWMutex{},
 	}
 }
 
@@ -30,10 +38,22 @@ func (r *runner) checkStatus(interval time.Duration) string {
 	defer r.rwLock.Unlock()
 
 	if r.status != constant.RUNNER_STATUS_IDLE && time.Now().Unix()-r.lastActiveTime > int64(interval.Seconds()) {
-		r.status = constant.RUNNER_STATUS_OFFLINE
+		r.status, r.onGoingtask = constant.RUNNER_STATUS_OFFLINE, 0
 	}
 
 	return r.status
+}
+
+func (r *runner) copy() runnerWithoutLock {
+	r.rwLock.RLock()
+	defer r.rwLock.RUnlock()
+
+	return runnerWithoutLock{
+		name:        r.name,
+		ip:          r.ip,
+		status:      r.status,
+		onGoingtask: r.onGoingtask,
+	}
 }
 
 type runnerContext struct {
@@ -63,7 +83,7 @@ func newRunnerContext(dbContext *bboltDbContext, runnerCheckTimeInterval time.Du
 	}
 
 	for name, ipBytes := range runnerMap {
-		r.runners[name] = newRunner(string(ipBytes))
+		r.runners[name] = newRunner(name, string(ipBytes))
 	}
 
 	r.tctx, r.tctxCancelFunc = cctx.WithCancel(cctx.Background())
@@ -118,7 +138,7 @@ func (ctx *runnerContext) registerRunner(name, ip string) error {
 	ctx.rwLock.Lock()
 	defer ctx.rwLock.Unlock()
 
-	ctx.runners[name] = newRunner(ip)
+	ctx.runners[name] = newRunner(name, ip)
 
 	return nil
 }
@@ -134,4 +154,17 @@ func (ctx *runnerContext) deleteRunner(name string) error {
 	delete(ctx.runners, name)
 
 	return nil
+}
+
+func (ctx *runnerContext) getRunners() []runnerWithoutLock {
+	runnerList := make([]runnerWithoutLock, 0)
+
+	ctx.rwLock.RLock()
+	defer ctx.rwLock.RUnlock()
+
+	for _, runner := range ctx.runners {
+		runnerList = append(runnerList, runner.copy())
+	}
+
+	return runnerList
 }

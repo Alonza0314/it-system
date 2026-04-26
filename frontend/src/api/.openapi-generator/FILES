@@ -10,6 +10,7 @@ docs/DefaultApi.md
 docs/DeleteTenantsRequest.md
 docs/DeleteTestcasesRequest.md
 docs/GetGithubPRsResponse.md
+docs/GetRunnersResponse.md
 docs/GetTenantsResponse.md
 docs/GetTestcasesResponse.md
 docs/LoginRequest.md
@@ -17,9 +18,11 @@ docs/LoginResponse.md
 docs/MessageResponse.md
 docs/NfPr.md
 docs/PR.md
+docs/RegisterRunnerRequest.md
 docs/RequestSubmitTask.md
 docs/ResponseGetTask.md
 docs/ResponseGetTasks.md
+docs/Runner.md
 docs/TaskSimple.md
 docs/Tenant.md
 docs/Testcase.md

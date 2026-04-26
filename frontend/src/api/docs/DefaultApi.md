@@ -7,15 +7,18 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**addTenants**](#addtenants) | **POST** /api/admin/tenant | Add tenants|
 |[**addTestcases**](#addtestcases) | **POST** /api/admin/test/testcase | Add testcases|
 |[**cancelTask**](#canceltask) | **DELETE** /api/test/task | Cancel task|
+|[**deleteRunner**](#deleterunner) | **DELETE** /api/admin/runner | Delete runner|
 |[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
 |[**deleteTestcases**](#deletetestcases) | **DELETE** /api/admin/test/testcase | Delete testcases|
 |[**getGithubPRs**](#getgithubprs) | **GET** /api/github | Get Github PRs|
+|[**getRunners**](#getrunners) | **GET** /api/runner | Get runners|
 |[**getTask**](#gettask) | **GET** /api/test/task | Get task|
 |[**getTasks**](#gettasks) | **GET** /api/test/tasks | Get tasks|
 |[**getTenants**](#gettenants) | **GET** /api/admin/tenant | Get tenants|
 |[**getTestcases**](#gettestcases) | **GET** /api/test/testcase | Get testcases|
 |[**login**](#login) | **POST** /api/login | Login|
 |[**logout**](#logout) | **POST** /api/logout | Logout|
+|[**registerRunner**](#registerrunner) | **POST** /api/admin/runner | Register runner|
 |[**submitTask**](#submittask) | **POST** /api/test/task | Submit task|
 
 # **addTenants**
@@ -182,6 +185,60 @@ const { status, data } = await apiInstance.cancelTask(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **deleteRunner**
+> MessageResponse deleteRunner()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let name: string; //Runner name (default to undefined)
+
+const { status, data } = await apiInstance.deleteRunner(
+    name
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **name** | [**string**] | Runner name | defaults to undefined|
+
+
+### Return type
+
+**MessageResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**404** | Not Found |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **deleteTenants**
 > MessageResponse deleteTenants(deleteTenantsRequest)
 
@@ -343,6 +400,50 @@ const { status, data } = await apiInstance.getGithubPRs(
 |**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRunners**
+> GetRunnersResponse getRunners()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getRunners();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**GetRunnersResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -628,6 +729,61 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | No Content |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **registerRunner**
+> MessageResponse registerRunner(registerRunnerRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    RegisterRunnerRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let registerRunnerRequest: RegisterRunnerRequest; //
+
+const { status, data } = await apiInstance.registerRunner(
+    registerRunnerRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **registerRunnerRequest** | **RegisterRunnerRequest**|  | |
+
+
+### Return type
+
+**MessageResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**409** | Conflict |  -  |
+|**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

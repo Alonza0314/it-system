@@ -111,6 +111,22 @@ func (ctx *ItContext) DeleteRunner(name string) error {
 	return ctx.runnerContext.deleteRunner(name)
 }
 
+func (ctx *ItContext) GetRunners() []model.Runner {
+	runners := ctx.runnerContext.getRunners()
+
+	responseRunners := make([]model.Runner, len(runners))
+	for i, r := range runners {
+		responseRunners[i] = model.Runner{
+			Name:        r.name,
+			IP:          r.ip,
+			Status:      r.status,
+			OnGoingTask: r.onGoingtask,
+		}
+	}
+
+	return responseRunners
+}
+
 func convertTaskToResponseTask(tasks []task) []model.TaskSimple {
 	simpleTasks := make([]model.TaskSimple, len(tasks))
 	for i, t := range tasks {

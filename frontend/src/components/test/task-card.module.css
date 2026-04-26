@@ -1,9 +1,10 @@
 .card {
   width: 100%;
-  border: 1px solid #dbe5f0;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
   border-radius: 12px;
   padding: 0.8rem;
-  background: #ffffff;
+  background: var(--surface);
   text-align: left;
   cursor: pointer;
   transition: transform 120ms ease, box-shadow 140ms ease, border-color 140ms ease;
@@ -11,8 +12,8 @@
 
 .card:hover {
   transform: translateY(-1px);
-  border-color: #93c5fd;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+  border-color: #b8b8be;
+  box-shadow: var(--shadow-sm);
 }
 
 .header {
@@ -25,14 +26,14 @@
 .id {
   margin: 0;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .statusWrap {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: #475569;
+  color: var(--text-muted);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -46,13 +47,13 @@
 }
 
 .pendingSpinner {
-  border-top-color: #64748b;
-  border-right-color: #94a3b8;
+  border-top-color: #8e8e93;
+  border-right-color: #b8b8be;
 }
 
 .ongoingSpinner {
-  border-top-color: #eab308;
-  border-right-color: #facc15;
+  border-top-color: #ff9f0a;
+  border-right-color: #ffbe5c;
 }
 
 .body {
@@ -63,7 +64,7 @@
 
 .body p {
   margin: 0;
-  color: #334155;
+  color: var(--text-muted);
   font-size: 0.88rem;
 }
 

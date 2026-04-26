@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Configuration, DefaultApi, type GetGithubPRsNfEnum, type RequestSubmitTask, type TaskSimple } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
+import Modal from '../../components/modal/modal'
 import { useNotifications } from '../../hooks/useNotifications'
 import NfPrSelector, { type PrOption } from '../../components/test/NfPrSelector'
 import TaskCard from '../../components/test/TaskCard'
@@ -39,6 +40,8 @@ export default function TestPage() {
   const [isLoadingTasks, setIsLoadingTasks] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isSubmittingTask, setIsSubmittingTask] = useState(false)
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false)
+  const [confirmPayload, setConfirmPayload] = useState<RequestSubmitTask | null>(null)
   const [prsByNf, setPrsByNf] = useState<Record<string, PrOption[]>>({})
   const [loadingByNf, setLoadingByNf] = useState<Record<string, boolean>>({})
   const [hasFetchedByNf, setHasFetchedByNf] = useState<Record<string, boolean>>({})
@@ -155,9 +158,38 @@ export default function TestPage() {
   }
 
   async function handleSubmitTask() {
+    const payload = prepareSubmitPayload()
+    if (!payload) {
+      return
+    }
+
+    setIsSubmitModalOpen(false)
     if (selectedTestcases.length === 0) {
       addError('Please select at least one testcase')
       return
+    }
+
+    setIsSubmittingTask(true)
+    try {
+      const response = await api.submitTask(payload, {
+        headers: getUserHeader(),
+      })
+      addSuccess(response.data.message || 'Task submitted successfully')
+      setIsFormOpen(false)
+      setConfirmPayload(null)
+      resetFormState()
+      await refreshTaskQueues()
+    } catch (error: unknown) {
+      addError(extractErrorMessage(error, 'Failed to submit task'))
+    } finally {
+      setIsSubmittingTask(false)
+    }
+  }
+
+  function prepareSubmitPayload() {
+    if (selectedTestcases.length === 0) {
+      addError('Please select at least one testcase')
+      return null
     }
 
     const enabledNfNames = NF_ORDER
@@ -166,13 +198,13 @@ export default function TestPage() {
 
     if (enabledNfNames.length === 0) {
       addError('Please enable at least one NF')
-      return
+      return null
     }
 
     const missingPrNf = enabledNfNames.filter((apiName) => !selectedPrByNf[apiName])
     if (missingPrNf.length > 0) {
       addError(`Please select PR for: ${missingPrNf.join(', ')}`)
-      return
+      return null
     }
 
     const payload: RequestSubmitTask = {
@@ -183,20 +215,21 @@ export default function TestPage() {
       })),
     }
 
-    setIsSubmittingTask(true)
-    try {
-      const response = await api.submitTask(payload, {
-        headers: getUserHeader(),
-      })
-      addSuccess(response.data.message || 'Task submitted successfully')
-      setIsFormOpen(false)
-      resetFormState()
-      await refreshTaskQueues()
-    } catch (error: unknown) {
-      addError(extractErrorMessage(error, 'Failed to submit task'))
-    } finally {
-      setIsSubmittingTask(false)
+    return payload
+  }
+
+  function openSubmitModal() {
+    const payload = prepareSubmitPayload()
+    if (!payload) {
+      return
     }
+
+    setConfirmPayload(payload)
+    setIsSubmitModalOpen(true)
+  }
+
+  function closeSubmitModal() {
+    setIsSubmitModalOpen(false)
   }
 
   function updateNfToggle(apiName: string, checked: boolean) {
@@ -315,7 +348,7 @@ export default function TestPage() {
               <button
                 type="button"
                 className={styles.submitButton}
-                onClick={handleSubmitTask}
+                onClick={openSubmitModal}
                 disabled={isSubmittingTask}
               >
                 {isSubmittingTask ? 'Submitting...' : 'Submit Task'}
@@ -371,6 +404,39 @@ export default function TestPage() {
           <p className={styles.queueHint}>Reserved for future history records.</p>
         </article>
       </section>
+
+      <Modal
+        isOpen={isSubmitModalOpen}
+        onClose={closeSubmitModal}
+        title="Confirm Submit Task"
+        onSubmit={handleSubmitTask}
+        submitText={isSubmittingTask ? 'Submitting...' : 'Confirm Submit'}
+        submitDisabled={isSubmittingTask || !confirmPayload}
+      >
+        <div className={styles.confirmBody}>
+          <p className={styles.confirmTitle}>Please confirm your selected options:</p>
+
+          <section className={styles.confirmSection}>
+            <p className={styles.confirmLabel}>Testcases</p>
+            <div className={styles.confirmChips}>
+              {(confirmPayload?.tests || []).map((testName) => (
+                <span key={testName} className={styles.confirmChip}>{testName}</span>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.confirmSection}>
+            <p className={styles.confirmLabel}>NF / PR</p>
+            <ul className={styles.confirmList}>
+              {(confirmPayload?.nfPrList || []).map((item) => (
+                <li key={`${item.nfName}-${item.pr}`}>
+                  {item.nfName.toUpperCase()} / PR #{item.pr}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </Modal>
     </section>
   )
 }
