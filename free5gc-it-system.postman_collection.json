@@ -3484,15 +3484,15 @@
                 },
                 {
                   "key": "Date",
-                  "value": "Sat, 25 Apr 2026 20:58:59 GMT"
+                  "value": "Tue, 28 Apr 2026 11:52:47 GMT"
                 },
                 {
                   "key": "Content-Length",
-                  "value": "44"
+                  "value": "224"
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"message\": \"Runner registered successfully\"\n}"
+              "body": "{\n    \"message\": \"Runner registered successfully\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTMxNjcsImlhdCI6MTc3NzM3NzE2Nywic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciJ9.gODsIcABbS9O3nF2Xj6e9s7k1L25hkivBjWzw4tmz9M\"\n}"
             },
             {
               "name": "401",

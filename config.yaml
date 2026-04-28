@@ -5,8 +5,12 @@ backend:
   port: 8888
 
   jwt:
-    secret: "full-stack-framework"
+    secret: "free5gc-it-system"
     expiresIn: 1h
+
+  runnerJwt:
+    secret: "free5gc-it-runner"
+    expiresIn: 8760h   # 365 * 24
   
   runnerCheckTimeInterval: 30s
 

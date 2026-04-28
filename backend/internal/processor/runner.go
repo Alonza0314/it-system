@@ -1,9 +1,12 @@
 package processor
 
 import (
+	"backend/constant"
 	"backend/model"
 	"fmt"
 	"net/http"
+
+	"github.com/free-ran-ue/util"
 )
 
 func (p *Processor) RegisterRunner(req *model.RequestRegisterRunner) (*model.ResponseRegisterRunner, *model.ErrorDetail) {
@@ -21,8 +24,20 @@ func (p *Processor) RegisterRunner(req *model.RequestRegisterRunner) (*model.Res
 		}
 	}
 
+	claims := map[string]interface{}{
+		"user": req.Name,
+	}
+	token, err := util.CreateJWT(p.runnerJwtSecret, constant.RUNNER_JWT_SUBJECT_TAG, p.runnerJwtExpiresIn, claims)
+	if err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to create JWT: %v", err),
+		}
+	}
+
 	return &model.ResponseRegisterRunner{
 		Message: "Runner registered successfully",
+		Token:   token,
 	}, nil
 }
 

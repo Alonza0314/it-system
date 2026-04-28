@@ -7,6 +7,7 @@ type RequestRegisterRunner struct {
 
 type ResponseRegisterRunner struct {
 	Message string `json:"message" binding:"required"`
+	Token   string `json:"token,omitempty"`
 }
 
 type ResponseDeleteRunner struct {

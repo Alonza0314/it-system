@@ -58,6 +58,11 @@ const (
 	TASK_STATUS_CANCELED = "canceled"
 )
 
+// runner name
+const (
+	RUNNER_JWT_SUBJECT_TAG = "runner"
+)
+
 // runner status
 const (
 	RUNNER_STATUS_OFFLINE = "offline"

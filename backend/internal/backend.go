@@ -56,7 +56,7 @@ func NewBackend(config *config.Config, logger *logger.BackendLogger) *backend {
 
 		frontendFilePath: config.Backend.FrontendFilePath,
 
-		Processor: *processor.NewProcessor(config.Backend.Username, config.Backend.Password, config.Backend.DBPath, config.Backend.JWT.Secret, config.Backend.JWT.ExpiresIn, config.Backend.RunnerCheckTimeInterval, logger),
+		Processor: *processor.NewProcessor(config.Backend.Username, config.Backend.Password, config.Backend.DBPath, config.Backend.JWT.Secret, config.Backend.RunnerJWT.Secret, config.Backend.JWT.ExpiresIn, config.Backend.RunnerJWT.ExpiresIn, config.Backend.RunnerCheckTimeInterval, logger),
 
 		BackendLogger: logger,
 	}

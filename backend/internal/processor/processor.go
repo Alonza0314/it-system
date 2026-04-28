@@ -13,18 +13,24 @@ type Processor struct {
 	jwtSecret    string
 	jwtExpiresIn time.Duration
 
+	runnerJwtSecret    string
+	runnerJwtExpiresIn time.Duration
+
 	itContext *context.ItContext
 
 	*logger.BackendLogger
 }
 
-func NewProcessor(username, password, dbPath, jwtSecret string, jwtExpiresIn, runnerCheckTimeInterval time.Duration, logger *logger.BackendLogger) *Processor {
+func NewProcessor(username, password, dbPath, jwtSecret, runnerJwtSecret string, jwtExpiresIn, runnerJwtExpiresIn, runnerCheckTimeInterval time.Duration, logger *logger.BackendLogger) *Processor {
 	return &Processor{
 		username: username,
 		password: password,
 
 		jwtSecret:    jwtSecret,
 		jwtExpiresIn: jwtExpiresIn,
+
+		runnerJwtSecret:    runnerJwtSecret,
+		runnerJwtExpiresIn: runnerJwtExpiresIn,
 
 		itContext: context.NewItContext(dbPath, runnerCheckTimeInterval),
 
