@@ -37,11 +37,25 @@ func (r *runner) checkStatus(interval time.Duration) string {
 	r.rwLock.Lock()
 	defer r.rwLock.Unlock()
 
-	if r.status != constant.RUNNER_STATUS_IDLE && time.Now().Unix()-r.lastActiveTime > int64(interval.Seconds()) {
+	if r.status == constant.RUNNER_STATUS_IDLE && time.Now().Unix()-r.lastActiveTime > int64(interval.Seconds()) {
 		r.status, r.onGoingtask = constant.RUNNER_STATUS_OFFLINE, 0
 	}
 
 	return r.status
+}
+
+func (r *runner) setIdle() {
+	r.rwLock.Lock()
+	defer r.rwLock.Unlock()
+
+	r.status, r.onGoingtask, r.lastActiveTime = constant.RUNNER_STATUS_IDLE, 0, time.Now().Unix()
+}
+
+func (r *runner) setRunning(taskId uint64) {
+	r.rwLock.Lock()
+	defer r.rwLock.Unlock()
+
+	r.status, r.onGoingtask, r.lastActiveTime = constant.RUNNER_STATUS_RUNNING, taskId, time.Now().Unix()
 }
 
 func (r *runner) copy() runnerWithoutLock {
@@ -130,6 +144,7 @@ func (ctx *runnerContext) runnerExists(name string) bool {
 
 	return false
 }
+
 func (ctx *runnerContext) registerRunner(name, ip string) error {
 	if err := ctx.dbContext.Save([]byte(constant.BUCKET_RUNNER), []byte(name), []byte(ip)); err != nil {
 		return err
@@ -167,4 +182,22 @@ func (ctx *runnerContext) getRunners() []runnerWithoutLock {
 	}
 
 	return runnerList
+}
+
+func (ctx *runnerContext) heartbeatWithoutTask(name string) error {
+	ctx.rwLock.Lock()
+	defer ctx.rwLock.Unlock()
+
+	ctx.runners[name].setIdle()
+
+	return nil
+}
+
+func (ctx *runnerContext) heartbeatWithTask(name string, taskId uint64) error {
+	ctx.rwLock.Lock()
+	defer ctx.rwLock.Unlock()
+
+	ctx.runners[name].setRunning(taskId)
+
+	return nil
 }

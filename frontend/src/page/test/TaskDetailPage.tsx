@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Configuration, DefaultApi, type ResponseGetTask } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
@@ -21,6 +21,7 @@ function formatCreateTime(unixTime?: number) {
 export default function TaskDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
 
   const [task, setTask] = useState<ResponseGetTask | null>(null)
@@ -29,6 +30,8 @@ export default function TaskDetailPage() {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
 
   const taskId = Number(id)
+  const fromQueue = searchParams.get('from')
+  const canCancelTask = fromQueue !== 'ongoing'
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,
@@ -114,9 +117,11 @@ export default function TaskDetailPage() {
         </div>
         <div className={styles.actions}>
           <Button variant="secondary" onClick={() => navigate('/test')}>Back</Button>
-          <Button onClick={openCancelModal} disabled={isCancelling || isLoading}>
-            {isCancelling ? 'Cancelling...' : 'Cancel Task'}
-          </Button>
+          {canCancelTask && (
+            <Button onClick={openCancelModal} disabled={isCancelling || isLoading}>
+              {isCancelling ? 'Cancelling...' : 'Cancel Task'}
+            </Button>
+          )}
         </div>
       </header>
 
@@ -173,18 +178,20 @@ export default function TaskDetailPage() {
         )}
       </article>
 
-      <Modal
-        isOpen={isCancelModalOpen}
-        onClose={closeCancelModal}
-        title="Confirm Cancel Task"
-        onSubmit={handleCancelTask}
-        submitText={isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
-        submitDisabled={isCancelling || isLoading}
-      >
-        <p className={styles.confirmMessage}>
-          Are you sure you want to cancel task "#{taskId}"?
-        </p>
-      </Modal>
+      {canCancelTask && (
+        <Modal
+          isOpen={isCancelModalOpen}
+          onClose={closeCancelModal}
+          title="Confirm Cancel Task"
+          onSubmit={handleCancelTask}
+          submitText={isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
+          submitDisabled={isCancelling || isLoading}
+        >
+          <p className={styles.confirmMessage}>
+            Are you sure you want to cancel task "#{taskId}"?
+          </p>
+        </Modal>
+      )}
     </section>
   )
 }

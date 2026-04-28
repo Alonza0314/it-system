@@ -12,7 +12,7 @@ backend:
     secret: "free5gc-it-runner"
     expiresIn: 8760h   # 365 * 24
   
-  runnerCheckTimeInterval: 30s
+  runnerCheckTimeInterval: 10s
 
   frontendFilePath: "build/frontend"
 

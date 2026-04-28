@@ -37,7 +37,14 @@ func (b *backend) getAdminRunnerRoutes() util.Routes {
 }
 
 func (b *backend) getRunRunnerRoutes() util.Routes {
-	return util.Routes{}
+	return util.Routes{
+		{
+			Name:        "Runner Heartbeat",
+			Method:      http.MethodPost,
+			Pattern:     "/heartbeat",
+			HandlerFunc: b.handleRunnerHeartbeat,
+		},
+	}
 }
 
 func (b *backend) handleRegisterRunner(c *gin.Context) {
@@ -104,5 +111,35 @@ func (b *backend) handleGetRunners(c *gin.Context) {
 	}
 
 	b.RunLog.Infof("Get Runners successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleRunnerHeartbeat(c *gin.Context) {
+	b.RunLog.Infof("Runner Heartbeat request from %s, runner: %s", c.ClientIP(), c.GetHeader("user"))
+
+	var req model.RequestRunnerHeartbeat
+	if err := c.ShouldBindJSON(&req); err != nil {
+		b.RunLog.Warnf("Invalid request body from %s: %v", c.ClientIP(), err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	response, errDetail := b.Processor.RunnerHeartbeat(&req, c.GetHeader("user"))
+	if errDetail != nil {
+		b.RunLog.Errorf("Runner Heartbeat failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, gin.H{
+			"message": errDetail.Detail,
+		})
+		return
+	}
+
+	b.RunLog.Infof("Runner Heartbeat successful for %s", c.ClientIP())
+	if response == nil {
+		c.Status(http.StatusNoContent)
+		return
+	}
+
 	c.JSON(http.StatusOK, response)
 }

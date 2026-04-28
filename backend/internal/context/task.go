@@ -228,6 +228,13 @@ func (ctx *taskContext) getTaskById(id uint64) (*task, error) {
 		}
 	}
 
+	for _, t := range ctx.ongoingQueue {
+		if t.ID() == id {
+			copy := t.copy()
+			return &copy, nil
+		}
+	}
+
 	return nil, fmt.Errorf("task with id %d not found", id)
 }
 
@@ -247,24 +254,24 @@ func (ctx *taskContext) createTask(username string, createTime int64, tests []pi
 	return nil
 }
 
-// func (ctx *taskContext) moveTaskFromPendingToOngoing() error {
-// 	ctx.pendingQueueLock.Lock()
-// 	defer ctx.pendingQueueLock.Unlock()
+func (ctx *taskContext) getFirstPendingTaskAndMoveToOngoing() (*task, error) {
+	ctx.pendingQueueLock.Lock()
+	defer ctx.pendingQueueLock.Unlock()
 
-// 	task := ctx.pendingQueue.Pop()
-// 	if task == nil {
-// 		return nil
-// 	}
+	task := ctx.pendingQueue.Pop()
+	if task == nil {
+		return nil, nil
+	}
 
-// 	task.status = constant.TASK_STATUS_RUNNING
+	task.status = constant.TASK_STATUS_RUNNING
 
-// 	ctx.ongoingQueueLock.Lock()
-// 	defer ctx.ongoingQueueLock.Unlock()
+	ctx.ongoingQueueLock.Lock()
+	defer ctx.ongoingQueueLock.Unlock()
 
-// 	ctx.ongoingQueue.Push(task)
+	ctx.ongoingQueue.Push(task)
 
-// 	return nil
-// }
+	return task, nil
+}
 
 func (ctx *taskContext) cancelTask(id uint64) error {
 	ctx.pendingQueueLock.Lock()

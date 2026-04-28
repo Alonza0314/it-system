@@ -95,6 +95,10 @@ func (ctx *ItContext) CreateTask(username string, createTime int64, tests []stri
 	return ctx.taskContext.createTask(username, createTime, convertTestsToPipelines(tests), convertNfPrListToNfPr(nfPrList))
 }
 
+func (ctx *ItContext) GetFirstPendingTaskAndMoveToOngoing() (*task, error) {
+	return ctx.taskContext.getFirstPendingTaskAndMoveToOngoing()
+}
+
 func (ctx *ItContext) CancelTask(id uint64) error {
 	return ctx.taskContext.cancelTask(id)
 }
@@ -125,6 +129,14 @@ func (ctx *ItContext) GetRunners() []model.Runner {
 	}
 
 	return responseRunners
+}
+
+func (ctx *ItContext) HeartbeatWithoutTask(name string) error {
+	return ctx.runnerContext.heartbeatWithoutTask(name)
+}
+
+func (ctx *ItContext) HeartbeatWithTask(name string, taskId uint64) error {
+	return ctx.runnerContext.heartbeatWithTask(name, taskId)
 }
 
 func convertTaskToResponseTask(tasks []task) []model.TaskSimple {

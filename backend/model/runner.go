@@ -25,3 +25,15 @@ type Runner struct {
 	OnGoingTask uint64 `json:"onGoingTask" binding:"required"`
 	Status      string `json:"status" binding:"required"`
 }
+
+type RequestRunnerHeartbeat struct {
+	Idle        bool   `json:"idle" binding:"required"`
+	OnGoingTask uint64 `json:"onGoingTask,omitempty"`
+}
+
+type ResponseRunnerHeartbeat struct {
+	Message  string   `json:"message" binding:"required"`
+	Id       uint64   `json:"id,omitempty"`
+	Tests    []string `json:"tests,omitempty"`
+	NFPrList []NfPr   `json:"nfPrList,omitempty"`
+}

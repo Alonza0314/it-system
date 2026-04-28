@@ -25,7 +25,7 @@ func (p *Processor) RegisterRunner(req *model.RequestRegisterRunner) (*model.Res
 	}
 
 	claims := map[string]interface{}{
-		"user": req.Name,
+		"user":                        req.Name,
 		constant.USER_LEVEL_CLAIM_TAG: constant.USER_LEVEL_RUNNER,
 	}
 	token, err := util.CreateJWT(p.runnerJwtSecret, constant.RUNNER_JWT_SUBJECT_TAG, p.runnerJwtExpiresIn, claims)
@@ -66,5 +66,47 @@ func (p *Processor) GetRunners() (*model.ResponseGetRunners, *model.ErrorDetail)
 	return &model.ResponseGetRunners{
 		Message: "Runners retrieved successfully",
 		Runners: p.itContext.GetRunners(),
+	}, nil
+}
+
+func (p *Processor) RunnerHeartbeat(req *model.RequestRunnerHeartbeat, runner string) (*model.ResponseRunnerHeartbeat, *model.ErrorDetail) {
+	task, err := p.itContext.GetFirstPendingTaskAndMoveToOngoing()
+	if err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to get pending task: %v", err),
+		}
+	}
+
+	if task == nil {
+		if err := p.itContext.HeartbeatWithoutTask(runner); err != nil {
+			return nil, &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to update runner status: %v", err),
+			}
+		}
+		return nil, nil
+	}
+
+	if err := p.itContext.HeartbeatWithTask(runner, task.ID()); err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to update runner status: %v", err),
+		}
+	}
+
+	nfPrList := make([]model.NfPr, len(task.NFPrList()))
+	for i, np := range task.NFPrList() {
+		nfPrList[i] = model.NfPr{
+			NfName: np.NFName(),
+			PR:     np.PR(),
+		}
+	}
+
+	return &model.ResponseRunnerHeartbeat{
+		Message:  "Runner heartbeat successful",
+		Id:       task.ID(),
+		Tests:    task.Tests(),
+		NFPrList: nfPrList,
 	}, nil
 }

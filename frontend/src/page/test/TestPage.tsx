@@ -97,7 +97,17 @@ export default function TestPage() {
     refreshTaskQueues().catch(() => {
       addError('Failed to load tasks')
     })
-  }, [])
+
+    const timer = window.setInterval(() => {
+      refreshTaskQueues().catch(() => {
+        addError('Failed to load tasks')
+      })
+    }, 30_000)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [addError])
 
   useEffect(() => {
     if (!isFormOpen || hasTestcasesLoaded) {
@@ -282,13 +292,23 @@ export default function TestPage() {
 
       <header className={styles.header}>
         <h2>Test</h2>
-        <button
-          type="button"
-          className={styles.newTestButton}
-          onClick={handleToggleNewTest}
-        >
-          {isFormOpen ? 'Close New Test' : 'New Test'}
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.refreshButton}
+            onClick={() => refreshTaskQueues()}
+            disabled={isLoadingTasks}
+          >
+            {isLoadingTasks ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <button
+            type="button"
+            className={styles.newTestButton}
+            onClick={handleToggleNewTest}
+          >
+            {isFormOpen ? 'Close New Test' : 'New Test'}
+          </button>
+        </div>
       </header>
 
       <section className={`${styles.formPanel} ${isFormOpen ? styles.formPanelOpen : ''}`} aria-hidden={!isFormOpen}>

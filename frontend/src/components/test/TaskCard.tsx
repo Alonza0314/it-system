@@ -23,7 +23,7 @@ export default function TaskCard({ id, username, createTime, status }: TaskCardP
     <button
       type="button"
       className={styles.card}
-      onClick={() => navigate(`/test/task/${id}`)}
+      onClick={() => navigate(`/test/task/${id}?from=${status}`)}
     >
       <div className={styles.header}>
         <p className={styles.id}>Task #{id}</p>

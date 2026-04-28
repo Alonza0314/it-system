@@ -56,9 +56,12 @@ And run:
     └─/github(GET)
     └─/runner(GET)
     └─/admin
-        └─/test
-        │  └─/testcase(POST, DELETE)
-        └─/runner(POST, DELETE)
+    │   └─/test
+    │   │  └─/testcase(POST, DELETE)
+    │   └─/runner(POST, DELETE)
+    └─/run
+        └─/runner
+            └─/heartbeat(POST)
 ```
 
 ## Test Flow
