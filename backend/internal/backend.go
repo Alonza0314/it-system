@@ -30,7 +30,9 @@ type backend struct {
 
 	port int
 
-	jwt
+	jwt jwt
+
+	runnerJwt jwt
 
 	frontendFilePath string
 
@@ -52,6 +54,11 @@ func NewBackend(config *config.Config, logger *logger.BackendLogger) *backend {
 		jwt: jwt{
 			secret:    config.Backend.JWT.Secret,
 			expiresIn: config.Backend.JWT.ExpiresIn,
+		},
+
+		runnerJwt: jwt{
+			secret:    config.Backend.RunnerJWT.Secret,
+			expiresIn: config.Backend.RunnerJWT.ExpiresIn,
 		},
 
 		frontendFilePath: config.Backend.FrontendFilePath,
@@ -137,6 +144,9 @@ func addServices(router *gin.Engine, b *backend) {
 	adminGroup := apiGroup.Group("/admin")
 	adminGroup.Use(addAdminAuthMiddleware(b))
 
+	runGroup := apiGroup.Group("/run")
+	runGroup.Use(addRunnerAuthMiddleware(b))
+
 	accountGroup := apiGroup.Group("")
 	addRoutes(accountGroup, b.getAccountRoutes())
 
@@ -155,6 +165,8 @@ func addServices(router *gin.Engine, b *backend) {
 	addRoutes(runnerGroup, b.getRunnerRoutes())
 	adminRunnerGroup := adminGroup.Group("/runner")
 	addRoutes(adminRunnerGroup, b.getAdminRunnerRoutes())
+	runRunnerGroup := runGroup.Group("/runner")
+	addRoutes(runRunnerGroup, b.getRunRunnerRoutes())
 }
 
 func addRoutes(group *gin.RouterGroup, routes util.Routes) {

@@ -17,6 +17,7 @@ const (
 	USER_LEVEL_CLAIM_TAG = "user_level"
 	USER_LEVEL_ADMIN     = "admin"
 	USER_LEVEL_DEFAULT   = "default"
+	USER_LEVEL_RUNNER    = "runner"
 )
 
 // github

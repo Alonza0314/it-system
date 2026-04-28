@@ -26,6 +26,7 @@ func (p *Processor) RegisterRunner(req *model.RequestRegisterRunner) (*model.Res
 
 	claims := map[string]interface{}{
 		"user": req.Name,
+		constant.USER_LEVEL_CLAIM_TAG: constant.USER_LEVEL_RUNNER,
 	}
 	token, err := util.CreateJWT(p.runnerJwtSecret, constant.RUNNER_JWT_SUBJECT_TAG, p.runnerJwtExpiresIn, claims)
 	if err != nil {

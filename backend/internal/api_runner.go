@@ -36,6 +36,10 @@ func (b *backend) getAdminRunnerRoutes() util.Routes {
 	}
 }
 
+func (b *backend) getRunRunnerRoutes() util.Routes {
+	return util.Routes{}
+}
+
 func (b *backend) handleRegisterRunner(c *gin.Context) {
 	b.RunLog.Infof("Register Runner request from %s", c.ClientIP())
 
