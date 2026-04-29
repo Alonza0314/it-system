@@ -10,7 +10,7 @@ import (
 var ctx *context.ItContext
 
 func TestMain(m *testing.M) {
-	ctx = context.NewItContext(DB_PATH, 30*time.Second)
+	ctx = context.NewItContext(DB_PATH, LOG_PATH, 20, 30*time.Second)
 
 	code := m.Run()
 

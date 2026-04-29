@@ -22,6 +22,7 @@ export default function HomePage() {
   const [isRunnerLoading, setIsRunnerLoading] = useState(false)
   const [pendingTaskCount, setPendingTaskCount] = useState(0)
   const [ongoingTaskCount, setOngoingTaskCount] = useState(0)
+  const [historyTaskCount, setHistoryTaskCount] = useState(0)
   const [offlineRunnerCount, setOfflineRunnerCount] = useState(0)
   const [idleRunnerCount, setIdleRunnerCount] = useState(0)
   const [runningRunnerCount, setRunningRunnerCount] = useState(0)
@@ -41,7 +42,7 @@ export default function HomePage() {
       : `${tenants.length}`
   const taskCountLabel = isTaskLoading
     ? 'Loading...'
-    : `${pendingTaskCount + ongoingTaskCount}`
+    : `${pendingTaskCount + ongoingTaskCount + historyTaskCount}`
   const runnerCountLabel = isRunnerLoading
     ? 'Loading...'
     : `${offlineRunnerCount + idleRunnerCount + runningRunnerCount}`
@@ -55,9 +56,11 @@ export default function HomePage() {
       })
       setPendingTaskCount(response.data.pendingTask?.length || 0)
       setOngoingTaskCount(response.data.ongoingTask?.length || 0)
+      setHistoryTaskCount((response.data as { historyTask?: unknown[] }).historyTask?.length || 0)
     } catch {
       setPendingTaskCount(0)
       setOngoingTaskCount(0)
+      setHistoryTaskCount(0)
     } finally {
       setIsTaskLoading(false)
     }
@@ -201,6 +204,11 @@ export default function HomePage() {
               <section className={styles.statBlock}>
                 <p className={styles.statLabel}>Ongoing</p>
                 <p className={styles.statValue}>{isTaskLoading ? 'Loading...' : ongoingTaskCount}</p>
+              </section>
+
+              <section className={styles.statBlock}>
+                <p className={styles.statLabel}>History</p>
+                <p className={styles.statValue}>{isTaskLoading ? 'Loading...' : historyTaskCount}</p>
               </section>
             </div>
           </article>

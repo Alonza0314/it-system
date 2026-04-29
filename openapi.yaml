@@ -527,7 +527,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/ResponseRegisterRunner'
         '401':
           description: Unauthorized
           content:
@@ -542,6 +542,92 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '409':
           description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/run/runner/heartbeat:
+    post:
+      summary: Runner heartbeat
+      operationId: runnerHeartbeat
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestRunnerHeartbeat'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseRunnerHeartbeat'
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/run/runner/test-output:
+    post:
+      summary: Test output
+      operationId: testOutput
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTestOutput'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -685,6 +771,24 @@ components:
         pr:
           type: integer
           example: 100
+    TaskTestResult:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+          example: test-1
+        status:
+          type: string
+          enum:
+            - pending
+            - running
+            - success
+            - failed
+            - canceled
+          example: success
     ResponseGetTasks:
       type: object
       required:
@@ -698,6 +802,10 @@ components:
           items:
             $ref: '#/components/schemas/TaskSimple'
         ongoingTask:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskSimple'
+        historyTask:
           type: array
           items:
             $ref: '#/components/schemas/TaskSimple'
@@ -720,13 +828,24 @@ components:
           type: integer
           format: int64
           example: 1777143861
+        status:
+          type: string
+          enum:
+            - pending
+            - running
+            - success
+            - failed
+            - canceled
+          example: success
         tests:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/TaskTestResult'
           example:
-            - test-1
-            - test-2
+            - name: test-1
+              status: success
+            - name: test-2
+              status: failed
         nfPrList:
           type: array
           items:
@@ -877,3 +996,73 @@ components:
         ip:
           type: string
           example: 10.0.0.1
+    ResponseRegisterRunner:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Runner registered successfully
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    RequestRunnerHeartbeat:
+      type: object
+      required:
+        - idle
+      properties:
+        idle:
+          type: boolean
+          example: true
+        onGoingTask:
+          type: integer
+          format: uint64
+          minimum: 0
+          example: 0
+    ResponseRunnerHeartbeat:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Runner heartbeat successful
+        id:
+          type: integer
+          format: uint64
+          example: 17
+        tests:
+          type: array
+          items:
+            type: string
+          example:
+            - TestRegistration
+            - TestGUTIRegistration
+        nfPrList:
+          type: array
+          items:
+            $ref: '#/components/schemas/NfPr'
+    RequestTestOutput:
+      type: object
+      required:
+        - endFlag
+        - id
+      properties:
+        endFlag:
+          type: boolean
+          example: false
+        id:
+          type: integer
+          format: uint64
+          minimum: 1
+          example: 20
+        testName:
+          type: string
+          example: TestRegistration
+        success:
+          type: boolean
+          example: true
+        log:
+          type: string
+          example: this is the log of TestRegistration

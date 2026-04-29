@@ -172,7 +172,7 @@
 }
 
 .taskPanel .panelStats {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .statBlock {
@@ -192,6 +192,11 @@
 .runnerPanel .statBlock:nth-child(2) {
   border-color: var(--border);
   background: var(--surface-muted);
+}
+
+.taskPanel .statBlock:nth-child(3) {
+  border-color: #b8e2c6;
+  background: var(--success-soft);
 }
 
 .runnerPanel .statBlock:last-child {

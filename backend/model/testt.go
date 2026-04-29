@@ -30,6 +30,7 @@ type ResponseGetTasks struct {
 	Message     string       `json:"message" binding:"required"`
 	PendingTask []TaskSimple `json:"pendingTask,omitempty"`
 	OngoingTask []TaskSimple `json:"ongoingTask,omitempty"`
+	HistoryTask []TaskSimple `json:"historyTask,omitempty"`
 }
 
 type TaskSimple struct {
@@ -42,9 +43,15 @@ type ResponseGetTask struct {
 	Message    string   `json:"message" binding:"required"`
 	Id         uint64   `json:"id,omitempty"`
 	Username   string   `json:"username,omitempty"`
+	Status     string   `json:"status,omitempty"`
 	CreateTime int64    `json:"createTime,omitempty"`
-	Tests      []string `json:"tests,omitempty"`
+	Tests      []TestDetail `json:"tests,omitempty"`
 	NFPrList   []NfPr   `json:"nfPrList,omitempty"`
+}
+
+type TestDetail struct {
+	Name   string `json:"name" binding:"required"`
+	Status string `json:"status" binding:"required"`
 }
 
 type RequestSubmitTask struct {

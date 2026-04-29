@@ -56,6 +56,11 @@
   border-right-color: #ffbe5c;
 }
 
+.historySpinner {
+  border-top-color: #34c759;
+  border-right-color: #66d98a;
+}
+
 .body {
   margin-top: 0.55rem;
   display: grid;

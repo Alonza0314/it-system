@@ -110,3 +110,30 @@ func (p *Processor) RunnerHeartbeat(req *model.RequestRunnerHeartbeat, runner st
 		NFPrList: nfPrList,
 	}, nil
 }
+
+func (p *Processor) TtestOutput(req *model.RequestTestOutput, runner string) *model.ErrorDetail {
+	if *req.EndFlag {
+		if err := p.itContext.TtestOutputEnd(req.Id); err != nil {
+			return &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to end test output: %v", err),
+			}
+		}
+
+		if err := p.itContext.HeartbeatWithoutTask(runner); err != nil {
+			return &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to update runner status: %v", err),
+			}
+		}
+	} else {
+		if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, &req.Log); err != nil {
+			return &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to transfer test output: %v", err),
+			}
+		}
+	}
+
+	return nil
+}

@@ -2271,7 +2271,7 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=21",
                   "host": [
                     "{{SHEMA}}{{BACKEND_URL}}"
                   ],
@@ -2283,7 +2283,7 @@
                   "query": [
                     {
                       "key": "id",
-                      "value": "1"
+                      "value": "21"
                     }
                   ]
                 }
@@ -2342,7 +2342,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n    \"message\": \"Task retrieved successfully\",\n    \"id\": 1,\n    \"username\": \"admin\",\n    \"createTime\": 1777143861,\n    \"tests\": [\n        \"test-1\",\n        \"test-2\"\n    ],\n    \"nfPrList\": [\n        {\n            \"nfName\": \"amf\",\n            \"pr\": 100\n        },\n        {\n            \"nfName\": \"smf\",\n            \"pr\": 200\n        }\n    ]\n}"
+                  "body": "{\n    \"message\": \"Task retrieved successfully\",\n    \"id\": 1,\n    \"username\": \"admin\",\n    \"status\": \"success\"\n    \"createTime\": 1777143861,\n    \"tests\": [\n        \"test-1\",\n        \"test-2\"\n    ],\n    \"nfPrList\": [\n        {\n            \"nfName\": \"amf\",\n            \"pr\": 100\n        },\n        {\n            \"nfName\": \"smf\",\n            \"pr\": 200\n        }\n    ]\n}"
                 },
                 {
                   "name": "400",
@@ -4026,6 +4026,726 @@
               ],
               "cookie": [],
               "body": "{\n    \"message\": \"Failed to delete runner: <nil>\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "heartbeat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                "type": "text"
+              },
+              {
+                "key": "user",
+                "value": "runner",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idle\": true,\r\n    \"onGoingTask\": 0\r\n}"
+            },
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "run",
+                "runner",
+                "heartbeat"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"idle\": true,\r\n    \"onGoingTask\": 0\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "heartbeat"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 28 Apr 2026 13:15:55 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "138"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runner heartbeat successful\",\n    \"id\": 17,\n    \"tests\": [\n        \"TestRegistration\",\n        \"TestGUTIRegistration\"\n    ],\n    \"nfPrList\": [\n        {\n            \"nfName\": \"bsf\",\n            \"pr\": 6\n        }\n    ]\n}"
+            },
+            {
+              "name": "204",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"idle\": true,\r\n    \"onGoingTask\": 0\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "heartbeat"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 28 Apr 2026 13:14:41 GMT"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            },
+            {
+              "name": "400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"idle\": true,\r\n    \"onGoingTask\": \"aaa\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "heartbeat"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 28 Apr 2026 12:47:59 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "136"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid request body: json: cannot unmarshal string into Go struct field RequestRunnerHeartbeat.onGoingTask of type uint64\"\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "heartbeat"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 28 Apr 2026 12:42:19 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "77"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid token: token signature is invalid: signature is invalid\"\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"runner\",\r\n    \"ip\": \"10.0.0.1\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "heartbeat"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 28 Apr 2026 12:42:59 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "36"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Runner access required\"\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"idle\": true,\r\n    \"onGoingTask\": 0\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/heartbeat",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "heartbeat"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 28 Apr 2026 13:15:14 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "57"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Failed to get pending task: <nil>\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "testoutput",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                "type": "text"
+              },
+              {
+                "key": "user",
+                "value": "runner",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+            },
+            "url": {
+              "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
+              "host": [
+                "{{SHEMA}}{{BACKEND_URL}}"
+              ],
+              "path": [
+                "api",
+                "run",
+                "runner",
+                "test-output"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "204",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "test-output"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 29 Apr 2026 15:08:36 GMT"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            },
+            {
+              "name": "400",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"endFlag\": true\r\n    \"id\": 20\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "test-output"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 29 Apr 2026 15:10:29 GMT"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "86"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Invalid request body: invalid character '\\\"' after object key:value pair\"\n}"
+            },
+            {
+              "name": "401",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "test-output"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 29 Apr 2026 15:08:36 GMT"
+                }
+              ],
+              "cookie": [],
+              "body": "{\r\n    \"message\": \"Invalid token: token signature is invalid: signature is invalid\"\r\n}"
+            },
+            {
+              "name": "403",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "test-output"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 29 Apr 2026 15:08:36 GMT"
+                }
+              ],
+              "cookie": [],
+              "body": "{\r\n    \"message\": \"Runner access required\"\r\n}"
+            },
+            {
+              "name": "500",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MDg5MTY0MzgsImlhdCI6MTc3NzM4MDQzOCwic3ViIjoicnVubmVyIiwidXNlciI6InJ1bm5lciIsInVzZXJfbGV2ZWwiOiJydW5uZXIifQ.A4dsYixuvtkrHotmIlzPza8fNFAt7AomvHZuIDNzoEo",
+                    "type": "text"
+                  },
+                  {
+                    "key": "user",
+                    "value": "runner",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "run",
+                    "runner",
+                    "test-output"
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Access-Control-Allow-Headers",
+                  "value": "Content-Type, Authorization"
+                },
+                {
+                  "key": "Access-Control-Allow-Methods",
+                  "value": "GET, POST, PUT, DELETE, OPTIONS"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 29 Apr 2026 15:08:36 GMT"
+                }
+              ],
+              "cookie": [],
+              "body": "{\r\n    \"message\": \"Failed to end test output: <nil>\"\r\n}"
             }
           ]
         }

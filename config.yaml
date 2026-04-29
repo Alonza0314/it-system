@@ -14,9 +14,12 @@ backend:
   
   runnerCheckTimeInterval: 10s
 
+  maxHistoryLength: 20
+
   frontendFilePath: "build/frontend"
 
   dbPath: ".db/it-system.db"
+  logPath: ".db/log"
 
 logger:
   level: "info"

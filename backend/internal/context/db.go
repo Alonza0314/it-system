@@ -1,12 +1,14 @@
 package context
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
+	berrors "go.etcd.io/bbolt/errors"
 )
 
 type bboltDbContext struct {
@@ -54,6 +56,10 @@ func (ctx *bboltDbContext) Update(bucket, key, value []byte) error {
 
 func (ctx *bboltDbContext) Remove(bucket, key []byte) error {
 	return dbRemove(ctx.db, bucket, key)
+}
+
+func (ctx *bboltDbContext) RemoveAll(bucket []byte) error {
+	return dbRemoveAll(ctx.db, bucket)
 }
 
 func (ctx *bboltDbContext) Exists(bucket, key []byte) (bool, error) {
@@ -133,6 +139,18 @@ func dbRemove(db *bolt.DB, bucket, key []byte) (err error) {
 		}
 		return b.Delete(key)
 	})
+
+	return err
+}
+
+func dbRemoveAll(db *bolt.DB, bucket []byte) (err error) {
+	err = db.Update(func(tx *bolt.Tx) error {
+		return tx.DeleteBucket(bucket)
+	})
+
+	if errors.Is(err, berrors.ErrBucketNotFound) {
+		return nil
+	}
 
 	return err
 }

@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **message** | **string** |  | [default to undefined]
 **pendingTask** | [**Array&lt;TaskSimple&gt;**](TaskSimple.md) |  | [optional] [default to undefined]
 **ongoingTask** | [**Array&lt;TaskSimple&gt;**](TaskSimple.md) |  | [optional] [default to undefined]
+**historyTask** | [**Array&lt;TaskSimple&gt;**](TaskSimple.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: ResponseGetTasks = {
     message,
     pendingTask,
     ongoingTask,
+    historyTask,
 };
 ```
 

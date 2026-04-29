@@ -48,6 +48,7 @@ const (
 	BUCKET_TESTCASE = "testcase"
 	BUCKET_TASK_ID  = "taskId"
 	BUCKET_RUNNER   = "runner"
+	BUCKET_HISTORY  = "history"
 )
 
 // task status

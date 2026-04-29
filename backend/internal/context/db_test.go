@@ -8,14 +8,15 @@ import (
 )
 
 const (
-	DB_DIR  = ".db_test"
-	DB_PATH = ".db_test/test.db"
-	BUCKET  = "test"
-	BUCKET2 = "test2"
-	SAVE    = "save"
-	LOAD    = "load"
-	UPDATE  = "update"
-	REMOVE  = "remove"
+	DB_DIR   = ".db_test"
+	DB_PATH  = ".db_test/test.db"
+	LOG_PATH = ".db_test/log"
+	BUCKET   = "test"
+	BUCKET2  = "test2"
+	SAVE     = "save"
+	LOAD     = "load"
+	UPDATE   = "update"
+	REMOVE   = "remove"
 )
 
 var testDbCases = []struct {
@@ -135,8 +136,8 @@ func TestDB(t *testing.T) {
 		testDbOperationWithMap(t)
 	})
 
-	t.Run("TestDbLoadAllAndExists", func(t *testing.T) {
-		testDbLoadAllAndExists(t)
+	t.Run("TestDbLoadAllAndExistsAndRemoveAll", func(t *testing.T) {
+		testDbLoadAllAndExistsAndRemoveAll(t)
 	})
 }
 
@@ -205,7 +206,7 @@ func testDbOperationWithMap(t *testing.T) {
 	}
 }
 
-func testDbLoadAllAndExists(t *testing.T) {
+func testDbLoadAllAndExistsAndRemoveAll(t *testing.T) {
 	for _, testCase := range testDbLoadAllCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			err := ctx.SaveToDb(BUCKET2, testCase.key, testCase.value)
@@ -231,4 +232,20 @@ func testDbLoadAllAndExists(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("testDbRemoveAll", func(t *testing.T) {
+		if err := ctx.RemoveAllFromDb(BUCKET2); err != nil {
+			t.Errorf("Error removing all values: %v", err)
+		}
+
+		for _, testCase := range testDbLoadAllCases {
+			exists, err := ctx.ExistsInDb(BUCKET2, testCase.key)
+			if err != nil {
+				t.Errorf("Error checking existence: %v", err)
+			}
+			if exists {
+				t.Errorf("Expected key %s to not exist after RemoveAll", testCase.key)
+			}
+		}
+	})
 }

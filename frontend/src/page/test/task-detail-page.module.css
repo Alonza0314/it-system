@@ -19,6 +19,47 @@
 .header p {
   margin: 0.3rem 0 0;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.statusSuccess {
+  background: #eafbf3;
+  color: #1c9a48;
+}
+
+.statusFailed {
+  background: #fff1f3;
+  color: #d70015;
+}
+
+.statusCanceled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.statusRunning {
+  background: #fff8e6;
+  color: #b06c00;
+}
+
+.statusPending,
+.statusUnknown {
+  background: var(--surface-muted);
+  color: var(--text-muted);
 }
 
 .actions {
@@ -110,6 +151,32 @@
 .table th {
   background: var(--surface-muted);
   color: var(--text);
+}
+
+.testStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.16rem 0.48rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.logButton {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.34rem 0.62rem;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.logButton:hover {
+  background: var(--surface-muted);
 }
 
 @media (max-width: 980px) {

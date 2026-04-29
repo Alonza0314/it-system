@@ -7,7 +7,7 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**addTenants**](#addtenants) | **POST** /api/admin/tenant | Add tenants|
 |[**addTestcases**](#addtestcases) | **POST** /api/admin/test/testcase | Add testcases|
 |[**cancelTask**](#canceltask) | **DELETE** /api/test/task | Cancel task|
-|[**deleteRunner**](#deleterunner) | **DELETE** /api/admin/runner | Delete runner|
+|[**deleteRunner**](#deleterunner) | **DELETE** /api/run/runner/test-output | Delete runner|
 |[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
 |[**deleteTestcases**](#deletetestcases) | **DELETE** /api/admin/test/testcase | Delete testcases|
 |[**getGithubPRs**](#getgithubprs) | **GET** /api/github | Get Github PRs|
@@ -19,7 +19,9 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**login**](#login) | **POST** /api/login | Login|
 |[**logout**](#logout) | **POST** /api/logout | Logout|
 |[**registerRunner**](#registerrunner) | **POST** /api/admin/runner | Register runner|
+|[**runnerHeartbeat**](#runnerheartbeat) | **POST** /api/run/runner/heartbeat | Runner heartbeat|
 |[**submitTask**](#submittask) | **POST** /api/test/task | Submit task|
+|[**testOutput**](#testoutput) | **POST** /api/run/runner/test-output | Test output|
 
 # **addTenants**
 > MessageResponse addTenants(addTenantsRequest)
@@ -733,7 +735,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **registerRunner**
-> MessageResponse registerRunner(registerRunnerRequest)
+> ResponseRegisterRunner registerRunner(registerRunnerRequest)
 
 
 ### Example
@@ -764,7 +766,7 @@ const { status, data } = await apiInstance.registerRunner(
 
 ### Return type
 
-**MessageResponse**
+**ResponseRegisterRunner**
 
 ### Authorization
 
@@ -783,6 +785,62 @@ const { status, data } = await apiInstance.registerRunner(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**409** | Conflict |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **runnerHeartbeat**
+> ResponseRunnerHeartbeat runnerHeartbeat(requestRunnerHeartbeat)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    RequestRunnerHeartbeat
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let requestRunnerHeartbeat: RequestRunnerHeartbeat; //
+
+const { status, data } = await apiInstance.runnerHeartbeat(
+    requestRunnerHeartbeat
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **requestRunnerHeartbeat** | **RequestRunnerHeartbeat**|  | |
+
+
+### Return type
+
+**ResponseRunnerHeartbeat**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**204** | No Content |  -  |
+|**400** | Bad Request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -837,6 +895,61 @@ const { status, data } = await apiInstance.submitTask(
 |**200** | OK |  -  |
 |**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testOutput**
+> testOutput(requestTestOutput)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    RequestTestOutput
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let requestTestOutput: RequestTestOutput; //
+
+const { status, data } = await apiInstance.testOutput(
+    requestTestOutput
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **requestTestOutput** | **RequestTestOutput**|  | |
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | No Content |  -  |
+|**400** | Bad Request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

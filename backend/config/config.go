@@ -19,9 +19,12 @@ type BackendIE struct {
 
 	RunnerCheckTimeInterval time.Duration `yaml:"runnerCheckTimeInterval" valid:"required"`
 
+	MaxHistoryLength int `yaml:"maxHistoryLength" valid:"required"`
+
 	FrontendFilePath string `yaml:"frontendFilePath" valid:"required"`
 
-	DBPath string `yaml:"dbPath" valid:"required"`
+	DBPath  string `yaml:"dbPath" valid:"required"`
+	LogPath string `yaml:"logPath" valid:"required"`
 }
 
 type JWTIE struct {

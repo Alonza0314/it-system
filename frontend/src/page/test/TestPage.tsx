@@ -50,6 +50,7 @@ export default function TestPage() {
   const [selectedTestcases, setSelectedTestcases] = useState<string[]>([])
   const [pendingTasks, setPendingTasks] = useState<TaskSimple[]>([])
   const [ongoingTasks, setOngoingTasks] = useState<TaskSimple[]>([])
+  const [historyTasks, setHistoryTasks] = useState<TaskSimple[]>([])
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,
@@ -84,10 +85,18 @@ export default function TestPage() {
       const response = await api.getTasks({
         headers: getUserHeader(),
       })
-      setPendingTasks(response.data.pendingTask || [])
-      setOngoingTasks(response.data.ongoingTask || [])
+      const taskData = response.data as {
+        pendingTask?: TaskSimple[]
+        ongoingTask?: TaskSimple[]
+        historyTask?: TaskSimple[]
+      }
+
+      setPendingTasks(taskData.pendingTask || [])
+      setOngoingTasks(taskData.ongoingTask || [])
+      setHistoryTasks(taskData.historyTask || [])
     } catch (error: unknown) {
       addError(extractErrorMessage(error, 'Failed to load tasks'))
+      setHistoryTasks([])
     } finally {
       setIsLoadingTasks(false)
     }
@@ -421,7 +430,23 @@ export default function TestPage() {
         </article>
         <article className={styles.columnCard}>
           <h3>History Record</h3>
-          <p className={styles.queueHint}>Reserved for future history records.</p>
+          <div className={styles.queueList}>
+            {isLoadingTasks ? (
+              <p className={styles.queueHint}>Loading history tasks...</p>
+            ) : historyTasks.length === 0 ? (
+              <p className={styles.queueHint}>No history tasks</p>
+            ) : (
+              historyTasks.map((task) => (
+                <TaskCard
+                  key={`history-${task.id}`}
+                  id={task.id}
+                  username={task.username}
+                  createTime={task.createTime}
+                  status="history"
+                />
+              ))
+            )}
+          </div>
         </article>
       </section>
 

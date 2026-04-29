@@ -107,15 +107,17 @@ func (p *Processor) DeleteTestcases(req *model.RequestDeleteTestcases) (*model.R
 }
 
 func (p *Processor) GetTasks() (*model.ResponseGetTasks, *model.ErrorDetail) {
-	pendingTasks, ongoingTasks := p.itContext.GetPendingTasks(), p.itContext.GetOngoingTasks()
-	p.ProcLog.Debugf("Retrieved %d pending tasks and %d ongoing tasks", len(pendingTasks), len(ongoingTasks))
+	pendingTasks, ongoingTasks, historyTasks := p.itContext.GetPendingTasks(), p.itContext.GetOngoingTasks(), p.itContext.GetHistoryTasks()
+	p.ProcLog.Debugf("Retrieved %d pending tasks, %d ongoing tasks, and %d history tasks", len(pendingTasks), len(ongoingTasks), len(historyTasks))
 	p.ProcLog.Tracef("Pending tasks details: %+v", pendingTasks)
 	p.ProcLog.Tracef("Ongoing tasks details: %+v", ongoingTasks)
+	p.ProcLog.Tracef("History tasks details: %+v", historyTasks)
 
 	return &model.ResponseGetTasks{
 		Message:     "Tasks retrieved successfully",
 		PendingTask: pendingTasks,
 		OngoingTask: ongoingTasks,
+		HistoryTask: historyTasks,
 	}, nil
 }
 
@@ -128,12 +130,21 @@ func (p *Processor) GetTask(id uint64) (*model.ResponseGetTask, *model.ErrorDeta
 		}
 	}
 
+	testDetails := make([]model.TestDetail, 0, len(task.Tests()))
+	for _, pipeline := range task.Pipelines() {
+		testDetails = append(testDetails, model.TestDetail{
+			Name:   pipeline.Name(),
+			Status: pipeline.Status(),
+		})
+	}
+
 	response := &model.ResponseGetTask{
 		Message:    "Task retrieved successfully",
 		Id:         task.ID(),
 		Username:   task.Username(),
+		Status:     task.Status(),
 		CreateTime: task.CreateTime(),
-		Tests:      task.Tests(),
+		Tests:      testDetails,
 	}
 
 	for _, nfPr := range task.NFPrList() {

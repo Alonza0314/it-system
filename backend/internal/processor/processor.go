@@ -21,7 +21,7 @@ type Processor struct {
 	*logger.BackendLogger
 }
 
-func NewProcessor(username, password, dbPath, jwtSecret, runnerJwtSecret string, jwtExpiresIn, runnerJwtExpiresIn, runnerCheckTimeInterval time.Duration, logger *logger.BackendLogger) *Processor {
+func NewProcessor(username, password, dbPath, logPath, jwtSecret, runnerJwtSecret string, maxHistoryLength int, jwtExpiresIn, runnerJwtExpiresIn, runnerCheckTimeInterval time.Duration, logger *logger.BackendLogger) *Processor {
 	return &Processor{
 		username: username,
 		password: password,
@@ -32,7 +32,7 @@ func NewProcessor(username, password, dbPath, jwtSecret, runnerJwtSecret string,
 		runnerJwtSecret:    runnerJwtSecret,
 		runnerJwtExpiresIn: runnerJwtExpiresIn,
 
-		itContext: context.NewItContext(dbPath, runnerCheckTimeInterval),
+		itContext: context.NewItContext(dbPath, logPath, maxHistoryLength, runnerCheckTimeInterval),
 
 		BackendLogger: logger,
 	}

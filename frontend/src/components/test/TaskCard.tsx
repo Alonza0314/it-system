@@ -5,7 +5,7 @@ interface TaskCardProps {
   id: number
   username: string
   createTime: number
-  status: 'pending' | 'ongoing'
+  status: 'pending' | 'ongoing' | 'history'
 }
 
 function formatCreateTime(unixTime: number) {
@@ -28,11 +28,19 @@ export default function TaskCard({ id, username, createTime, status }: TaskCardP
       <div className={styles.header}>
         <p className={styles.id}>Task #{id}</p>
         <div className={styles.statusWrap}>
-          <span
-            className={`${styles.spinner} ${status === 'pending' ? styles.pendingSpinner : styles.ongoingSpinner}`}
-            aria-hidden="true"
-          />
-          <span className={styles.statusText}>{status === 'pending' ? 'Pending' : 'Ongoing'}</span>
+          {status === 'history' ? (
+            <>
+              <span className={styles.statusText}>Finished</span>
+            </>
+          ) : (
+            <>
+              <span
+                className={`${styles.spinner} ${status === 'pending' ? styles.pendingSpinner : styles.ongoingSpinner}`}
+                aria-hidden="true"
+              />
+              <span className={styles.statusText}>{status === 'pending' ? 'Pending' : 'Ongoing'}</span>
+            </>
+          )}
         </div>
       </div>
 

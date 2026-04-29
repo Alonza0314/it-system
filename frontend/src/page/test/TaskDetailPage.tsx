@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Configuration, DefaultApi, type ResponseGetTask } from '../../api'
+import {
+  Configuration,
+  DefaultApi,
+  ResponseGetTaskStatusEnum,
+  TaskTestResultStatusEnum,
+  type ResponseGetTask,
+  type TaskTestResult,
+} from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -18,6 +25,44 @@ function formatCreateTime(unixTime?: number) {
   return new Date(unixTime * 1000).toLocaleString()
 }
 
+function normalizeStatus(status?: ResponseGetTaskStatusEnum) {
+  if (status === ResponseGetTaskStatusEnum.Success) {
+    return 'success'
+  }
+  if (status === ResponseGetTaskStatusEnum.Failed) {
+    return 'failed'
+  }
+  if (status === ResponseGetTaskStatusEnum.Running) {
+    return 'running'
+  }
+  if (status === ResponseGetTaskStatusEnum.Pending) {
+    return 'pending'
+  }
+  if (status === ResponseGetTaskStatusEnum.Canceled) {
+    return 'canceled'
+  }
+  return 'unknown'
+}
+
+function normalizeTestStatus(status?: TaskTestResultStatusEnum) {
+  if (status === TaskTestResultStatusEnum.Success) {
+    return 'success'
+  }
+  if (status === TaskTestResultStatusEnum.Failed) {
+    return 'failed'
+  }
+  if (status === TaskTestResultStatusEnum.Running) {
+    return 'running'
+  }
+  if (status === TaskTestResultStatusEnum.Pending) {
+    return 'pending'
+  }
+  if (status === TaskTestResultStatusEnum.Canceled) {
+    return 'canceled'
+  }
+  return 'unknown'
+}
+
 export default function TaskDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -31,7 +76,9 @@ export default function TaskDetailPage() {
 
   const taskId = Number(id)
   const fromQueue = searchParams.get('from')
-  const canCancelTask = fromQueue !== 'ongoing'
+  const canCancelTask = fromQueue !== 'ongoing' && fromQueue !== 'history'
+  const taskStatus = normalizeStatus(task?.status)
+  const tests = useMemo<TaskTestResult[]>(() => task?.tests || [], [task])
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,
@@ -102,6 +149,10 @@ export default function TaskDetailPage() {
     setIsCancelModalOpen(false)
   }
 
+  function handleOpenTestLog(testName: string) {
+    addError(`Test log API is not implemented yet: ${testName}`)
+  }
+
   return (
     <section className={styles.page}>
       <NotificationContainer
@@ -113,7 +164,14 @@ export default function TaskDetailPage() {
       <header className={styles.header}>
         <div>
           <h2>Task Detail</h2>
-          <p>Task #{Number.isFinite(taskId) ? taskId : '-'}</p>
+          <p>
+            Task #{Number.isFinite(taskId) ? taskId : '-'}
+            {taskStatus !== 'unknown' && (
+              <span className={`${styles.statusBadge} ${styles[`status${taskStatus[0].toUpperCase()}${taskStatus.slice(1)}`]}`}>
+                {taskStatus}
+              </span>
+            )}
+          </p>
         </div>
         <div className={styles.actions}>
           <Button variant="secondary" onClick={() => navigate('/test')}>Back</Button>
@@ -137,41 +195,60 @@ export default function TaskDetailPage() {
             </div>
 
             <section className={styles.section}>
-              <h3>Tests</h3>
-              {task?.tests && task.tests.length > 0 ? (
+              <h3>NF PR List</h3>
+              {task?.nfPrList && task.nfPrList.length > 0 ? (
                 <ul className={styles.tagList}>
-                  {task.tests.map((testName) => (
-                    <li key={testName} className={styles.tag}>{testName}</li>
+                  {task.nfPrList.map((item) => (
+                    <li key={`${item.nfName}-${item.pr}`} className={styles.tag}>
+                      {item.nfName.toUpperCase()} / PR #{item.pr}
+                    </li>
                   ))}
                 </ul>
               ) : (
-                <p className={styles.empty}>No tests</p>
+                <p className={styles.empty}>No NF PR data</p>
               )}
             </section>
 
             <section className={styles.section}>
-              <h3>NF PR List</h3>
-              {task?.nfPrList && task.nfPrList.length > 0 ? (
+              <h3>Tests</h3>
+              {tests.length > 0 ? (
                 <div className={styles.tableWrap}>
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>NF</th>
-                        <th>PR</th>
+                        <th>Test</th>
+                        <th>Status</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {task.nfPrList.map((item) => (
-                        <tr key={`${item.nfName}-${item.pr}`}>
-                          <td>{item.nfName}</td>
-                          <td>{item.pr}</td>
+                      {tests.map((test) => {
+                        const status = normalizeTestStatus(test.status)
+                        return (
+                        <tr key={test.name}>
+                          <td>{test.name}</td>
+                          <td>
+                            <span className={`${styles.testStatus} ${styles[`status${status[0].toUpperCase()}${status.slice(1)}`]}`}>
+                              {status}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className={styles.logButton}
+                              onClick={() => handleOpenTestLog(test.name)}
+                            >
+                              View Log
+                            </button>
+                          </td>
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <p className={styles.empty}>No NF PR data</p>
+                <p className={styles.empty}>No tests</p>
               )}
             </section>
           </>

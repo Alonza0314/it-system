@@ -44,6 +44,12 @@ func (b *backend) getRunRunnerRoutes() util.Routes {
 			Pattern:     "/heartbeat",
 			HandlerFunc: b.handleRunnerHeartbeat,
 		},
+		{
+			Name:        "Test Output",
+			Method:      http.MethodPost,
+			Pattern:     "/test-output",
+			HandlerFunc: b.handleTestOutput,
+		},
 	}
 }
 
@@ -142,4 +148,28 @@ func (b *backend) handleRunnerHeartbeat(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleTestOutput(c *gin.Context) {
+	b.RunLog.Infof("Test Output request from %s, runner: %s", c.ClientIP(), c.GetHeader("user"))
+
+	var req model.RequestTestOutput
+	if err := c.ShouldBindJSON(&req); err != nil {
+		b.RunLog.Warnf("Invalid request body from %s: %v", c.ClientIP(), err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	if errDetail := b.Processor.TtestOutput(&req, c.GetHeader("user")); errDetail != nil {
+		b.RunLog.Errorf("Test Output failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, gin.H{
+			"message": errDetail.Detail,
+		})
+		return
+	}
+
+	b.RunLog.Infof("Test Output successful for %s", c.ClientIP())
+	c.Status(http.StatusNoContent)
 }

@@ -27,7 +27,7 @@ type Runner struct {
 }
 
 type RequestRunnerHeartbeat struct {
-	Idle        bool   `json:"idle" binding:"required"`
+	Idle        *bool  `json:"idle" binding:"required"`
 	OnGoingTask uint64 `json:"onGoingTask,omitempty"`
 }
 
@@ -36,4 +36,12 @@ type ResponseRunnerHeartbeat struct {
 	Id       uint64   `json:"id,omitempty"`
 	Tests    []string `json:"tests,omitempty"`
 	NFPrList []NfPr   `json:"nfPrList,omitempty"`
+}
+
+type RequestTestOutput struct {
+	EndFlag  *bool  `json:"endFlag" binding:"required"`
+	Id       uint64 `json:"id" binding:"required"`
+	TestName string `json:"testName,omitempty"`
+	Success  bool   `json:"success,omitempty"`
+	Log      string `json:"log,omitempty"`
 }

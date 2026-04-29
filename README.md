@@ -33,15 +33,25 @@ A free5GC developer friendly integration test system.
     make frontend
     ```
 
-## Execute
+- Run
 
-Setup the configuration file: [config.yaml](./config.yaml)
+    Setup the configuration file: [config.yaml](./config.yaml)
 
-And run:
+    ```bash
+    make run
+    ```
 
-```bash
-./build/system -c config.yaml
-```
+- Lint
+
+    ```bash
+    make lint
+    ```
+
+- Test
+
+    ```bash
+    make test
+    ```
 
 ## API Level
 
@@ -62,8 +72,18 @@ And run:
     └─/run
         └─/runner
             └─/heartbeat(POST)
+            └─/test-output(POST)
 ```
 
-## Test Flow
+- [Postman](./free5gc-it-system.postman_collection.json)
+- [Openapi]
+
+## WorkFlow Flow
+
+### Test Flow
 
 ![testFlow](./image/testFlow.png)
+
+### Runner Flow
+
+![runnerFlow](./image/runnerFlow.png)

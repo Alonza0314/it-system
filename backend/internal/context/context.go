@@ -13,18 +13,22 @@ type ItContext struct {
 	runnerContext  *runnerContext
 }
 
-func NewItContext(dbPath string, runnerCheckTimeInterval time.Duration) *ItContext {
+func NewItContext(dbPath, logPath string, maxHistoryLength int, runnerCheckTimeInterval time.Duration) *ItContext {
 	dbContext := newBboltDbContext(dbPath)
 
 	return &ItContext{
 		githubContext:  newGithubContext(),
 		bboltDbContext: dbContext,
-		taskContext:    newTaskContext(dbContext),
+		taskContext:    newTaskContext(logPath, maxHistoryLength, dbContext),
 		runnerContext:  newRunnerContext(dbContext, runnerCheckTimeInterval),
 	}
 }
 
 func ReleaseItContext(ctx *ItContext) error {
+	if err := releaseTaskContext(ctx.taskContext); err != nil {
+		return err
+	}
+
 	if err := releaseBboltDbContext(ctx.bboltDbContext); err != nil {
 		return err
 	}
@@ -75,6 +79,10 @@ func (ctx *ItContext) RemoveFromDb(bucket, key string) error {
 	return ctx.bboltDbContext.Remove([]byte(bucket), []byte(key))
 }
 
+func (ctx *ItContext) RemoveAllFromDb(bucket string) error {
+	return ctx.bboltDbContext.RemoveAll([]byte(bucket))
+}
+
 func (ctx *ItContext) ExistsInDb(bucket, key string) (bool, error) {
 	return ctx.bboltDbContext.Exists([]byte(bucket), []byte(key))
 }
@@ -85,6 +93,10 @@ func (ctx *ItContext) GetPendingTasks() []model.TaskSimple {
 
 func (ctx *ItContext) GetOngoingTasks() []model.TaskSimple {
 	return convertTaskToResponseTask(ctx.taskContext.getOngoingQueue())
+}
+
+func (ctx *ItContext) GetHistoryTasks() []model.TaskSimple {
+	return convertTaskToResponseTask(ctx.taskContext.getHistoryQueue())
 }
 
 func (ctx *ItContext) GetTask(id uint64) (*task, error) {
@@ -101,6 +113,14 @@ func (ctx *ItContext) GetFirstPendingTaskAndMoveToOngoing() (*task, error) {
 
 func (ctx *ItContext) CancelTask(id uint64) error {
 	return ctx.taskContext.cancelTask(id)
+}
+
+func (ctx *ItContext) TtestOutputEnd(id uint64) error {
+	return ctx.taskContext.moveOngoingTaskToHistory(id)
+}
+
+func (ctx *ItContext) TtestOutputTransfer(id uint64, testName string, success bool, log *string) error {
+	return ctx.taskContext.writeLogToFile(id, testName, success, log)
 }
 
 func (ctx *ItContext) RunnerExists(name string) bool {
