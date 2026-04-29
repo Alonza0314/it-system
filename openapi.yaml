@@ -553,6 +553,83 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
 
+    delete:
+      summary: Delete runner
+      operationId: deleteRunner
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          description: Runner name
+          required: true
+          schema:
+            type: string
+            example: runner
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/admin/test/history:
+    delete:
+      summary: Delete tasks history
+      operationId: deleteTasksHistory
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
   /api/run/runner/heartbeat:
     post:
       summary: Runner heartbeat
@@ -628,51 +705,6 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '403':
           description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-
-    delete:
-      summary: Delete runner
-      operationId: deleteRunner
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: name
-          in: query
-          description: Runner name
-          required: true
-          schema:
-            type: string
-            example: runner
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '404':
-          description: Not Found
           content:
             application/json:
               schema:
@@ -771,24 +803,6 @@ components:
         pr:
           type: integer
           example: 100
-    TaskTestResult:
-      type: object
-      required:
-        - name
-        - status
-      properties:
-        name:
-          type: string
-          example: test-1
-        status:
-          type: string
-          enum:
-            - pending
-            - running
-            - success
-            - failed
-            - canceled
-          example: success
     ResponseGetTasks:
       type: object
       required:
@@ -840,12 +854,10 @@ components:
         tests:
           type: array
           items:
-            $ref: '#/components/schemas/TaskTestResult'
+            type: string
           example:
-            - name: test-1
-              status: success
-            - name: test-2
-              status: failed
+            - test-1
+            - test-2
         nfPrList:
           type: array
           items:

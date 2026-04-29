@@ -2295,7 +2295,7 @@
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=1",
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/task?id=29",
                       "host": [
                         "{{SHEMA}}{{BACKEND_URL}}"
                       ],
@@ -2307,7 +2307,7 @@
                       "query": [
                         {
                           "key": "id",
-                          "value": "1"
+                          "value": "29"
                         }
                       ]
                     }
@@ -2334,15 +2334,15 @@
                     },
                     {
                       "key": "Date",
-                      "value": "Sat, 25 Apr 2026 19:05:05 GMT"
+                      "value": "Wed, 29 Apr 2026 16:35:32 GMT"
                     },
                     {
                       "key": "Content-Length",
-                      "value": "184"
+                      "value": "258"
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n    \"message\": \"Task retrieved successfully\",\n    \"id\": 1,\n    \"username\": \"admin\",\n    \"status\": \"success\"\n    \"createTime\": 1777143861,\n    \"tests\": [\n        \"test-1\",\n        \"test-2\"\n    ],\n    \"nfPrList\": [\n        {\n            \"nfName\": \"amf\",\n            \"pr\": 100\n        },\n        {\n            \"nfName\": \"smf\",\n            \"pr\": 200\n        }\n    ]\n}"
+                  "body": "{\n    \"message\": \"Task retrieved successfully\",\n    \"id\": 29,\n    \"username\": \"admin\",\n    \"status\": \"pending\",\n    \"createTime\": 1777480527,\n    \"tests\": [\n        {\n            \"name\": \"TestRegistration\",\n            \"status\": \"pending\"\n        },\n        {\n            \"name\": \"TestGUTIRegistration\",\n            \"status\": \"pending\"\n        }\n    ],\n    \"nfPrList\": [\n        {\n            \"nfName\": \"amf\",\n            \"pr\": 213\n        }\n    ]\n}"
                 },
                 {
                   "name": "400",
@@ -3015,6 +3015,252 @@
                   ],
                   "cookie": [],
                   "body": "{\n    \"message\": \"Failed to cancel task: <nil>\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "history",
+          "item": [
+            {
+              "name": "history",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/history",
+                  "host": [
+                    "{{SHEMA}}{{BACKEND_URL}}"
+                  ],
+                  "path": [
+                    "api",
+                    "admin",
+                    "test",
+                    "history"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "200",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/history",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "admin",
+                        "test",
+                        "history"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Wed, 29 Apr 2026 16:32:26 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "48"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Tasks history deleted successfully\"\n}"
+                },
+                {
+                  "name": "401",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/history",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "admin",
+                        "test",
+                        "history"
+                      ]
+                    }
+                  },
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Wed, 29 Apr 2026 16:31:31 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "71"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Invalid token: token has invalid claims: token is expired\"\n}"
+                },
+                {
+                  "name": "403",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/history",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "admin",
+                        "test",
+                        "history"
+                      ]
+                    }
+                  },
+                  "status": "Forbidden",
+                  "code": 403,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Wed, 29 Apr 2026 16:31:46 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "35"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Admin access required\"\n}"
+                },
+                {
+                  "name": "500",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/history",
+                      "host": [
+                        "{{SHEMA}}{{BACKEND_URL}}"
+                      ],
+                      "path": [
+                        "api",
+                        "admin",
+                        "test",
+                        "history"
+                      ]
+                    }
+                  },
+                  "status": "Internal Server Error",
+                  "code": 500,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Access-Control-Allow-Headers",
+                      "value": "Content-Type, Authorization"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Methods",
+                      "value": "GET, POST, PUT, DELETE, OPTIONS"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Wed, 29 Apr 2026 16:33:00 GMT"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "61"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"Failed to delete tasks history: <nil>\"\n}"
                 }
               ]
             }
@@ -4438,7 +4684,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"testName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
             },
             "url": {
               "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",

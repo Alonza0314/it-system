@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Configuration, DefaultApi, type GetGithubPRsNfEnum, type RequestSubmitTask, type TaskSimple } from '../../api'
+import {
+  Configuration,
+  DefaultApi,
+  type GetGithubPRsNfEnum,
+  type RequestSubmitTask,
+  type ResponseGetTasks,
+  type TaskSimple,
+} from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import Modal from '../../components/modal/modal'
@@ -41,6 +48,8 @@ export default function TestPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isSubmittingTask, setIsSubmittingTask] = useState(false)
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false)
+  const [isClearHistoryModalOpen, setIsClearHistoryModalOpen] = useState(false)
+  const [isClearingHistory, setIsClearingHistory] = useState(false)
   const [confirmPayload, setConfirmPayload] = useState<RequestSubmitTask | null>(null)
   const [prsByNf, setPrsByNf] = useState<Record<string, PrOption[]>>({})
   const [loadingByNf, setLoadingByNf] = useState<Record<string, boolean>>({})
@@ -85,11 +94,7 @@ export default function TestPage() {
       const response = await api.getTasks({
         headers: getUserHeader(),
       })
-      const taskData = response.data as {
-        pendingTask?: TaskSimple[]
-        ongoingTask?: TaskSimple[]
-        historyTask?: TaskSimple[]
-      }
+      const taskData: ResponseGetTasks = response.data
 
       setPendingTasks(taskData.pendingTask || [])
       setOngoingTasks(taskData.ongoingTask || [])
@@ -251,6 +256,30 @@ export default function TestPage() {
     setIsSubmitModalOpen(false)
   }
 
+  function openClearHistoryModal() {
+    setIsClearHistoryModalOpen(true)
+  }
+
+  function closeClearHistoryModal() {
+    setIsClearHistoryModalOpen(false)
+  }
+
+  async function handleClearHistory() {
+    setIsClearingHistory(true)
+    try {
+      const response = await api.deleteTasksHistory({
+        headers: getUserHeader(),
+      })
+      addSuccess(response.data.message || 'Tasks history deleted successfully')
+      setIsClearHistoryModalOpen(false)
+      await refreshTaskQueues()
+    } catch (error: unknown) {
+      addError(extractErrorMessage(error, 'Failed to clear task history'))
+    } finally {
+      setIsClearingHistory(false)
+    }
+  }
+
   function updateNfToggle(apiName: string, checked: boolean) {
     setEnabledNf((prev) => ({ ...prev, [apiName]: checked }))
 
@@ -316,6 +345,14 @@ export default function TestPage() {
             onClick={handleToggleNewTest}
           >
             {isFormOpen ? 'Close New Test' : 'New Test'}
+          </button>
+          <button
+            type="button"
+            className={styles.clearHistoryButton}
+            onClick={openClearHistoryModal}
+            disabled={isClearingHistory || historyTasks.length === 0}
+          >
+            {isClearingHistory ? 'Clearing...' : 'Clear History'}
           </button>
         </div>
       </header>
@@ -481,6 +518,19 @@ export default function TestPage() {
             </ul>
           </section>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={isClearHistoryModalOpen}
+        onClose={closeClearHistoryModal}
+        title="Confirm Clear History"
+        onSubmit={handleClearHistory}
+        submitText={isClearingHistory ? 'Clearing...' : 'Confirm Clear'}
+        submitDisabled={isClearingHistory}
+      >
+        <p className={styles.confirmTitle}>
+          This will remove all history tasks. Continue?
+        </p>
       </Modal>
     </section>
   )

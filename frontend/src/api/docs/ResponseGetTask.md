@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **username** | **string** |  | [optional] [default to undefined]
 **createTime** | **number** |  | [optional] [default to undefined]
 **status** | **string** |  | [optional] [default to undefined]
-**tests** | [**Array&lt;TaskTestResult&gt;**](TaskTestResult.md) |  | [optional] [default to undefined]
+**tests** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 **nfPrList** | [**Array&lt;NfPr&gt;**](NfPr.md) |  | [optional] [default to undefined]
 
 ## Example

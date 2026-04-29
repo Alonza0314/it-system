@@ -28,7 +28,6 @@ docs/ResponseRegisterRunner.md
 docs/ResponseRunnerHeartbeat.md
 docs/Runner.md
 docs/TaskSimple.md
-docs/TaskTestResult.md
 docs/Tenant.md
 docs/Testcase.md
 git_push.sh

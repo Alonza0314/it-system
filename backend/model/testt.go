@@ -40,13 +40,13 @@ type TaskSimple struct {
 }
 
 type ResponseGetTask struct {
-	Message    string   `json:"message" binding:"required"`
-	Id         uint64   `json:"id,omitempty"`
-	Username   string   `json:"username,omitempty"`
-	Status     string   `json:"status,omitempty"`
-	CreateTime int64    `json:"createTime,omitempty"`
+	Message    string       `json:"message" binding:"required"`
+	Id         uint64       `json:"id,omitempty"`
+	Username   string       `json:"username,omitempty"`
+	Status     string       `json:"status,omitempty"`
+	CreateTime int64        `json:"createTime,omitempty"`
 	Tests      []TestDetail `json:"tests,omitempty"`
-	NFPrList   []NfPr   `json:"nfPrList,omitempty"`
+	NFPrList   []NfPr       `json:"nfPrList,omitempty"`
 }
 
 type TestDetail struct {
@@ -69,5 +69,9 @@ type ResponseSubmitTask struct {
 }
 
 type ResponseCancelTask struct {
+	Message string `json:"message" binding:"required"`
+}
+
+type ResponseDeleteTasksHistory struct {
 	Message string `json:"message" binding:"required"`
 }

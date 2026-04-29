@@ -68,6 +68,7 @@ A free5GC developer friendly integration test system.
     └─/admin
     │   └─/test
     │   │  └─/testcase(POST, DELETE)
+    │   │  └─/history(DELETE)
     │   └─/runner(POST, DELETE)
     └─/run
         └─/runner

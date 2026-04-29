@@ -95,7 +95,7 @@ export interface ResponseGetTask {
     'username'?: string;
     'createTime'?: number;
     'status'?: ResponseGetTaskStatusEnum;
-    'tests'?: Array<TaskTestResult>;
+    'tests'?: Array<string>;
     'nfPrList'?: Array<NfPr>;
 }
 
@@ -136,21 +136,6 @@ export interface TaskSimple {
     'username': string;
     'createTime': number;
 }
-export interface TaskTestResult {
-    'name': string;
-    'status': TaskTestResultStatusEnum;
-}
-
-export const TaskTestResultStatusEnum = {
-    Pending: 'pending',
-    Running: 'running',
-    Success: 'success',
-    Failed: 'failed',
-    Canceled: 'canceled',
-} as const;
-
-export type TaskTestResultStatusEnum = typeof TaskTestResultStatusEnum[keyof typeof TaskTestResultStatusEnum];
-
 export interface Tenant {
     'username': string;
     'role': string;
@@ -294,7 +279,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         deleteRunner: async (name: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'name' is not null or undefined
             assertParamExists('deleteRunner', 'name', name)
-            const localVarPath = `/api/run/runner/test-output`;
+            const localVarPath = `/api/admin/runner`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -313,6 +298,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             if (name !== undefined) {
                 localVarQueryParameter['name'] = name;
             }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete tasks history
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteTasksHistory: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/admin/test/history`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             localVarHeaderParameter['Accept'] = 'application/json';
 
@@ -904,6 +923,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Delete tasks history
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteTasksHistory(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTasksHistory(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteTasksHistory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Delete tenants
          * @param {DeleteTenantsRequest} deleteTenantsRequest 
          * @param {*} [options] Override http request option.
@@ -1130,6 +1161,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Delete tasks history
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteTasksHistory(options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.deleteTasksHistory(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Delete tenants
          * @param {DeleteTenantsRequest} deleteTenantsRequest 
          * @param {*} [options] Override http request option.
@@ -1312,6 +1352,16 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteRunner(name: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteRunner(name, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete tasks history
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteTasksHistory(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteTasksHistory(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -4,9 +4,7 @@ import {
   Configuration,
   DefaultApi,
   ResponseGetTaskStatusEnum,
-  TaskTestResultStatusEnum,
   type ResponseGetTask,
-  type TaskTestResult,
 } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
@@ -44,20 +42,26 @@ function normalizeStatus(status?: ResponseGetTaskStatusEnum) {
   return 'unknown'
 }
 
-function normalizeTestStatus(status?: TaskTestResultStatusEnum) {
-  if (status === TaskTestResultStatusEnum.Success) {
+interface TaskTestItem {
+  name: string
+  status?: string
+}
+
+function normalizeTestStatus(status?: string) {
+  const normalized = (status || '').toLowerCase()
+  if (normalized.includes('success')) {
     return 'success'
   }
-  if (status === TaskTestResultStatusEnum.Failed) {
+  if (normalized.includes('fail')) {
     return 'failed'
   }
-  if (status === TaskTestResultStatusEnum.Running) {
+  if (normalized.includes('running')) {
     return 'running'
   }
-  if (status === TaskTestResultStatusEnum.Pending) {
+  if (normalized.includes('pending')) {
     return 'pending'
   }
-  if (status === TaskTestResultStatusEnum.Canceled) {
+  if (normalized.includes('cancel')) {
     return 'canceled'
   }
   return 'unknown'
@@ -78,7 +82,32 @@ export default function TaskDetailPage() {
   const fromQueue = searchParams.get('from')
   const canCancelTask = fromQueue !== 'ongoing' && fromQueue !== 'history'
   const taskStatus = normalizeStatus(task?.status)
-  const tests = useMemo<TaskTestResult[]>(() => task?.tests || [], [task])
+  const tests = useMemo<TaskTestItem[]>(() => {
+    const rawTests = (task?.tests || []) as unknown[]
+
+    return rawTests
+      .map((item) => {
+        if (typeof item === 'string') {
+          return { name: item }
+        }
+
+        if (typeof item !== 'object' || item === null) {
+          return null
+        }
+
+        const typed = item as { name?: string; testName?: string; status?: string }
+        const name = typed.name || typed.testName || ''
+        if (!name) {
+          return null
+        }
+
+        return {
+          name,
+          status: typed.status,
+        }
+      })
+      .filter((test): test is TaskTestItem => Boolean(test))
+  }, [task])
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,

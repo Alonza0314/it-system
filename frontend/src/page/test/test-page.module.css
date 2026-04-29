@@ -60,6 +60,25 @@
   background: var(--accent-strong);
 }
 
+.clearHistoryButton {
+  border: 1px solid #d70015;
+  border-radius: 999px;
+  padding: 0.6rem 0.9rem;
+  color: #d70015;
+  font-weight: 600;
+  background: #fff1f3;
+  cursor: pointer;
+}
+
+.clearHistoryButton:hover:not(:disabled) {
+  background: #ffe4e8;
+}
+
+.clearHistoryButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .formPanel {
   max-height: 0;
   overflow: hidden;

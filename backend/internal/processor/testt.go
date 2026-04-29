@@ -183,3 +183,16 @@ func (p *Processor) CancelTask(id uint64) (*model.ResponseCancelTask, *model.Err
 		Message: "Task cancelled successfully",
 	}, nil
 }
+
+func (p *Processor) DeleteTasksHistory() (*model.ResponseDeleteTasksHistory, *model.ErrorDetail) {
+	if err := p.itContext.DeleteHistory(); err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to delete tasks history: %v", err),
+		}
+	}
+
+	return &model.ResponseDeleteTasksHistory{
+		Message: "Tasks history deleted successfully",
+	}, nil
+}

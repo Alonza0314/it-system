@@ -123,6 +123,10 @@ func (ctx *ItContext) TtestOutputTransfer(id uint64, testName string, success bo
 	return ctx.taskContext.writeLogToFile(id, testName, success, log)
 }
 
+func (ctx *ItContext) DeleteHistory() error {
+	return ctx.taskContext.deleteHistory()
+}
+
 func (ctx *ItContext) RunnerExists(name string) bool {
 	return ctx.runnerContext.runnerExists(name)
 }

@@ -526,3 +526,18 @@ func (ctx *taskContext) writeLogToFile(id uint64, testName string, success bool,
 
 	return nil
 }
+
+func (ctx *taskContext) deleteHistory() error {
+	ctx.historyQueueLock.Lock()
+	defer ctx.historyQueueLock.Unlock()
+
+	for _, t := range ctx.historyQueue {
+		if err := os.RemoveAll(t.getLogDir(ctx.logPath)); err != nil {
+			return fmt.Errorf("failed to remove log directory for task %d: %v", t.ID(), err)
+		}
+	}
+
+	ctx.historyQueue = newTaskQueue()
+
+	return nil
+}

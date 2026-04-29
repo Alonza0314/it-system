@@ -58,6 +58,12 @@ func (b *backend) getAdminTestRoutes() util.Routes {
 			Pattern:     "/testcase",
 			HandlerFunc: b.handleDeleteTestcases,
 		},
+		{
+			Name:        "Delete tasks history",
+			Method:      http.MethodDelete,
+			Pattern:     "/history",
+			HandlerFunc: b.handleDeleteTasksHistory,
+		},
 	}
 }
 
@@ -232,5 +238,21 @@ func (b *backend) handleCancelTask(c *gin.Context) {
 	}
 
 	b.TestLog.Infof("Cancel task successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleDeleteTasksHistory(c *gin.Context) {
+	b.TestLog.Infof("Delete tasks history request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	response, errDetail := b.Processor.DeleteTasksHistory()
+	if errDetail != nil {
+		b.TestLog.Warnf("Delete tasks history failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseDeleteTasksHistory{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.TestLog.Infof("Delete tasks history successful for %s", c.ClientIP())
 	c.JSON(http.StatusOK, response)
 }

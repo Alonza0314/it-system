@@ -7,7 +7,8 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**addTenants**](#addtenants) | **POST** /api/admin/tenant | Add tenants|
 |[**addTestcases**](#addtestcases) | **POST** /api/admin/test/testcase | Add testcases|
 |[**cancelTask**](#canceltask) | **DELETE** /api/test/task | Cancel task|
-|[**deleteRunner**](#deleterunner) | **DELETE** /api/run/runner/test-output | Delete runner|
+|[**deleteRunner**](#deleterunner) | **DELETE** /api/admin/runner | Delete runner|
+|[**deleteTasksHistory**](#deletetaskshistory) | **DELETE** /api/admin/test/history | Delete tasks history|
 |[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
 |[**deleteTestcases**](#deletetestcases) | **DELETE** /api/admin/test/testcase | Delete testcases|
 |[**getGithubPRs**](#getgithubprs) | **GET** /api/github | Get Github PRs|
@@ -237,6 +238,52 @@ const { status, data } = await apiInstance.deleteRunner(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**404** | Not Found |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteTasksHistory**
+> MessageResponse deleteTasksHistory()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.deleteTasksHistory();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**MessageResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
