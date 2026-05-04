@@ -1,10 +1,12 @@
-.PHONY: backend frontend clean run tidy test lint
+.PHONY: controller backend frontend clean run-controller tidy-controller test-controller lint-controller
 
 BACKEND_SRC := $(shell find controller/backend -name "*.go")
 FRONTEND_SRC := $(shell find controller/frontend -type f ! -path "controller/frontend/dist/*" ! -path "controller/frontend/node_modules/*")
 FRONTEND_STAMP := build/frontend/.stamp
 
-all: backend frontend
+all: controller
+
+controller: backend frontend
 
 build/controller: $(BACKEND_SRC)
 	@echo "[+] Building backend..."
@@ -45,14 +47,14 @@ frontend:
 clean:
 	rm -rf build
 
-run:
+run-controller::
 	./build/controller -c config.yaml
 
-tidy:
+tidy-controller:
 	cd controller/backend && go mod tidy
 
-test:
+test-controller:
 	cd controller/backend && go test -v ./...
 
-lint:
+lint-controller:
 	cd controller/backend && golangci-lint run
