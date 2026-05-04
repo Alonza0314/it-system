@@ -77,7 +77,7 @@ A free5GC developer friendly integration test system.
 ```
 
 - [Postman](./free5gc-it-system.postman_collection.json)
-- [Openapi]
+- [Openapi](./openapi.yaml)
 
 ## WorkFlow Flow
 
