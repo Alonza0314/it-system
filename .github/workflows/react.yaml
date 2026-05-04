@@ -29,3 +29,6 @@ jobs:
         run: |
           cd ${{ env.FRONTEND_DIR }}
           yarn build
+
+      - name: Make
+        run: make frontend

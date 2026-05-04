@@ -23,10 +23,10 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
-      - name: Build Controller
+      - name: Build Backend
         run: cd ${{ env.BACKEND_DIR }} && go build -v ./...
 
-      - name: Test Controller
+      - name: Test Backend
         run: cd ${{ env.BACKEND_DIR }} && go test -v ./...
 
       - name: Build Runner
@@ -35,5 +35,8 @@ jobs:
       - name: Test Runner
         run: cd ${{ env.RUNNER_DIR }} && go test -v ./...
 
-      - name: Make
-        run: make
+      - name: Make backend
+        run: make backend
+
+      - name: Make Runner
+        run: make runner
