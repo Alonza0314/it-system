@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   pull_request:
 
+env:
+  FRONTEND_DIR: controller/frontend
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,11 +21,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd frontend
+          cd ${{ env.FRONTEND_DIR }}
           corepack enable
           yarn install
 
       - name: Build
         run: |
-          cd frontend
+          cd ${{ env.FRONTEND_DIR }}
           yarn build

@@ -1,10 +1,11 @@
 package context
 
 import (
-	"backend/constant"
 	cctx "context"
 	"sync"
 	"time"
+
+	"github.com/Alonza0314/it-system/controller/backend/constant"
 )
 
 type runnerWithoutLock struct {

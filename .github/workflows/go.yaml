@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   pull_request:
 
+env:
+  BACKEND_DIR: controller/backend
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,10 +23,10 @@ jobs:
           go-version: ${{ matrix.go }}
 
       - name: Build
-        run: cd backend && go build -v ./...
+        run: cd ${{ env.BACKEND_DIR }} && go build -v ./...
 
       - name: Test
-        run: cd backend && go test -v ./...
+        run: cd ${{ env.BACKEND_DIR }} && go test -v ./...
 
       - name: Make Backend
         run: make

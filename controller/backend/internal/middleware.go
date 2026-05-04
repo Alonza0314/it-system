@@ -1,9 +1,10 @@
 package internal
 
 import (
-	"backend/constant"
 	"net/http"
 	"strings"
+
+	"github.com/Alonza0314/it-system/controller/backend/constant"
 
 	"github.com/free-ran-ue/util"
 	"github.com/gin-gonic/gin"

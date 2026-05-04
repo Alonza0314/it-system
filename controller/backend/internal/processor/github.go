@@ -1,9 +1,10 @@
 package processor
 
 import (
-	"backend/model"
 	"fmt"
 	"net/http"
+
+	"github.com/Alonza0314/it-system/controller/backend/model"
 )
 
 func (p *Processor) GetGithubPRs(nf string) (*model.ResponseGetGithubPRs, *model.ErrorDetail) {

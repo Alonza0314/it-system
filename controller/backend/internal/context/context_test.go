@@ -1,10 +1,11 @@
 package context_test
 
 import (
-	"backend/internal/context"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/Alonza0314/it-system/controller/backend/internal/context"
 )
 
 var ctx *context.ItContext

@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"backend/constant"
+	"github.com/Alonza0314/it-system/controller/backend/constant"
 
 	loggergo "github.com/Alonza0314/logger-go/v2"
 	loggergoModel "github.com/Alonza0314/logger-go/v2/model"

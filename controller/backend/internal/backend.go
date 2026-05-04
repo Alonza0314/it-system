@@ -1,9 +1,6 @@
 package internal
 
 import (
-	"backend/config"
-	"backend/internal/processor"
-	"backend/logger"
 	"context"
 	"fmt"
 	"net/http"
@@ -11,6 +8,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/Alonza0314/it-system/controller/backend/config"
+	"github.com/Alonza0314/it-system/controller/backend/internal/processor"
+	"github.com/Alonza0314/it-system/controller/backend/logger"
 
 	"github.com/free-ran-ue/util"
 	"github.com/gin-gonic/gin"

@@ -1,9 +1,10 @@
 package processor
 
 import (
-	"backend/internal/context"
-	"backend/logger"
 	"time"
+
+	"github.com/Alonza0314/it-system/controller/backend/internal/context"
+	"github.com/Alonza0314/it-system/controller/backend/logger"
 )
 
 type Processor struct {

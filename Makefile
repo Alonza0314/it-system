@@ -1,41 +1,41 @@
 .PHONY: backend frontend clean run tidy test lint
 
-BACKEND_SRC := $(shell find backend -name "*.go")
-FRONTEND_SRC := $(shell find frontend -type f ! -path "frontend/dist/*" ! -path "frontend/node_modules/*")
+BACKEND_SRC := $(shell find controller/backend -name "*.go")
+FRONTEND_SRC := $(shell find controller/frontend -type f ! -path "controller/frontend/dist/*" ! -path "controller/frontend/node_modules/*")
 FRONTEND_STAMP := build/frontend/.stamp
 
 all: backend frontend
 
-build/system: $(BACKEND_SRC)
+build/controller: $(BACKEND_SRC)
 	@echo "[+] Building backend..."
 	mkdir -p build
-	cd backend && go build -o ../build/system .
+	cd controller/backend && go build -o ../../build/controller .
 	@echo "[✔] Backend build finished"
 
 build/frontend: $(FRONTEND_SRC)
 	@echo "[+] Installing frontend deps..."
-	cd frontend && yarn install
+	cd controller/frontend && yarn install
 
 	@echo "[+] Building frontend..."
-	cd frontend && yarn build
+	cd controller/frontend && yarn build
 
 	@echo "[✔] Frontend build finished"
 	@mkdir -p build/frontend
-	@cp -r frontend/dist/. build/frontend/
+	@cp -r controller/frontend/dist/. build/frontend/
 	@touch $(FRONTEND_STAMP)
 
 backend:
-	@if [ -f build/system ]; then \
-		if [ -z "$$(find backend -name '*.go' -newer build/system)" ]; then \
+	@if [ -f build/controller ]; then \
+		if [ -z "$$(find controller/backend -name '*.go' -newer build/controller)" ]; then \
 			echo "[✔] backend is up-to-date, no build needed"; \
 			exit 0; \
 		fi; \
 	fi; \
-	$(MAKE) build/system
+	$(MAKE) build/controller
 
 frontend:
 	@if [ -f $(FRONTEND_STAMP) ]; then \
-		if [ -z "$$(find frontend -type f -newer $(FRONTEND_STAMP))" ]; then \
+		if [ -z "$$(find controller/frontend -type f -newer $(FRONTEND_STAMP))" ]; then \
 			echo "[✔] frontend is up-to-date, no build needed"; \
 			exit 0; \
 		fi; \
@@ -46,13 +46,13 @@ clean:
 	rm -rf build
 
 run:
-	./build/system -c config.yaml
+	./build/controller -c config.yaml
 
 tidy:
-	cd backend && go mod tidy
+	cd controller/backend && go mod tidy
 
 test:
-	cd backend && go test -v ./...
+	cd controller/backend && go test -v ./...
 
 lint:
-	cd backend && golangci-lint run
+	cd controller/backend && golangci-lint run

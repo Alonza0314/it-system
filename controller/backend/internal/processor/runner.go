@@ -1,10 +1,11 @@
 package processor
 
 import (
-	"backend/constant"
-	"backend/model"
 	"fmt"
 	"net/http"
+
+	"github.com/Alonza0314/it-system/controller/backend/constant"
+	"github.com/Alonza0314/it-system/controller/backend/model"
 
 	"github.com/free-ran-ue/util"
 )

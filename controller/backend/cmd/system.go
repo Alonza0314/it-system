@@ -1,12 +1,13 @@
 package cmd
 
 import (
-	"backend/config"
-	"backend/internal"
-	"backend/logger"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/Alonza0314/it-system/controller/backend/config"
+	"github.com/Alonza0314/it-system/controller/backend/internal"
+	"github.com/Alonza0314/it-system/controller/backend/logger"
 
 	loggergoUtil "github.com/Alonza0314/logger-go/v2/util"
 	"github.com/free-ran-ue/util"

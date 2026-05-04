@@ -1,4 +1,4 @@
-module backend
+module github.com/Alonza0314/it-system/controller/backend
 
 go 1.25.5
 

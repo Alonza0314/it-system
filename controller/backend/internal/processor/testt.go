@@ -1,11 +1,12 @@
 package processor
 
 import (
-	"backend/constant"
-	"backend/model"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/Alonza0314/it-system/controller/backend/constant"
+	"github.com/Alonza0314/it-system/controller/backend/model"
 )
 
 func (p *Processor) GetTestcases() (*model.ResponseGetTestcases, *model.ErrorDetail) {

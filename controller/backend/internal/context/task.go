@@ -1,13 +1,14 @@
 package context
 
 import (
-	"backend/constant"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
 	"sync"
+
+	"github.com/Alonza0314/it-system/controller/backend/constant"
 )
 
 type taskIdGenerator struct {

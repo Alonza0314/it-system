@@ -1,9 +1,10 @@
 package internal
 
 import (
-	"backend/model"
 	"net/http"
 	"strconv"
+
+	"github.com/Alonza0314/it-system/controller/backend/model"
 
 	"github.com/free-ran-ue/util"
 	"github.com/gin-gonic/gin"
