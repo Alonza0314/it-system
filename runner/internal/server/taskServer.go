@@ -153,9 +153,9 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
 			fmt.Sprintf("pull/%d/head:pr-%d", nfPr.PR, nfPr.PR),
 		); err != nil {
 			if ctx.Err() != nil {
-				return fmt.Errorf("fetch NF-PR timed out for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
+				return fmt.Errorf("fetch NF-PR timed out for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
 			}
-			return fmt.Errorf("failed to fetch NF-PR for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, err)
+			return fmt.Errorf("failed to fetch NF-PR for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, err)
 		}
 
 		if _, err := s.runCmd(
@@ -166,9 +166,9 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
 			fmt.Sprintf("pr-%d", nfPr.PR),
 		); err != nil {
 			if ctx.Err() != nil {
-				return fmt.Errorf("checkout NF-PR timed out for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
+				return fmt.Errorf("checkout NF-PR timed out for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
 			}
-			return fmt.Errorf("failed to checkout NF-PR for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, err)
+			return fmt.Errorf("failed to checkout NF-PR for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, err)
 		}
 	}
 	return nil
