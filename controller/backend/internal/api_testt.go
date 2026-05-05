@@ -155,8 +155,8 @@ func (b *backend) handleGetTask(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
 		b.TestLog.Warnf("Get task request missing id from %s", c.ClientIP())
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Missing id parameter",
+		c.JSON(http.StatusBadRequest, model.ResponseGetTask{
+			Message: "Missing id parameter",
 		})
 		return
 	}
@@ -164,8 +164,8 @@ func (b *backend) handleGetTask(c *gin.Context) {
 	uint64Id, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		b.TestLog.Warnf("Invalid task id %s from %s", id, c.ClientIP())
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid id parameter",
+		c.JSON(http.StatusBadRequest, model.ResponseGetTask{
+			Message: "Invalid id parameter",
 		})
 		return
 	}
@@ -214,8 +214,8 @@ func (b *backend) handleCancelTask(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
 		b.TestLog.Warnf("Cancel task request missing id from %s", c.ClientIP())
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Missing id parameter",
+		c.JSON(http.StatusBadRequest, model.ResponseCancelTask{
+			Message: "Missing id parameter",
 		})
 		return
 	}
@@ -223,8 +223,8 @@ func (b *backend) handleCancelTask(c *gin.Context) {
 	uint64Id, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		b.TestLog.Warnf("Invalid task id %s from %s", id, c.ClientIP())
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid id parameter",
+		c.JSON(http.StatusBadRequest, model.ResponseCancelTask{
+			Message: "Invalid id parameter",
 		})
 		return
 	}
@@ -232,8 +232,8 @@ func (b *backend) handleCancelTask(c *gin.Context) {
 	response, errDetail := b.Processor.CancelTask(uint64Id)
 	if errDetail != nil {
 		b.TestLog.Warnf("Cancel task failed for %s: %s", c.ClientIP(), errDetail.Detail)
-		c.JSON(errDetail.HttpStatus, gin.H{
-			"message": errDetail.Detail,
+		c.JSON(errDetail.HttpStatus, model.ResponseCancelTask{
+			Message: errDetail.Detail,
 		})
 		return
 	}

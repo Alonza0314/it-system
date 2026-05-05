@@ -45,3 +45,7 @@ type RequestTestOutput struct {
 	Success  bool   `json:"success,omitempty"`
 	Log      string `json:"log,omitempty"`
 }
+
+type ResponseRunnerTestOutput struct {
+	Message string `json:"message" binding:"required"`
+}

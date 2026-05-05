@@ -127,8 +127,8 @@ func (b *backend) handleRunnerHeartbeat(c *gin.Context) {
 	var req model.RequestRunnerHeartbeat
 	if err := c.ShouldBindJSON(&req); err != nil {
 		b.RunLog.Warnf("Invalid request body from %s: %v", c.ClientIP(), err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid request body: " + err.Error(),
+		c.JSON(http.StatusBadRequest, model.ResponseRunnerHeartbeat{
+			Message: "Invalid request body: " + err.Error(),
 		})
 		return
 	}
@@ -136,8 +136,8 @@ func (b *backend) handleRunnerHeartbeat(c *gin.Context) {
 	response, errDetail := b.Processor.RunnerHeartbeat(&req, c.GetHeader("user"))
 	if errDetail != nil {
 		b.RunLog.Errorf("Runner Heartbeat failed for %s: %s", c.ClientIP(), errDetail.Detail)
-		c.JSON(errDetail.HttpStatus, gin.H{
-			"message": errDetail.Detail,
+		c.JSON(errDetail.HttpStatus, model.ResponseRunnerHeartbeat{
+			Message: errDetail.Detail,
 		})
 		return
 	}
@@ -157,16 +157,16 @@ func (b *backend) handleTestOutput(c *gin.Context) {
 	var req model.RequestTestOutput
 	if err := c.ShouldBindJSON(&req); err != nil {
 		b.RunLog.Warnf("Invalid request body from %s: %v", c.ClientIP(), err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid request body: " + err.Error(),
+		c.JSON(http.StatusBadRequest, model.ResponseRunnerTestOutput{
+			Message: "Invalid request body: " + err.Error(),
 		})
 		return
 	}
 
 	if errDetail := b.Processor.TtestOutput(&req, c.GetHeader("user")); errDetail != nil {
 		b.RunLog.Errorf("Test Output failed for %s: %s", c.ClientIP(), errDetail.Detail)
-		c.JSON(errDetail.HttpStatus, gin.H{
-			"message": errDetail.Detail,
+		c.JSON(errDetail.HttpStatus, model.ResponseRunnerTestOutput{
+			Message: errDetail.Detail,
 		})
 		return
 	}
