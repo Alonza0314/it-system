@@ -36,16 +36,18 @@ type httpSenderServer struct {
 
 	token string
 
-	serverChan       chan httpSenderMessage
-	serverChanCtx    context.Context
-	serverChanCancel context.CancelFunc
+	msgChan       chan httpSenderMessage
+	msgChanCtx    context.Context
+	msgChanCancel context.CancelFunc
+
+	taskChan chan model.ResponseRunnerHeartbeat
 
 	status constant.RunnerStatus
 
 	*logger.RunnerLogger
 }
 
-func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, logger *logger.RunnerLogger) *httpSenderServer {
+func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, logger *logger.RunnerLogger) *httpSenderServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &httpSenderServer{
@@ -56,9 +58,11 @@ func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSe
 
 		token: token,
 
-		serverChan:       msgChannel,
-		serverChanCtx:    ctx,
-		serverChanCancel: cancel,
+		msgChan:       msgChannel,
+		msgChanCtx:    ctx,
+		msgChanCancel: cancel,
+
+		taskChan: taskChannel,
 
 		status: constant.STATUS_IDLE,
 
@@ -70,17 +74,17 @@ func (s *httpSenderServer) Start() error {
 	go func() {
 		for {
 			select {
-			case <-s.serverChanCtx.Done():
+			case <-s.msgChanCtx.Done():
 				for {
 					select {
-					case msg := <-s.serverChan:
+					case msg := <-s.msgChan:
 						s.dispatchMessage(msg)
 					default:
 						s.HttpLog.Debugln("HttpSenderServer channel drained, exiting.")
 						return
 					}
 				}
-			case msg := <-s.serverChan:
+			case msg := <-s.msgChan:
 				s.dispatchMessage(msg)
 			}
 		}
@@ -90,21 +94,24 @@ func (s *httpSenderServer) Start() error {
 }
 
 func (s *httpSenderServer) Stop() error {
-	s.serverChanCancel()
+	s.msgChanCancel()
 
 	return nil
 }
 
 func (s *httpSenderServer) dispatchMessage(msg httpSenderMessage) {
 	s.HttpLog.Debugf("Dispatched message of type: %s", msg.msgType)
-	s.HttpLog.Tracef("Dispatched message details: %+v", msg)
 
 	switch msg.msgType {
 	case constant.MSG_TYPE_HEARTBEAT:
 		if s.status == constant.STATUS_IDLE {
+			s.HttpLog.Tracef("Runner is idle, processing heartbeat message: %+v", msg.RequestRunnerHeartbeat)
 			s.sendHeartbeat(msg.RequestRunnerHeartbeat)
+		} else {
+			s.HttpLog.Tracef("Runner is running, ignoring heartbeat message: %+v", msg.RequestRunnerHeartbeat)
 		}
 	case constant.MSG_TYPE_TEST_OUTPUT:
+		s.HttpLog.Tracef("Processing test output message: %+v", msg.RequestTestOutput)
 		s.sendTestOutput(msg.RequestTestOutput)
 	}
 }
@@ -146,6 +153,14 @@ func (s *httpSenderServer) sendHeartbeat(heartbeat *model.RequestRunnerHeartbeat
 			sendSuccess = true
 			s.setStatusRunning()
 			s.HttpLog.Debugf("Controller responded with task for heartbeat, runner status set to running.")
+
+			var heartbeatResponse model.ResponseRunnerHeartbeat
+			if err := json.Unmarshal(response.Body, &heartbeatResponse); err != nil {
+				s.HttpLog.Errorf("Failed to unmarshal heartbeat response: %v", err)
+				continue
+			}
+
+			s.taskChan <- heartbeatResponse
 		case http.StatusNoContent:
 			sendSuccess = true
 			s.HttpLog.Debugf("Controller responded with no content for heartbeat.")

@@ -9,6 +9,7 @@ const (
 	CFG_LOG  = "CFG"
 	RUN_LOG  = "RUN"
 	HTTP_LOG = "HTTP"
+	TASK_LOG = "TASK"
 )
 
 type HttpSenderMessageType string
