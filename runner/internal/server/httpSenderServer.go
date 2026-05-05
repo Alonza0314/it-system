@@ -45,7 +45,7 @@ type httpSenderServer struct {
 	*logger.RunnerLogger
 }
 
-func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, serverChannel chan httpSenderMessage, logger *logger.RunnerLogger) *httpSenderServer {
+func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, logger *logger.RunnerLogger) *httpSenderServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &httpSenderServer{
@@ -56,7 +56,7 @@ func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSe
 
 		token: token,
 
-		serverChan:       serverChannel,
+		serverChan:       msgChannel,
 		serverChanCtx:    ctx,
 		serverChanCancel: cancel,
 

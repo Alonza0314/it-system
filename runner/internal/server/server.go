@@ -13,18 +13,18 @@ type Server struct {
 	heartbeatServer  *heartbeatServer
 	execServer       *execServer
 
-	serverChannel chan httpSenderMessage
+	msgChannel chan httpSenderMessage
 }
 
 func NewServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, heartbeatInterval time.Duration, logger *logger.RunnerLogger) *Server {
-	serverChannel := make(chan httpSenderMessage, httpSenderChannelSize)
+	msgChannel := make(chan httpSenderMessage, httpSenderChannelSize)
 
 	return &Server{
-		httpSenderServer: newHttpSenderServer(runnerName, controllerIP, controllerPort, httpSenderChannelSize, token, serverChannel, logger),
-		heartbeatServer:  newHeartbeatServer(serverChannel, heartbeatInterval, logger),
+		httpSenderServer: newHttpSenderServer(runnerName, controllerIP, controllerPort, httpSenderChannelSize, token, msgChannel, logger),
+		heartbeatServer:  newHeartbeatServer(msgChannel, heartbeatInterval, logger),
 		execServer:       newExecServer(logger),
 
-		serverChannel: serverChannel,
+		msgChannel: msgChannel,
 	}
 }
 
@@ -62,7 +62,7 @@ func (s *Server) Stop() error {
 		fmt.Fprintf(&b, "httpSenderServer: %v\n", err)
 	}
 
-	close(s.serverChannel)
+	close(s.msgChannel)
 
 	if b.Len() == 0 {
 		return nil
