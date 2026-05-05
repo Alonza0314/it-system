@@ -1,4 +1,14 @@
 runner:
+  name: "runner"
+
+  controller_ip: "127.0.0.1"
+  controller_port: 8888
+
+  token_path: ".db/token"
+
+  http_sender_channel_size: 10
+
+  heartbeat_interval: 5s
 
 logger:
   level: "info"

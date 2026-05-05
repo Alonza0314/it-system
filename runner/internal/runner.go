@@ -1,16 +1,58 @@
 package internal
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/Alonza0314/it-system/runner/config"
+	"github.com/Alonza0314/it-system/runner/internal/server"
 	"github.com/Alonza0314/it-system/runner/logger"
 )
 
-type runner struct{}
+type runner struct {
+	name string
 
-func NewRunner(config *config.Config, logger *logger.RunnerLogger) *runner {
-	return &runner{}
+	controllerIP   string
+	controllerPort int
+
+	server.Server
+
+	*logger.RunnerLogger
 }
 
-func (r *runner) Start() {}
+func NewRunner(config *config.Config, token string, logger *logger.RunnerLogger) *runner {
+	return &runner{
+		name: config.Runner.Name,
 
-func (r *runner) Stop() {}
+		controllerIP:   config.Runner.ControllerIP,
+		controllerPort: config.Runner.ControllerPort,
+
+		Server: *server.NewServer(config.Runner.Name, config.Runner.ControllerIP, config.Runner.ControllerPort, config.Runner.HttpSenderChannelSize, token, config.Runner.HeartbeatInterval, logger),
+
+		RunnerLogger: logger,
+	}
+}
+
+func (r *runner) Start() {
+	r.RunLog.Infoln("Starting runner...")
+
+	go func() {
+		if err := r.Server.Start(); err != nil {
+			r.RunLog.Errorf("Failed to start runner server: %v", err)
+		}
+	}()
+	time.Sleep(500 * time.Millisecond)
+
+	r.RunLog.Infof("Runner started with controller IP: %s, controller Port: %d", r.controllerIP, r.controllerPort)
+}
+
+func (r *runner) Stop() {
+	fmt.Println()
+	r.RunLog.Infoln("Stopping runner...")
+
+	if err := r.Server.Stop(); err != nil {
+		r.RunLog.Errorf("Failed to stop runner server: %v", err)
+	} else {
+		r.RunLog.Infoln("Runner server stopped successfully")
+	}
+}

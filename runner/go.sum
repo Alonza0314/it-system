@@ -1,5 +1,5 @@
-github.com/Alonza0314/it-system/controller/backend v0.0.0-20260504081815-3fd3f9ce0bd2 h1:rOg9k/hNkpHy7jA7ZOJLSpgaOuk8NH63TEIAprea5jE=
-github.com/Alonza0314/it-system/controller/backend v0.0.0-20260504081815-3fd3f9ce0bd2/go.mod h1:lZPaNQSmx+MYZpL12ZQ/9bsj/CX6WkYTzhfgOQ8WIt8=
+github.com/Alonza0314/it-system/controller/backend v0.0.0-20260505045722-ecc3fc403e46 h1:UeyFcnUr7G6Rc0CWger3k57D8n8fdkFdLb4T3j2xtVI=
+github.com/Alonza0314/it-system/controller/backend v0.0.0-20260505045722-ecc3fc403e46/go.mod h1:lZPaNQSmx+MYZpL12ZQ/9bsj/CX6WkYTzhfgOQ8WIt8=
 github.com/Alonza0314/logger-go/v2 v2.0.5 h1:ZCOHbPEZ4tXrS7PC3ujOKOwILKeRC3sOW1/1ItLECoo=
 github.com/Alonza0314/logger-go/v2 v2.0.5/go.mod h1:fRFP+N39GOCRbuYMDc5PI9KJvzTyxpGNhpyHkIhIsoY=
 github.com/bytedance/gopkg v0.1.3 h1:TPBSwH8RsouGCBcMBktLt1AymVo2TVsBVCY4b6TnZ/M=

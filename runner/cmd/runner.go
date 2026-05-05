@@ -39,7 +39,13 @@ func runnerFunc(cmd *cobra.Command, args []string) {
 
 	logger := logger.NewRunnerLogger(loggergoUtil.LogLevelString(runnerConfig.Logger.Level), "", true)
 
-	runner := internal.NewRunner(&runnerConfig, logger)
+	tokenBytes, err := os.ReadFile(runnerConfig.Runner.TokenPath)
+	if err != nil {
+		logger.RunLog.Errorf("Failed to read token file: %v", err)
+		return
+	}
+
+	runner := internal.NewRunner(&runnerConfig, string(tokenBytes), logger)
 	if runner == nil {
 		panic("failed to initialize the runner")
 	}
