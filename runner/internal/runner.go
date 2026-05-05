@@ -27,7 +27,7 @@ func NewRunner(config *config.Config, token string, logger *logger.RunnerLogger)
 		controllerIP:   config.Runner.ControllerIP,
 		controllerPort: config.Runner.ControllerPort,
 
-		Server: *server.NewServer(config.Runner.Name, config.Runner.ControllerIP, config.Runner.ControllerPort, config.Runner.HttpSenderChannelSize, token, config.Runner.HeartbeatInterval, logger),
+		Server: *server.NewServer(config.Runner.Name, config.Runner.ControllerIP, config.Runner.ControllerPort, config.Runner.HttpSenderChannelSize, token, config.Runner.HeartbeatInterval, config.Runner.WorkspacePath, logger),
 
 		RunnerLogger: logger,
 	}

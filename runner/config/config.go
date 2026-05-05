@@ -18,6 +18,8 @@ type RunnerIE struct {
 	HeartbeatInterval time.Duration `yaml:"heartbeat_interval" valid:"required,gt=0"`
 
 	HttpSenderChannelSize int `yaml:"http_sender_channel_size" valid:"required,gt=0"`
+
+	WorkspacePath string `yaml:"workspace_path" valid:"required"`
 }
 
 type LoggerIE struct {

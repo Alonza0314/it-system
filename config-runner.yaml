@@ -10,5 +10,7 @@ runner:
 
   heartbeat_interval: 5s
 
+  workspace_path: ".db/workspace"
+
 logger:
   level: "info"

@@ -18,14 +18,14 @@ type Server struct {
 	taskChannel chan model.ResponseRunnerHeartbeat
 }
 
-func NewServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, heartbeatInterval time.Duration, logger *logger.RunnerLogger) *Server {
+func NewServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, heartbeatInterval time.Duration, workspacePath string, logger *logger.RunnerLogger) *Server {
 	msgChannel := make(chan httpSenderMessage, httpSenderChannelSize)
 	taskChannel := make(chan model.ResponseRunnerHeartbeat, httpSenderChannelSize)
 
 	return &Server{
 		httpSenderServer: newHttpSenderServer(runnerName, controllerIP, controllerPort, httpSenderChannelSize, token, msgChannel, taskChannel, logger),
 		heartbeatServer:  newHeartbeatServer(msgChannel, heartbeatInterval, logger),
-		taskServer:       newtaskServer(taskChannel, logger),
+		taskServer:       newtaskServer(workspacePath, msgChannel, taskChannel, logger),
 
 		msgChannel:  msgChannel,
 		taskChannel: taskChannel,
