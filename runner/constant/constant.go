@@ -52,6 +52,6 @@ const (
 	FREE5GC_REPO_URL = "https://github.com/free5gc/free5gc.git"
 
 	CLONE_CMD_TIMEOUT = 30 * time.Second
-	FETCH_CMD_TIMEOUT = 30 * time.Second
+	FETCH_CMD_TIMEOUT = 15 * time.Second
 	TEST_CMD_TIMEOUT  = 5 * time.Minute
 )

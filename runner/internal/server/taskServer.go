@@ -78,19 +78,29 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	s.TaskLog.Tracef("Task tests: %v", task.Tests)
 	s.TaskLog.Tracef("Task NF-PR list: %v", task.NFPrList)
 
-	if err := s.prepareRepo(); err != nil {
+	repoDir := filepath.Join(s.workspacePath, constant.FREE5GC_REPO)
+
+	if err := s.prepareRepo(repoDir); err != nil {
 		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", task.Id, err)
 
 		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, fmt.Sprintf("Failed to prepare repository: %v", err)))
 		return
 	}
 	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", task.Id)
+
+	if err := s.fetchNfPr(task.NFPrList, repoDir); err != nil {
+		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", task.Id, err)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, fmt.Sprintf("Failed to fetch NF-PRs: %v", err)))
+		return
+	}
+	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", task.Id)
 }
 
-func (s *taskServer) prepareRepo() error {
+func (s *taskServer) prepareRepo(repoDir string) error {
 	prepareRepoCtx, prepareRepoCancel := context.WithTimeout(context.Background(), constant.CLONE_CMD_TIMEOUT)
 	defer prepareRepoCancel()
-	if err := s.cloneRepo(prepareRepoCtx); err != nil {
+	if err := s.cloneRepo(prepareRepoCtx, repoDir); err != nil {
 		if prepareRepoCtx.Err() != nil {
 			return fmt.Errorf("prepare repo timed out: %v", prepareRepoCtx.Err())
 		}
@@ -101,12 +111,10 @@ func (s *taskServer) prepareRepo() error {
 	return nil
 }
 
-func (s *taskServer) cloneRepo(ctx context.Context) error {
+func (s *taskServer) cloneRepo(ctx context.Context, repoDir string) error {
 	if err := os.MkdirAll(s.workspacePath, 0o755); err != nil {
 		return err
 	}
-
-	repoDir := filepath.Join(s.workspacePath, constant.FREE5GC_REPO)
 
 	if _, err := s.runCmd(
 		ctx,
@@ -125,6 +133,44 @@ func (s *taskServer) cloneRepo(ctx context.Context) error {
 		return err
 	}
 
+	return nil
+}
+
+func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
+	for _, nfPr := range nfPrs {
+		s.TaskLog.Debugf("Fetching NF-PR for NF: %s, PR: %s", nfPr.NfName, nfPr.PR)
+
+		ctx, cancel := context.WithTimeout(context.Background(), constant.FETCH_CMD_TIMEOUT)
+		defer cancel()
+
+		nfDir := filepath.Join(repoDir, "NFs", nfPr.NfName)
+		if _, err := s.runCmd(
+			ctx,
+			nfDir,
+			"git",
+			"fetch",
+			"origin",
+			fmt.Sprintf("pull/%d/head:pr-%d", nfPr.PR, nfPr.PR),
+		); err != nil {
+			if ctx.Err() != nil {
+				return fmt.Errorf("fetch NF-PR timed out for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
+			}
+			return fmt.Errorf("failed to fetch NF-PR for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, err)
+		}
+
+		if _, err := s.runCmd(
+			ctx,
+			nfDir,
+			"git",
+			"checkout",
+			fmt.Sprintf("pr-%d", nfPr.PR),
+		); err != nil {
+			if ctx.Err() != nil {
+				return fmt.Errorf("checkout NF-PR timed out for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
+			}
+			return fmt.Errorf("failed to checkout NF-PR for NF: %s, PR: %s, error: %v", nfPr.NfName, nfPr.PR, err)
+		}
+	}
 	return nil
 }
 

@@ -202,7 +202,7 @@ func (s *httpSenderServer) sendTestOutput(testOutput *model.RequestTestOutput) {
 		switch response.StatusCode {
 		case http.StatusNoContent:
 			sendSuccess = true
-			if testOutput.EndFlag == &sendSuccess {
+			if *testOutput.EndFlag {
 				s.setStatusIdle()
 				s.HttpLog.Debugf("Controller responded with no content for test output with end flag true, runner status set to idle.")
 			} else {
