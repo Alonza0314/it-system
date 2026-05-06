@@ -13,45 +13,21 @@ A free5GC developer friendly integration test system.
 
 ## Make
 
-- Backend and Frontend
-
-    ```bash
-    make
-    ```
-
-    This will build the backend binary executable file and frontend resource under `build` directory.
-
-- Backend only
-
-    ```bash
-    make backend
-    ```
-
-- Frontend only
-
-    ```bash
-    make frontend
-    ```
-
-- Run
-
-    Setup the configuration file: [config.yaml](./config.yaml)
-
-    ```bash
-    make run
-    ```
-
-- Lint
-
-    ```bash
-    make lint
-    ```
-
-- Test
-
-    ```bash
-    make test
-    ```
+| Type | Command |
+| - | - |
+| Controller and Runner | `make` |
+| Controller | `make controller` |
+| Controller Backend | `make backend` |
+| Controller Frontend | `make frontend` |
+| Runner | `make runner` |
+| Run Controller | `make run-runer` |
+| Run Runner | `make run-runner` |
+| Test Controller | `make test-controller` |
+| Test Runner | `make test-runner` |
+| Tidy Controller | `make tidy-controller` |
+| Tidy Runner | `make tidy-runner` |
+| Lint Controller | `make lint-controller` |
+| Lint Runner | `make lint-runner` |
 
 ## API Level
 
