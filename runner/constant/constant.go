@@ -56,4 +56,8 @@ const (
 	MAKE_CMD_TIMEOUT    = 3 * time.Minute
 	TEST_CMD_TIMEOUT    = 10 * time.Minute
 	CLEANUP_CMD_TIMEOUT = 30 * time.Second
+
+	FAIL_MESSAGE_1 = "exit status"
+	FAIL_MESSAGE_2 = "--- FAIL:"
+	FAIL_MESSAGE_3 = "\nFAIL\n"
 )

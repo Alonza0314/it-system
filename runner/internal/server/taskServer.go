@@ -6,8 +6,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Alonza0314/it-system/controller/backend/model"
@@ -85,8 +87,10 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		loc = time.FixedZone("CST", 8*3600)
 	}
 
-	currentTimeStamp := time.Now().In(loc).Format(time.RFC3339)
+	currentTimeStamp := strings.ReplaceAll(time.Now().In(loc).Format(time.RFC3339), ":", "_")
 	s.TaskLog.Infof("Starting task ID: %d at %s", task.Id, currentTimeStamp)
+
+	currentTimeStamp = "test"
 
 	repoDir := filepath.Join(s.workspacePath, currentTimeStamp)
 
@@ -125,10 +129,11 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 			continue
 		}
 
-		s.TaskLog.Infof("Test: %s completed successfully for task ID: %d", test, task.Id)
+		s.TaskLog.Infof("Test: %s completed for task ID: %d", test, task.Id)
 		s.TaskLog.Tracef("Output of test: %s for task ID: %d: %s", test, task.Id, output)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, task.Id, test, true, output))
+		cleanedOutput := s.normalizeOutput(output)
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, task.Id, test, !(strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_1) || strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_2) || strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_3)), output))
 	}
 	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
 
@@ -145,6 +150,15 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 
 		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", true, "All tests completed"))
 	}
+}
+
+func (s *taskServer) normalizeOutput(output string) string {
+	ansiEscape := regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]`)
+	cleaned := ansiEscape.ReplaceAllString(output, "")
+	cleaned = strings.ReplaceAll(cleaned, "\r\n", "\n")
+	cleaned = strings.ReplaceAll(cleaned, "\r", "\n")
+
+	return cleaned
 }
 
 func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string) (string, error) {
@@ -267,9 +281,9 @@ func (s *taskServer) runTest(testName, repoDir string) (string, error) {
 	)
 	if err != nil {
 		if ctx.Err() != nil {
-			return "", fmt.Errorf("run test timed out for test: %s, error: %v", testName, ctx.Err())
+			return output, fmt.Errorf("run test timed out for test: %s, error: %v", testName, ctx.Err())
 		}
-		return "", fmt.Errorf("failed to run test: %s, error: %v", testName, err)
+		return output, fmt.Errorf("failed to run test: %s, error: %v", testName, err)
 	}
 
 	return output, nil
