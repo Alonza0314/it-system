@@ -95,6 +95,26 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		return
 	}
 	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", task.Id)
+
+	if err := s.makeNf(repoDir); err != nil {
+		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", task.Id, err)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, fmt.Sprintf("Failed to make NF: %v", err)))
+		return
+	}
+	s.TaskLog.Infof("NF made successfully for task ID: %d", task.Id)
+}
+
+func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string) (string, error) {
+	cmdWithCtx := exec.CommandContext(ctx, cmd, args...)
+	cmdWithCtx.Dir = dir
+
+	output, err := cmdWithCtx.CombinedOutput()
+	if err != nil {
+		return string(output), fmt.Errorf("command failed: %s %v: %w, output: %s", cmd, args, err, string(output))
+	}
+
+	return string(output), nil
 }
 
 func (s *taskServer) prepareRepo(repoDir string) error {
@@ -174,14 +194,20 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
 	return nil
 }
 
-func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string) (string, error) {
-	cmdWithCtx := exec.CommandContext(ctx, cmd, args...)
-	cmdWithCtx.Dir = dir
+func (s *taskServer) makeNf(repoDir string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
+	defer cancel()
 
-	output, err := cmdWithCtx.CombinedOutput()
-	if err != nil {
-		return string(output), fmt.Errorf("command failed: %s %v: %w, output: %s", cmd, args, err, string(output))
+	if _, err := s.runCmd(
+		ctx,
+		repoDir,
+		"make",
+	); err != nil {
+		if ctx.Err() != nil {
+			return fmt.Errorf("make NF timed out: %v", ctx.Err())
+		}
+		return fmt.Errorf("failed to make NF: %v", err)
 	}
 
-	return string(output), nil
+	return nil
 }
