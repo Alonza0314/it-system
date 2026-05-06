@@ -63,6 +63,7 @@ A free5GC developer friendly integration test system.
     │   └─/testcase(GET)
     │   └─/tasks(GET)
     │   └─/task(GET, POST, DELETE)
+    │   └─/teselog(GET)
     └─/github(GET)
     └─/runner(GET)
     └─/admin
