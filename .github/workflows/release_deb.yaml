@@ -1,0 +1,64 @@
+name: Release DEB
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload-deb:
+    if: ${{ startsWith(github.event.release.tag_name, 'v') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate release tag format
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          if [[ ! "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag '$TAG_NAME' does not match required format vX.X.X"
+            exit 1
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.5'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Build controller deb
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          chmod +x deb/release_controller.sh
+          ./deb/release_controller.sh "$TAG_NAME"
+
+      - name: Build runner deb
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          chmod +x deb/release_runner.sh
+          ./deb/release_runner.sh "$TAG_NAME"
+
+      - name: Upload deb assets to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            pkg/it-system-controller_*_amd64.deb
+            pkg/it-system-runner_*_amd64.deb
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -76,7 +76,7 @@ sudo dpkg -P it-system-controller
 If you also want to remove runtime DB/log files:
 
 ```bash
-sudo rm -rf /usr/share/it-system-controller/.db
+sudo rm -rf /usr/share/it-system-controller
 ```
 
 ## Journal Logs

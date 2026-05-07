@@ -94,6 +94,12 @@ If you want to remove config too:
 sudo dpkg -P it-system-controller
 ```
 
+If you also want to remove storage files:
+
+```bash
+sudo rm -rf /usr/share/it-system-runner
+```
+
 ## Journal Logs
 
 ```bash
