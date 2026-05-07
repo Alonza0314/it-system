@@ -71,8 +71,8 @@ A free5GC developer friendly integration test system.
 ### Controller
 
 ```bash
-wget https://github.com/Alonza0314/it-system/releases/download/v0.0.0/it-system-controller_0.0.0_amd64.deb
-sudo dpkg -i it-system-controller_0.0.0_amd64.deb
+wget https://github.com/Alonza0314/it-system/releases/download/v0.0.0/it-system-controller_0.0.1_amd64.deb
+sudo dpkg -i it-system-controller_0.0.1_amd64.deb
 ```
 
 ### Runner
@@ -110,8 +110,8 @@ sudo systemctl enable --now mongod
 ```
 
 ```bash
-wget https://github.com/Alonza0314/it-system/releases/download/v0.0.0/it-system-runner_0.0.0_amd64.deb
-sudo dpkg -i it-system-runner_0.0.0_amd64.deb
+wget https://github.com/Alonza0314/it-system/releases/download/v0.0.0/it-system-runner_0.0.1_amd64.deb
+sudo dpkg -i it-system-runner_0.0.1_amd64.deb
 ```
 
 ### Trouble Shooting
