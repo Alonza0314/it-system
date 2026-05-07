@@ -77,7 +77,7 @@ sudo dpkg -i it-system-controller_0.0.0_amd64.deb
 
 ### Runner
 
-Before install runner, please make sure your runner host has installed go and gtp5g:
+Before install runner, please make sure your runner host has installed go, gtp5g and mongodb:
 
 ```bash
 GO_VERSION="1.25.5"
@@ -100,6 +100,13 @@ pushd $GTP5G_PATH
 make
 sudo make install
 popd
+
+sudo apt-get install gnupg curl
+curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-8.2.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+sudo systemctl enable --now mongod
 ```
 
 ```bash
