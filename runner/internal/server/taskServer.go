@@ -131,7 +131,7 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		s.TaskLog.Tracef("Output of test: %s for task ID: %d: %s", test, task.Id, output)
 
 		cleanedOutput := s.normalizeOutput(output)
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, task.Id, test, !(strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_1) || strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_2) || strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_3)), output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, task.Id, test, s.isTestSuccess(cleanedOutput), output))
 	}
 	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
 
@@ -157,6 +157,12 @@ func (s *taskServer) normalizeOutput(output string) string {
 	cleaned = strings.ReplaceAll(cleaned, "\r", "\n")
 
 	return cleaned
+}
+
+func (s *taskServer) isTestSuccess(output string) bool {
+	cleanedOutput := s.normalizeOutput(output)
+
+	return !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_1) && !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_2) && !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_3)
 }
 
 func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string) (string, error) {
