@@ -240,6 +240,32 @@ export default function TaskDetailPage() {
     accessToken: () => localStorage.getItem('token') || '',
   })), [])
 
+  async function fetchTaskDetail(showLoading: boolean) {
+    if (showLoading) {
+      setIsLoading(true)
+    }
+
+    try {
+      const response = await api.getTask(taskId, {
+        headers: getUserHeader(),
+      })
+      setTask(response.data)
+    } catch (error: unknown) {
+      const message =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load task detail'
+          : 'Failed to load task detail'
+      addError(message)
+    } finally {
+      if (showLoading) {
+        setIsLoading(false)
+      }
+    }
+  }
+
   useEffect(() => {
     if (!Number.isFinite(taskId) || taskId <= 0) {
       addError('Invalid task id')
@@ -247,26 +273,15 @@ export default function TaskDetailPage() {
       return
     }
 
-    setIsLoading(true)
-    api.getTask(taskId, {
-      headers: getUserHeader(),
-    })
-      .then((response) => {
-        setTask(response.data)
-      })
-      .catch((error: unknown) => {
-        const message =
-          typeof error === 'object' &&
-          error !== null &&
-          'response' in error &&
-          typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
-            ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load task detail'
-            : 'Failed to load task detail'
-        addError(message)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    void fetchTaskDetail(true)
+
+    const interval = window.setInterval(() => {
+      void fetchTaskDetail(false)
+    }, 5000)
+
+    return () => {
+      window.clearInterval(interval)
+    }
   }, [api, taskId, navigate, addError])
 
   async function handleCancelTask() {
@@ -415,6 +430,8 @@ export default function TaskDetailPage() {
                     <tbody>
                       {tests.map((test) => {
                         const status = normalizeTestStatus(test.status)
+                        const canViewLog = status === 'success' || status === 'failed'
+
                         return (
                         <tr key={test.name}>
                           <td>{test.name}</td>
@@ -427,7 +444,13 @@ export default function TaskDetailPage() {
                             <button
                               type="button"
                               className={styles.logButton}
-                              onClick={() => handleOpenTestLog(test.name)}
+                              onClick={() => {
+                                if (!canViewLog) {
+                                  return
+                                }
+                                handleOpenTestLog(test.name)
+                              }}
+                              disabled={!canViewLog}
                             >
                               View Log
                             </button>

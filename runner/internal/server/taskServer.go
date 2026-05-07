@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	cconstant "github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/model"
 	"github.com/Alonza0314/it-system/runner/constant"
 	"github.com/Alonza0314/it-system/runner/logger"
@@ -92,62 +93,36 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 
 	repoDir := filepath.Join(s.workspacePath, currentTimeStamp)
 
-	if err := s.prepareRepo(repoDir, currentTimeStamp); err != nil {
-		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", task.Id, err)
-
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, fmt.Sprintf("Failed to prepare repository: %v", err)))
+	if !s.handlePrepeareRepo(task.Id, repoDir, currentTimeStamp) {
 		return
 	}
-	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", task.Id)
 
-	if err := s.fetchNfPr(task.NFPrList, repoDir); err != nil {
-		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", task.Id, err)
-
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, fmt.Sprintf("Failed to fetch NF-PRs: %v", err)))
+	if !s.handleFetchNfPr(task.Id, task.NFPrList, repoDir) {
 		return
 	}
-	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", task.Id)
 
-	if err := s.makeNf(repoDir); err != nil {
-		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", task.Id, err)
-
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, fmt.Sprintf("Failed to make NF: %v", err)))
+	if !s.handleMakeNf(task.Id, repoDir) {
 		return
 	}
-	s.TaskLog.Infof("NF made successfully for task ID: %d", task.Id)
 
 	for _, test := range task.Tests {
-		s.TaskLog.Infof("Running test: %s for task ID: %d", test, task.Id)
-
-		output, err := s.runTest(test, repoDir)
-		if err != nil {
-			s.TaskLog.Errorf("Failed to run test: %s for task ID: %d, error: %v", test, task.Id, err)
-
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, task.Id, test, false, fmt.Sprintf("Failed to run test: %v\nOutput: %s", err, output)))
+		if test == cconstant.TESTCASE_PREPARE_FREE5GC || test == cconstant.TESTCASE_FETCH_PRS || test == cconstant.TESTCASE_MAKE_NF || test == cconstant.TESTCASE_CLEANUP {
 			continue
 		}
 
-		s.TaskLog.Infof("Test: %s completed for task ID: %d", test, task.Id)
-		s.TaskLog.Tracef("Output of test: %s for task ID: %d: %s", test, task.Id, output)
+		s.TaskLog.Infof("Running test: %s for task ID: %d", test, task.Id)
 
-		cleanedOutput := s.normalizeOutput(output)
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, task.Id, test, s.isTestSuccess(cleanedOutput), output))
+		s.handleRunTest(task.Id, test, repoDir)
 	}
+
+	if !s.handleCleanup(task.Id, repoDir) {
+		return
+	}
+
 	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
 
-	output, err := s.cleanup(repoDir)
-	if err != nil {
-		s.TaskLog.Errorf("Failed to cleanup after tests for task ID: %d, error: %v", task.Id, err)
-		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", task.Id, output)
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", true, "All tests completed successfully"))
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", false, output))
-		return
-	} else {
-		s.TaskLog.Infof("Cleanup completed successfully for task ID: %d", task.Id)
-		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", task.Id, output)
-
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", true, "All tests completed"))
-	}
 }
 
 func (s *taskServer) normalizeOutput(output string) string {
@@ -177,26 +152,108 @@ func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string
 	return string(output), nil
 }
 
-func (s *taskServer) prepareRepo(repoDir, currentTimeStamp string) error {
-	prepareRepoCtx, prepareRepoCancel := context.WithTimeout(context.Background(), constant.CLONE_CMD_TIMEOUT)
-	defer prepareRepoCancel()
-	if err := s.cloneRepo(prepareRepoCtx, repoDir, currentTimeStamp); err != nil {
-		if prepareRepoCtx.Err() != nil {
-			return fmt.Errorf("prepare repo timed out: %v", prepareRepoCtx.Err())
-		}
+func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp string) bool {
+	output, err := s.prepareRepo(repoDir, currentTimeStamp)
+	if err != nil {
+		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", id, err)
 
-		return fmt.Errorf("failed to prepare repo: %v", err)
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, output))
+		return false
 	}
+	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", id)
 
-	return nil
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, true, output))
+
+	return true
 }
 
-func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp string) error {
-	if err := os.MkdirAll(s.workspacePath, 0o755); err != nil {
-		return err
+func (s *taskServer) handleFetchNfPr(id uint64, nfPrs []model.NfPr, repoDir string) bool {
+	output, err := s.fetchNfPr(nfPrs, repoDir)
+	if err != nil {
+		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", id, err)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, output))
+		return false
+	}
+	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", id)
+
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_FETCH_PRS, true, output))
+
+	return true
+}
+
+func (s *taskServer) handleMakeNf(id uint64, repoDir string) bool {
+	output, err := s.makeNf(repoDir)
+	if err != nil {
+		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", id, err)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, output))
+		return false
+	}
+	s.TaskLog.Infof("NF made successfully for task ID: %d", id)
+
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_MAKE_NF, true, output))
+
+	return true
+}
+
+func (s *taskServer) handleRunTest(id uint64, testName, repoDir string) {
+	output, err := s.runTest(testName, repoDir)
+	if err != nil {
+		s.TaskLog.Errorf("Failed to run test: %s for task ID: %d, error: %v", testName, id, err)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, false, fmt.Sprintf("Failed to run test: %v\nOutput: %s", err, output)))
+		return
 	}
 
-	if _, err := s.runCmd(
+	s.TaskLog.Infof("Test: %s completed for task ID: %d", testName, id)
+	s.TaskLog.Tracef("Output of test: %s for task ID: %d: %s", testName, id, output)
+
+	cleanedOutput := s.normalizeOutput(output)
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, s.isTestSuccess(cleanedOutput), output))
+}
+
+func (s *taskServer) handleCleanup(id uint64, repoDir string) bool {
+	output, err := s.cleanup(repoDir)
+	if err != nil {
+		s.TaskLog.Errorf("Failed to cleanup after tests for task ID: %d, error: %v", id, err)
+		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, output))
+
+		return false
+	}
+
+	s.TaskLog.Infof("Cleanup completed successfully for task ID: %d", id)
+	s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
+
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_CLEANUP, true, output))
+
+	return true
+}
+
+func (s *taskServer) prepareRepo(repoDir, currentTimeStamp string) (string, error) {
+	prepareRepoCtx, prepareRepoCancel := context.WithTimeout(context.Background(), constant.CLONE_CMD_TIMEOUT)
+	defer prepareRepoCancel()
+
+	output, err := s.cloneRepo(prepareRepoCtx, repoDir, currentTimeStamp)
+	if err != nil {
+		if prepareRepoCtx.Err() != nil {
+			return output, fmt.Errorf("prepare repo timed out: %v", prepareRepoCtx.Err())
+		}
+
+		return output, fmt.Errorf("failed to prepare repo: %v", err)
+	}
+
+	return output, nil
+}
+
+func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp string) (string, error) {
+	if err := os.MkdirAll(s.workspacePath, 0o755); err != nil {
+		return "", err
+	}
+
+	output, err := s.runCmd(
 		ctx,
 		s.workspacePath,
 		"git",
@@ -206,18 +263,21 @@ func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp st
 		strconv.Itoa(runtime.NumCPU()),
 		constant.FREE5GC_REPO_URL,
 		currentTimeStamp,
-	); err != nil {
-		return err
+	)
+	if err != nil {
+		return output, err
 	}
 
 	if _, err := os.Stat(repoDir); err != nil {
-		return err
+		return output, err
 	}
 
-	return nil
+	return output, nil
 }
 
-func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
+func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) (string, error) {
+	var output string
+
 	for _, nfPr := range nfPrs {
 		s.TaskLog.Debugf("Fetching NF-PR for NF: %s, PR: %d", nfPr.NfName, nfPr.PR)
 
@@ -225,7 +285,7 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
 		defer cancel()
 
 		nfDir := filepath.Join(repoDir, "NFs", nfPr.NfName)
-		if _, err := s.runCmd(
+		if fetchOutput, err := s.runCmd(
 			ctx,
 			nfDir,
 			"git",
@@ -234,12 +294,14 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
 			fmt.Sprintf("pull/%d/head:pr-%d", nfPr.PR, nfPr.PR),
 		); err != nil {
 			if ctx.Err() != nil {
-				return fmt.Errorf("fetch NF-PR timed out for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
+				return fetchOutput, fmt.Errorf("fetch NF-PR timed out for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
 			}
-			return fmt.Errorf("failed to fetch NF-PR for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, err)
+			return fetchOutput, fmt.Errorf("failed to fetch NF-PR for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, err)
+		} else {
+			output += fetchOutput + "\n"
 		}
 
-		if _, err := s.runCmd(
+		if checkoutOutput, err := s.runCmd(
 			ctx,
 			nfDir,
 			"git",
@@ -247,30 +309,33 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) error {
 			fmt.Sprintf("pr-%d", nfPr.PR),
 		); err != nil {
 			if ctx.Err() != nil {
-				return fmt.Errorf("checkout NF-PR timed out for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
+				return output + checkoutOutput, fmt.Errorf("checkout NF-PR timed out for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, ctx.Err())
 			}
-			return fmt.Errorf("failed to checkout NF-PR for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, err)
+			return output + checkoutOutput, fmt.Errorf("failed to checkout NF-PR for NF: %s, PR: %d, error: %v", nfPr.NfName, nfPr.PR, err)
+		} else {
+			output += checkoutOutput + "\n"
 		}
 	}
-	return nil
+	return output, nil
 }
 
-func (s *taskServer) makeNf(repoDir string) error {
+func (s *taskServer) makeNf(repoDir string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
 	defer cancel()
 
-	if _, err := s.runCmd(
+	output, err := s.runCmd(
 		ctx,
 		repoDir,
 		"make",
-	); err != nil {
+	)
+	if err != nil {
 		if ctx.Err() != nil {
-			return fmt.Errorf("make NF timed out: %v", ctx.Err())
+			return output, fmt.Errorf("make NF timed out: %v", ctx.Err())
 		}
-		return fmt.Errorf("failed to make NF: %v", err)
+		return output, fmt.Errorf("failed to make NF: %v", err)
 	}
 
-	return nil
+	return output, nil
 }
 
 func (s *taskServer) runTest(testName, repoDir string) (string, error) {
@@ -304,9 +369,9 @@ func (s *taskServer) cleanup(repoDir string) (string, error) {
 	)
 	if err != nil {
 		if ctx.Err() != nil {
-			return "", fmt.Errorf("cleanup timed out, error: %v", ctx.Err())
+			return output, fmt.Errorf("cleanup timed out, error: %v", ctx.Err())
 		}
-		return "", fmt.Errorf("failed to cleanup: %v", err)
+		return output, fmt.Errorf("failed to cleanup: %v", err)
 	}
 
 	if err := os.RemoveAll(s.workspacePath); err != nil {

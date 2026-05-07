@@ -88,8 +88,14 @@ export default function TestPage() {
     setSelectedTestcases([])
   }
 
-  async function refreshTaskQueues() {
-    setIsLoadingTasks(true)
+  async function refreshTaskQueues(options?: { showLoading?: boolean; notifyError?: boolean }) {
+    const showLoading = options?.showLoading ?? true
+    const notifyError = options?.notifyError ?? true
+
+    if (showLoading) {
+      setIsLoadingTasks(true)
+    }
+
     try {
       const response = await api.getTasks({
         headers: getUserHeader(),
@@ -98,25 +104,29 @@ export default function TestPage() {
 
       setPendingTasks(taskData.pendingTask || [])
       setOngoingTasks(taskData.ongoingTask || [])
-      setHistoryTasks(taskData.historyTask || [])
+      setHistoryTasks([...(taskData.historyTask || [])].sort((a, b) => Number(b.id || 0) - Number(a.id || 0)))
     } catch (error: unknown) {
-      addError(extractErrorMessage(error, 'Failed to load tasks'))
+      if (notifyError) {
+        addError(extractErrorMessage(error, 'Failed to load tasks'))
+      }
       setHistoryTasks([])
     } finally {
-      setIsLoadingTasks(false)
+      if (showLoading) {
+        setIsLoadingTasks(false)
+      }
     }
   }
 
   useEffect(() => {
-    refreshTaskQueues().catch(() => {
+    refreshTaskQueues({ showLoading: true, notifyError: true }).catch(() => {
       addError('Failed to load tasks')
     })
 
     const timer = window.setInterval(() => {
-      refreshTaskQueues().catch(() => {
-        addError('Failed to load tasks')
+      refreshTaskQueues({ showLoading: false, notifyError: false }).catch(() => {
+        // Auto refresh errors are intentionally silent to avoid notification spam.
       })
-    }, 30_000)
+    }, 5000)
 
     return () => {
       window.clearInterval(timer)

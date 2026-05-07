@@ -179,6 +179,15 @@
   background: var(--surface-muted);
 }
 
+.logButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.logButton:disabled:hover {
+  background: var(--surface);
+}
+
 @media (max-width: 980px) {
   .header {
     flex-direction: column;

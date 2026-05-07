@@ -3,7 +3,7 @@ module github.com/Alonza0314/it-system/runner
 go 1.25.5
 
 require (
-	github.com/Alonza0314/it-system/controller/backend v0.0.0-20260505045722-ecc3fc403e46
+	github.com/Alonza0314/it-system/controller/backend v0.0.0-20260507085516-b1205b0b3c75
 	github.com/Alonza0314/logger-go/v2 v2.0.5
 	github.com/free-ran-ue/util v0.0.3
 	github.com/spf13/cobra v1.10.2
@@ -43,6 +43,7 @@ require (
 	github.com/tim-ywliu/nested-logrus-formatter v1.3.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
+	go.etcd.io/bbolt v1.4.3 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
 	golang.org/x/arch v0.22.0 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
