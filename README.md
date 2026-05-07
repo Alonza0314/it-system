@@ -77,6 +77,31 @@ sudo dpkg -i it-system-controller_0.0.0_amd64.deb
 
 ### Runner
 
+Before install runner, please make sure your runner host has installed go and gtp5g:
+
+```bash
+GO_VERSION="1.25.5"
+wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz
+sudo tar -C /usr/local -zxvf go${GO_VERSION}.linux-amd64.tar.gz
+mkdir -p ~/go/{bin,pkg,src}
+echo 'export GOPATH=$HOME/go' >> ~/.bashrc
+echo 'export GOROOT=/usr/local/go' >> ~/.bashrc
+echo 'export PATH=$PATH:$GOPATH/bin:$GOROOT/bin' >> ~/.bashrc
+echo 'export GO111MODULE=auto' >> ~/.bashrc
+source ~/.bashrc
+rm go${GO_VERSION}.linux-amd64.tar.gz
+
+GTP5G_PATH="$HOME/gtp5g"
+GTP5G_VERSION="v0.9.16"
+sudo apt -y update
+sudo apt -y install gcc g++ cmake autoconf libtool pkg-config libmnl-dev libyaml-dev
+git clone --branch ${GTP5G_VERSION} https://github.com/free5gc/gtp5g.git $GTP5G_PATH
+pushd $GTP5G_PATH
+make
+sudo make install
+popd
+```
+
 ```bash
 wget https://github.com/Alonza0314/it-system/releases/download/v0.0.0/it-system-runner_0.0.0_amd64.deb
 sudo dpkg -i it-system-runner_0.0.0_amd64.deb
