@@ -219,7 +219,11 @@ if [ "${1:-}" = "configure" ]; then
 
   systemctl daemon-reload || true
   systemctl enable it-system-runner.service || true
-  systemctl start it-system-runner.service || true
+  if systemctl is-active --quiet it-system-runner.service; then
+    systemctl restart it-system-runner.service || true
+  else
+    systemctl start it-system-runner.service || true
+  fi
 fi
 
 exit 0

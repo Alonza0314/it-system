@@ -44,5 +44,9 @@ fi
 
 systemctl daemon-reload || true
 systemctl enable it-system-controller.service || true
-systemctl start it-system-controller.service || true
+if systemctl is-active --quiet it-system-controller.service; then
+	systemctl restart it-system-controller.service || true
+else
+	systemctl start it-system-controller.service || true
+fi
 exit 0
