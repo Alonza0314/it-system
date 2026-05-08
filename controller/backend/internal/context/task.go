@@ -94,7 +94,7 @@ type task struct {
 }
 
 func newTask(id uint64, username string, createTime int64, pipelines []pipeline, nfPrList []nfPr) *task {
-	
+
 	return &task{
 		id:         id,
 		username:   username,
@@ -322,7 +322,7 @@ func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext)
 	}
 
 	sort.Slice(tCtx.historyQueue, func(i, j int) bool {
-		return tCtx.historyQueue[i].id > tCtx.historyQueue[j].id
+		return tCtx.historyQueue[i].id < tCtx.historyQueue[j].id
 	})
 
 	return tCtx
@@ -480,6 +480,9 @@ func (ctx *taskContext) moveOngoingTaskToHistory(id uint64) error {
 	}
 
 	ctx.historyQueue.Push(task)
+	sort.Slice(ctx.historyQueue, func(i, j int) bool {
+		return ctx.historyQueue[i].id < ctx.historyQueue[j].id
+	})
 
 	return nil
 }
