@@ -86,13 +86,13 @@ func reorderPipelinesForDisplay(pipelines []PipelineResult) []PipelineResult {
 }
 
 // SendTaskNotification posts a new thread to a Discord Forum channel via Webhook.
-// username is expected to be the Discord user ID (snowflake) for @mention to work.
-func SendTaskNotification(webhookURL string, taskID uint64, username, status string, pipelines []PipelineResult) error {
+// userDiscordId is expected to be the Discord user ID (snowflake) for @mention to work.
+func SendTaskNotification(webhookURL string, taskID uint64, userDiscordId, status string, pipelines []PipelineResult) error {
 	emoji := statusEmoji(status)
 	statusUpper := strings.ToUpper(status)
 
-	threadName := fmt.Sprintf("Task #%d · %s · %s %s", taskID, username, emoji, statusUpper)
-	trimmedUsername := strings.TrimSpace(username)
+	threadName := fmt.Sprintf("Task #%d · %s · %s %s", taskID, userDiscordId, emoji, statusUpper)
+	trimmedUsername := strings.TrimSpace(userDiscordId)
 	content := fmt.Sprintf("@%s Task Finished!", trimmedUsername)
 	var mentions *allowedMentions
 	if userID, ok := extractDiscordUserID(trimmedUsername); ok {

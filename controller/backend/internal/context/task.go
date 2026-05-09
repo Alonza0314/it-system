@@ -500,7 +500,13 @@ func (ctx *taskContext) moveOngoingTaskToHistory(id uint64) error {
 			pipelines[i] = notify.PipelineResult{Name: p.name, Status: p.status}
 		}
 		go func(taskID uint64, username, status string) {
-			if err := notify.SendTaskNotification(ctx.discordWebhookURL, taskID, username, status, pipelines); err != nil {
+			userDiscordId, err := ctx.dbContext.Load([]byte(constant.BUCKET_DISCORD_ID), []byte(username))
+			if err != nil {
+				ctx.discordLogger.Warnf("failed to load discord user ID for username %s: %v", username, err)
+				userDiscordId = []byte(username)
+			}
+
+			if err := notify.SendTaskNotification(ctx.discordWebhookURL, taskID, string(userDiscordId), status, pipelines); err != nil {
 				if ctx.discordLogger != nil {
 					ctx.discordLogger.Errorf("failed to send discord notification for task %d: %v", taskID, err)
 				}
