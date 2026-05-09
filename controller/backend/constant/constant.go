@@ -45,11 +45,12 @@ var NF_LIST = []string{AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNG
 
 // db
 const (
-	BUCKET_TENANT   = "tenant"
-	BUCKET_TESTCASE = "testcase"
-	BUCKET_TASK_ID  = "taskId"
-	BUCKET_RUNNER   = "runner"
-	BUCKET_HISTORY  = "history"
+	BUCKET_TENANT     = "tenant"
+	BUCKET_DISCORD_ID = "discord_id"
+	BUCKET_TESTCASE   = "testcase"
+	BUCKET_TASK_ID    = "taskId"
+	BUCKET_RUNNER     = "runner"
+	BUCKET_HISTORY    = "history"
 )
 
 // task status

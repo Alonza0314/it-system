@@ -392,7 +392,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+                  "raw": ""
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/tenant",
@@ -428,7 +428,7 @@
                 },
                 {
                   "key": "Date",
-                  "value": "Fri, 24 Apr 2026 03:12:30 GMT"
+                  "value": "Sat, 09 May 2026 06:24:38 GMT"
                 },
                 {
                   "key": "Content-Length",
@@ -436,7 +436,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"message\": \"Tenants retrieved successfully\",\n    \"tenants\": [\n        {\n            \"username\": \"alonza\",\n            \"role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"role\": \"default\"\n        }\n    ]\n}"
+              "body": "{\n    \"message\": \"Tenants retrieved successfully\",\n    \"tenants\": [\n        {\n            \"username\": \"alonzazaza\",\n            \"discord_id\": \"1151937038459875339\",\n            \"role\": \"admin\"\n        }\n    ]\n}"
             },
             {
               "name": "401",
@@ -606,7 +606,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonza\",\n            \"Role\": \"admin\"\n        },\n        {\n            \"username\": \"nicole\",\n            \"Role\": \"default\"\n        }\n    ]\n}",
+              "raw": "{\n    \"tenants\":\n    [\n        {\n            \"username\": \"alonzazaza\",\n            \"discord_id\": \"1151937038459875339\",\n            \"Role\": \"admin\"\n        }\n    ]\n}",
               "options": {
                 "raw": {
                   "language": "json"

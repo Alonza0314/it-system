@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**tenants** | [**Array&lt;Tenant&gt;**](Tenant.md) |  | [default to undefined]
+**tenants** | [**Array&lt;DeleteTenantsRequestTenantsInner&gt;**](DeleteTenantsRequestTenantsInner.md) |  | [default to undefined]
 
 ## Example
 

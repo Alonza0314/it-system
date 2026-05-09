@@ -8,6 +8,7 @@ docs/AddTenantsRequest.md
 docs/AddTestcasesRequest.md
 docs/DefaultApi.md
 docs/DeleteTenantsRequest.md
+docs/DeleteTenantsRequestTenantsInner.md
 docs/DeleteTestcasesRequest.md
 docs/GetGithubPRsResponse.md
 docs/GetRunnersResponse.md
@@ -30,6 +31,7 @@ docs/ResponseRunnerHeartbeat.md
 docs/Runner.md
 docs/TaskSimple.md
 docs/Tenant.md
+docs/TestDetail.md
 docs/Testcase.md
 git_push.sh
 index.ts

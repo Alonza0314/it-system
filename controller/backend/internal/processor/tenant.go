@@ -3,6 +3,7 @@ package processor
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/model"
@@ -20,11 +21,23 @@ func (p *Processor) GetTenants() (*model.ResponseGetTenants, *model.ErrorDetail)
 	p.ProcLog.Debugf("Retrieved %d tenants", len(tenantMap))
 	p.ProcLog.Tracef("Tenants details: %+v", tenantMap)
 
+	discordMap, err := p.itContext.LoadAllFromDb(constant.BUCKET_DISCORD_ID)
+	if err != nil {
+		p.ProcLog.Errorf("Failed to load tenants' discord IDs from database: %v", err)
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to load tenants' discord IDs from database: %v", err),
+		}
+	}
+	p.ProcLog.Debugf("Retrieved %d tenants' discord IDs", len(discordMap))
+	p.ProcLog.Tracef("Tenants' discord IDs details: %+v", discordMap)
+
 	tenants := make([]model.Tenant, 0, len(tenantMap))
 	for username, role := range tenantMap {
 		tenants = append(tenants, model.Tenant{
-			Username: username,
-			Role:     role,
+			Username:  username,
+			DiscordId: discordMap[username],
+			Role:      role,
 		})
 	}
 
@@ -63,6 +76,13 @@ func (p *Processor) AddTenant(req *model.RequestAddTenant) (*model.ResponseAddTe
 				Detail:     fmt.Sprintf("Failed to save tenant %s to database: %v", tenant.Username, err),
 			}
 		}
+		if err := p.itContext.SaveToDb(constant.BUCKET_DISCORD_ID, tenant.Username, tenant.DiscordId); err != nil {
+			p.ProcLog.Errorf("Failed to save tenant %s's discord ID to database: %v", tenant.Username, err)
+			return nil, &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to save tenant %s's discord ID to database: %v", tenant.Username, err),
+			}
+		}
 	}
 
 	response := &model.ResponseAddTenant{
@@ -97,6 +117,17 @@ func (p *Processor) DeleteTenant(req *model.RequestDeleteTenant) (*model.Respons
 			return nil, &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
 				Detail:     fmt.Sprintf("Failed to remove tenant %s from database: %v", tenant.Username, err),
+			}
+		}
+		if err := p.itContext.RemoveFromDb(constant.BUCKET_DISCORD_ID, tenant.Username); err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				p.ProcLog.Warnf("Tenant %s's discord ID not found in database when trying to remove: %v", tenant.Username, err)
+				continue
+			}
+			p.ProcLog.Errorf("Failed to remove tenant %s's discord ID from database: %v", tenant.Username, err)
+			return nil, &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to remove tenant %s's discord ID from database: %v", tenant.Username, err),
 			}
 		}
 	}

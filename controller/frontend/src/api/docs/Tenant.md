@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **username** | **string** |  | [default to undefined]
+**discord_id** | **string** |  | [default to undefined]
 **role** | **string** |  | [default to undefined]
 
 ## Example
@@ -15,6 +16,7 @@ import { Tenant } from './api';
 
 const instance: Tenant = {
     username,
+    discord_id,
     role,
 };
 ```

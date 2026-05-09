@@ -4,12 +4,12 @@ import { getUserHeader } from '../utils/auth'
 
 interface AddTenantPayload {
   username: string
+  discordId: string
   role: string
 }
 
 interface DeleteTenantPayload {
   username: string
-  role: string
 }
 
 interface TenantContextValue {
@@ -95,6 +95,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         tenants: [
           {
             username: payload.username,
+            discord_id: payload.discordId,
             role: payload.role,
           },
         ],
@@ -125,7 +126,6 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         tenants: [
           {
             username: payload.username,
-            role: payload.role,
           },
         ],
       }, {

@@ -22,6 +22,7 @@ type ResponseDeleteTenant struct {
 }
 
 type Tenant struct {
-	Username string `json:"username" binding:"required"`
-	Role     string `json:"role" binding:"required"`
+	Username  string `json:"username" binding:"required"`
+	DiscordId string `json:"discord_id" binding:"required"`
+	Role      string `json:"role" binding:"required"`
 }

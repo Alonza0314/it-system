@@ -30,7 +30,10 @@ export interface AddTestcasesRequest {
     'testcases': Array<Testcase>;
 }
 export interface DeleteTenantsRequest {
-    'tenants': Array<Tenant>;
+    'tenants': Array<DeleteTenantsRequestTenantsInner>;
+}
+export interface DeleteTenantsRequestTenantsInner {
+    'username': string;
 }
 export interface DeleteTestcasesRequest {
     'testcases': Array<Testcase>;
@@ -95,7 +98,7 @@ export interface ResponseGetTask {
     'username'?: string;
     'createTime'?: number;
     'status'?: ResponseGetTaskStatusEnum;
-    'tests'?: Array<string>;
+    'tests'?: Array<TestDetail>;
     'nfPrList'?: Array<NfPr>;
 }
 
@@ -142,7 +145,12 @@ export interface TaskSimple {
 }
 export interface Tenant {
     'username': string;
+    'discord_id': string;
     'role': string;
+}
+export interface TestDetail {
+    'name': string;
+    'status': string;
 }
 export interface Testcase {
     'name': string;

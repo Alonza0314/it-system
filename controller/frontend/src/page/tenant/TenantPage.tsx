@@ -8,7 +8,12 @@ import styles from './tenant-page.module.css'
 
 interface FormState {
   username: string
+  discordId: string
   role: string
+}
+
+interface DeleteTarget {
+  username: string
 }
 
 export default function TenantPage() {
@@ -26,8 +31,8 @@ export default function TenantPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [formState, setFormState] = useState<FormState>({ username: '', role: 'default' })
-  const [targetDelete, setTargetDelete] = useState<FormState>({ username: '', role: '' })
+  const [formState, setFormState] = useState<FormState>({ username: '', discordId: '', role: 'default' })
+  const [targetDelete, setTargetDelete] = useState<DeleteTarget>({ username: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -38,8 +43,9 @@ export default function TenantPage() {
   }, [refreshTenants, addError])
 
   const usernameValue = formState.username.trim()
+  const discordIdValue = formState.discordId.trim()
   const roleValue = formState.role.trim()
-  const canAdd = usernameValue.length > 0 && roleValue.length > 0
+  const canAdd = usernameValue.length > 0 && discordIdValue.length > 0 && roleValue.length > 0
 
   const countLabel = useMemo(() => {
     if (isLoading && !hasLoaded) {
@@ -54,28 +60,28 @@ export default function TenantPage() {
   }, [isLoading, hasLoaded, hasNoPermission, tenants.length])
 
   function openAddModal() {
-    setFormState({ username: '', role: 'default' })
+    setFormState({ username: '', discordId: '', role: 'default' })
     setIsAddModalOpen(true)
   }
 
   function closeAddModal() {
     setIsAddModalOpen(false)
-    setFormState({ username: '', role: 'default' })
+    setFormState({ username: '', discordId: '', role: 'default' })
   }
 
-  function openDeleteModal(username: string, role: string) {
-    setTargetDelete({ username, role })
+  function openDeleteModal(username: string) {
+    setTargetDelete({ username })
     setIsDeleteModalOpen(true)
   }
 
   function closeDeleteModal() {
-    setTargetDelete({ username: '', role: '' })
+    setTargetDelete({ username: '' })
     setIsDeleteModalOpen(false)
   }
 
   async function handleAddTenant() {
     if (!canAdd) {
-      addError('Username and role are required')
+      addError('Username, Discord ID, and role are required')
       return
     }
 
@@ -83,6 +89,7 @@ export default function TenantPage() {
     try {
       const message = await addTenant({
         username: usernameValue,
+        discordId: discordIdValue,
         role: roleValue,
       })
       addSuccess(message)
@@ -96,7 +103,7 @@ export default function TenantPage() {
   }
 
   async function handleDeleteTenant() {
-    if (!targetDelete.username || !targetDelete.role) {
+    if (!targetDelete.username) {
       return
     }
 
@@ -142,6 +149,7 @@ export default function TenantPage() {
             <thead>
               <tr>
                 <th>Username</th>
+                <th>Discord ID</th>
                 <th>Role</th>
                 <th>Action</th>
               </tr>
@@ -149,7 +157,7 @@ export default function TenantPage() {
             <tbody>
               {tenants.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className={styles.empty}>
+                  <td colSpan={4} className={styles.empty}>
                     {isLoading ? 'Loading tenants...' : 'No tenants yet'}
                   </td>
                 </tr>
@@ -157,9 +165,10 @@ export default function TenantPage() {
                 tenants.map((tenant) => (
                   <tr key={tenant.username}>
                     <td>{tenant.username}</td>
+                    <td>{tenant.discord_id}</td>
                     <td>{tenant.role}</td>
                     <td>
-                      <Button variant="secondary" onClick={() => openDeleteModal(tenant.username, tenant.role)}>
+                      <Button variant="secondary" onClick={() => openDeleteModal(tenant.username)}>
                         Delete
                       </Button>
                     </td>
@@ -202,6 +211,17 @@ export default function TenantPage() {
             <option value="default">default</option>
             <option value="admin">admin</option>
           </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="tenant-discord-id">Discord ID (required)</label>
+          <input
+            id="tenant-discord-id"
+            className={styles.input}
+            value={formState.discordId}
+            onChange={(event) => setFormState((prev) => ({ ...prev, discordId: event.target.value }))}
+            placeholder="e.g. 1151937038459875339"
+            required
+          />
         </div>
       </Modal>
 

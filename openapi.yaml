@@ -903,14 +903,23 @@ components:
         tests:
           type: array
           items:
-            type: string
-          example:
-            - test-1
-            - test-2
+            $ref: '#/components/schemas/TestDetail'
         nfPrList:
           type: array
           items:
             $ref: '#/components/schemas/NfPr'
+    TestDetail:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+          example: TestRegistration
+        status:
+          type: string
+          example: pending
     ResponseGetTestLog:
       type: object
       required:
@@ -961,11 +970,15 @@ components:
       type: object
       required:
         - username
+        - discord_id
         - role
       properties:
         username:
           type: string
           example: alonza
+        discord_id:
+          type: string
+          example: '1151937038459875339'
         role:
           type: string
           example: admin
@@ -998,7 +1011,13 @@ components:
         tenants:
           type: array
           items:
-            $ref: '#/components/schemas/Tenant'
+            type: object
+            required:
+              - username
+            properties:
+              username:
+                type: string
+                example: alonza
     PR:
       type: object
       required:
