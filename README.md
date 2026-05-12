@@ -7,7 +7,7 @@ A free5GC developer friendly integration test system.
 | DevOpts | Version |
 | - | - |
 | OS | Ubuntu 25.04 |
-| go | 1.25.5 |
+| go | 1.26.2 |
 | nodejs | v20.20.0 |
 | yarn | 1.22.22 |
 
@@ -82,7 +82,7 @@ sudo dpkg -i it-system-controller_0.0.9_amd64.deb
 Before install runner, please make sure your runner host has installed go, gtp5g and mongodb:
 
 ```bash
-GO_VERSION="1.25.5"
+GO_VERSION="1.26.2"
 wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz
 sudo tar -C /usr/local -zxvf go${GO_VERSION}.linux-amd64.tar.gz
 mkdir -p ~/go/{bin,pkg,src}
