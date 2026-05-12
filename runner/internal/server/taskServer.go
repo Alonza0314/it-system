@@ -127,6 +127,7 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	if !s.handleCleanup(task.Id, repoDir) {
 		return
 	}
+	s.removeWorkspace()
 
 	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
 
@@ -317,7 +318,7 @@ func (s *taskServer) handleRunTest(id uint64, testName, repoDir string) string {
 }
 
 func (s *taskServer) handleCleanup(id uint64, repoDir string) bool {
-	output, err := s.cleanup(repoDir, true)
+	output, err := s.cleanup(repoDir)
 	if err != nil {
 		s.TaskLog.Errorf("Failed to cleanup after tests for task ID: %d, error: %v", id, err)
 		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
@@ -336,7 +337,7 @@ func (s *taskServer) handleCleanup(id uint64, repoDir string) bool {
 }
 
 func (s *taskServer) handleSilentCleanup(id uint64, testName, repoDir string) bool {
-	output, err := s.cleanup(repoDir, false)
+	output, err := s.cleanup(repoDir)
 	if err == nil {
 		s.TaskLog.Infof("Silent cleanup after timeout completed successfully for task ID: %d, test: %s", id, testName)
 		s.TaskLog.Tracef("Output of silent cleanup for task ID: %d, test: %s: %s", id, testName, output)
@@ -479,7 +480,7 @@ func (s *taskServer) runTest(testName, repoDir string) (string, error) {
 	return output, nil
 }
 
-func (s *taskServer) cleanup(repoDir string, removeWorkspace bool) (string, error) {
+func (s *taskServer) cleanup(repoDir string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), constant.CLEANUP_CMD_TIMEOUT)
 	defer cancel()
 
@@ -495,11 +496,11 @@ func (s *taskServer) cleanup(repoDir string, removeWorkspace bool) (string, erro
 		return output, fmt.Errorf("failed to cleanup: %v", err)
 	}
 
-	if removeWorkspace {
-		if err := os.RemoveAll(s.workspacePath); err != nil {
-			s.TaskLog.Warnf("Failed to remove workspace directory: %v", err)
-		}
-	}
-
 	return output, nil
+}
+
+func (s *taskServer) removeWorkspace() {
+	if err := os.RemoveAll(s.workspacePath); err != nil {
+		s.TaskLog.Warnf("Failed to remove workspace directory: %v", err)
+	}
 }

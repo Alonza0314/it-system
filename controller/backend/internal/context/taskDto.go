@@ -15,8 +15,6 @@ type TaskDto struct {
 	Username   string        `json:"username"`
 	Status     string        `json:"status"`
 	CreateTime int64         `json:"createTime"`
-	StartTime  int64         `json:"startTime,omitempty"`
-	UpdateTime int64         `json:"updateTime,omitempty"`
 	Pipelines  []PipelineDto `json:"pipelines"`
 	NfPrList   []NfPrDto     `json:"nfPrList"`
 }

@@ -1,7 +1,5 @@
 package constant
 
-import "time"
-
 // log
 const (
 	CFG_LOG  = "CFG"
@@ -64,11 +62,6 @@ const (
 	TASK_STATUS_FAILED   = "failed"
 	TASK_STATUS_TIMEOUT  = "timeout"
 	TASK_STATUS_CANCELED = "canceled"
-)
-
-const (
-	TASK_WATCHDOG_INTERVAL = 30 * time.Second
-	TASK_OUTPUT_TIMEOUT    = 12 * time.Minute
 )
 
 // runner name
