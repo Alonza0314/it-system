@@ -112,21 +112,20 @@ func formatNfPrSummary(nfPrList []NfPrResult) string {
 		return "No PRs"
 	}
 
-	const maxSummaryLength = 40
 	parts := make([]string, 0, len(nfPrList))
 	for _, nfPr := range nfPrList {
 		parts = append(parts, formatNfPrDisplayName(nfPr))
 	}
 
 	summary := strings.Join(parts, ", ")
-	if len(summary) <= maxSummaryLength {
+	if len(summary) <= constant.MAX_THREAD_PR_SUMMARY_LENGTH {
 		return summary
 	}
 
 	for count := len(parts) - 1; count > 0; count-- {
 		remaining := len(parts) - count
 		candidate := fmt.Sprintf("%s +%d more", strings.Join(parts[:count], ", "), remaining)
-		if len(candidate) <= maxSummaryLength {
+		if len(candidate) <= constant.MAX_THREAD_PR_SUMMARY_LENGTH {
 			return candidate
 		}
 	}

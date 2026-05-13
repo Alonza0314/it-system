@@ -83,3 +83,8 @@ const (
 	TESTCASE_MAKE_NF         = "make_nf"
 	TESTCASE_CLEANUP         = "cleanup"
 )
+
+// discord notification
+const (
+	MAX_THREAD_PR_SUMMARY_LENGTH = 40
+)
