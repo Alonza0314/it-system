@@ -5003,7 +5003,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"testName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"testName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
             },
             "url": {
               "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5037,7 +5037,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5159,7 +5159,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5216,7 +5216,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5273,7 +5273,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",

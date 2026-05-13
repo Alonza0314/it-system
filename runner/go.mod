@@ -9,6 +9,8 @@ require (
 	github.com/spf13/cobra v1.10.2
 )
 
+replace github.com/Alonza0314/it-system/controller/backend => ../controller/backend
+
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.15.0 // indirect

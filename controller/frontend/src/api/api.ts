@@ -90,6 +90,7 @@ export interface RequestTestOutput {
     'id': number;
     'testName'?: string;
     'success'?: boolean;
+    'status'?: string;
     'log'?: string;
 }
 export interface ResponseGetTask {
@@ -107,6 +108,7 @@ export const ResponseGetTaskStatusEnum = {
     Running: 'running',
     Success: 'success',
     Failed: 'failed',
+    Timeout: 'timeout',
     Canceled: 'canceled',
 } as const;
 

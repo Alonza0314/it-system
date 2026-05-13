@@ -121,8 +121,8 @@ func (ctx *ItContext) TtestOutputEnd(id uint64) error {
 	return ctx.taskContext.moveOngoingTaskToHistory(id)
 }
 
-func (ctx *ItContext) TtestOutputTransfer(id uint64, testName string, success bool, log *string) error {
-	return ctx.taskContext.writeLogToFile(id, testName, success, log)
+func (ctx *ItContext) TtestOutputTransfer(id uint64, testName string, success bool, status string, log *string) error {
+	return ctx.taskContext.writeLogToFile(id, testName, success, status, log)
 }
 
 func (ctx *ItContext) DeleteHistory() error {

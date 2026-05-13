@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **id** | **number** |  | [default to undefined]
 **testName** | **string** |  | [optional] [default to undefined]
 **success** | **boolean** |  | [optional] [default to undefined]
+**status** | **string** |  | [optional] [default to undefined]
 **log** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -21,6 +22,7 @@ const instance: RequestTestOutput = {
     id,
     testName,
     success,
+    status,
     log,
 };
 ```

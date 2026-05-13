@@ -43,6 +43,7 @@ type RequestTestOutput struct {
 	Id       uint64 `json:"id" binding:"required"`
 	TestName string `json:"testName,omitempty"`
 	Success  bool   `json:"success,omitempty"`
+	Status   string `json:"status,omitempty"`
 	Log      string `json:"log,omitempty"`
 }
 

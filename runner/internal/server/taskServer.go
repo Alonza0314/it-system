@@ -1,7 +1,9 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	cconstant "github.com/Alonza0314/it-system/controller/backend/constant"
@@ -68,12 +71,13 @@ func (s *taskServer) Stop() error {
 	return nil
 }
 
-func (s *taskServer) buildRequestTestOutput(endFlag bool, testId uint64, testname string, success bool, log string) *model.RequestTestOutput {
+func (s *taskServer) buildRequestTestOutput(endFlag bool, testId uint64, testname string, success bool, status string, log string) *model.RequestTestOutput {
 	return &model.RequestTestOutput{
 		EndFlag:  &endFlag,
 		Id:       testId,
 		TestName: testname,
 		Success:  success,
+		Status:   status,
 		Log:      log,
 	}
 }
@@ -106,6 +110,7 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		return
 	}
 
+	retryTests := make([]string, 0)
 	for _, test := range task.Tests {
 		if test == cconstant.TESTCASE_PREPARE_FREE5GC || test == cconstant.TESTCASE_FETCH_PRS || test == cconstant.TESTCASE_MAKE_NF || test == cconstant.TESTCASE_CLEANUP || test == cconstant.FREE5GC {
 			continue
@@ -113,7 +118,31 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 
 		s.TaskLog.Infof("Running test: %s for task ID: %d", test, task.Id)
 
-		s.handleRunTest(task.Id, test, repoDir)
+		status := s.handleRunTest(task.Id, test, repoDir)
+		switch status {
+		case cconstant.TASK_STATUS_FAILED:
+			s.TaskLog.Warnf("Test: %s failed with status: %s for task ID: %d", test, status, task.Id)
+			retryTests = append(retryTests, test)
+		case cconstant.TASK_STATUS_TIMEOUT:
+			s.TaskLog.Warnf("Test: %s timed out for task ID: %d", test, task.Id)
+			if !s.handleSilentCleanup(task.Id, test, repoDir) {
+				return
+			}
+			retryTests = append(retryTests, test)
+		default: // success case, do nothing
+			s.TaskLog.Infof("Test: %s succeeded for task ID: %d", test, task.Id)
+		}
+	}
+
+	for _, test := range retryTests {
+		s.TaskLog.Infof("Retrying test once: %s for task ID: %d", test, task.Id)
+
+		status := s.handleRunTest(task.Id, test, repoDir)
+		if status == cconstant.TASK_STATUS_TIMEOUT {
+			if !s.handleSilentCleanup(task.Id, test, repoDir) {
+				return
+			}
+		}
 	}
 
 	if !s.handleCleanup(task.Id, repoDir) {
@@ -122,7 +151,7 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 
 	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", true, "All tests completed successfully"))
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", true, cconstant.TASK_STATUS_SUCCESS, "All tests completed successfully"))
 
 }
 
@@ -142,15 +171,37 @@ func (s *taskServer) isTestSuccess(output string) bool {
 }
 
 func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string) (string, error) {
-	cmdWithCtx := exec.CommandContext(ctx, cmd, args...)
+	cmdWithCtx := exec.Command(cmd, args...)
 	cmdWithCtx.Dir = dir
+	s.configureCommand(cmdWithCtx)
 
-	output, err := cmdWithCtx.CombinedOutput()
-	if err != nil {
-		return string(output), fmt.Errorf("command failed: %s %v: %w, output: %s", cmd, args, err, string(output))
+	var output bytes.Buffer
+	cmdWithCtx.Stdout, cmdWithCtx.Stderr = &output, &output
+
+	if err := cmdWithCtx.Start(); err != nil {
+		return output.String(), fmt.Errorf("command failed to start: %s %v: %w, output: %s", cmd, args, err, output.String())
 	}
 
-	return string(output), nil
+	waitCh := make(chan error, 1)
+	go func() {
+		waitCh <- cmdWithCtx.Wait()
+	}()
+
+	select {
+	case err := <-waitCh:
+		if err != nil {
+			return output.String(), fmt.Errorf("command failed: %s %v: %w, output: %s", cmd, args, err, output.String())
+		}
+	case <-ctx.Done():
+		if err := s.terminateCommand(cmdWithCtx); err != nil {
+			s.TaskLog.Warnf("Failed to terminate command after timeout: %s %v, error: %v", cmd, args, err)
+		}
+		<-waitCh
+
+		return output.String(), ctx.Err()
+	}
+
+	return output.String(), nil
 }
 
 func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp string, fetchFree5gcPr bool, nfPrs []model.NfPr) bool {
@@ -158,7 +209,7 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 	if err != nil {
 		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", id)
@@ -175,7 +226,8 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 		}
 		if prNum == 0 {
 			s.TaskLog.Warnf("No PR number found for free5GC in task ID: %d, skipping fetch", id)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, true, output+"\nNo PR number for free5GC, skipping fetch"))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, true, cconstant.TASK_STATUS_SUCCESS, output+"\nNo PR number for free5GC, skipping fetch"))
+
 			return true
 		}
 
@@ -192,11 +244,13 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 		); err != nil {
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Fetch free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
-				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, output+"\n"+fetchOutput))
+				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+fetchOutput))
+
 				return false
 			}
 			s.TaskLog.Errorf("Failed to fetch free5GC PR for task ID: %d, error: %v", id, err)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, output+"\n"+fetchOutput))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+fetchOutput))
+
 			return false
 		} else {
 			output += "\n" + fetchOutput
@@ -211,11 +265,13 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 		); err != nil {
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Checkout free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
-				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, output+"\n"+checkoutOutput))
+				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+checkoutOutput))
+
 				return false
 			}
 			s.TaskLog.Errorf("Failed to checkout free5GC PR for task ID: %d, error: %v", id, err)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, output+"\n"+checkoutOutput))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+checkoutOutput))
+
 			return false
 		} else {
 			output += "\n" + checkoutOutput
@@ -224,7 +280,7 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 		s.TaskLog.Infof("free5GC PR fetched and checked out successfully for task ID: %d", id)
 	}
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, true, output))
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, true, cconstant.TASK_STATUS_SUCCESS, output))
 
 	return true
 }
@@ -234,12 +290,12 @@ func (s *taskServer) handleFetchNfPr(id uint64, nfPrs []model.NfPr, repoDir stri
 	if err != nil {
 		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", id)
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_FETCH_PRS, true, output))
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_FETCH_PRS, true, cconstant.TASK_STATUS_SUCCESS, output))
 
 	return true
 }
@@ -249,49 +305,80 @@ func (s *taskServer) handleMakeNf(id uint64, repoDir string) bool {
 	if err != nil {
 		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("NF made successfully for task ID: %d", id)
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_MAKE_NF, true, output))
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_MAKE_NF, true, cconstant.TASK_STATUS_SUCCESS, output))
 
 	return true
 }
 
-func (s *taskServer) handleRunTest(id uint64, testName, repoDir string) {
+func (s *taskServer) handleRunTest(id uint64, testName, repoDir string) string {
 	output, err := s.runTest(testName, repoDir)
 	if err != nil {
 		s.TaskLog.Errorf("Failed to run test: %s for task ID: %d, error: %v", testName, id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, false, fmt.Sprintf("Failed to run test: %v\nOutput: %s", err, output)))
-		return
+		status := cconstant.TASK_STATUS_FAILED
+		if errors.Is(err, context.DeadlineExceeded) {
+			status = cconstant.TASK_STATUS_TIMEOUT
+		}
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, false, status, output))
+
+		return status
 	}
 
 	s.TaskLog.Infof("Test: %s completed for task ID: %d", testName, id)
 	s.TaskLog.Tracef("Output of test: %s for task ID: %d: %s", testName, id, output)
 
 	cleanedOutput := s.normalizeOutput(output)
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, s.isTestSuccess(cleanedOutput), output))
+	if s.isTestSuccess(cleanedOutput) {
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, true, cconstant.TASK_STATUS_SUCCESS, output))
+
+		return cconstant.TASK_STATUS_SUCCESS
+	}
+
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, testName, false, cconstant.TASK_STATUS_FAILED, output))
+
+	return cconstant.TASK_STATUS_FAILED
 }
 
 func (s *taskServer) handleCleanup(id uint64, repoDir string) bool {
-	output, err := s.cleanup(repoDir)
+	output, err := s.forceKill(repoDir)
 	if err != nil {
 		s.TaskLog.Errorf("Failed to cleanup after tests for task ID: %d, error: %v", id, err)
 		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output))
 
 		return false
 	}
+	s.removeWorkspace()
 
 	s.TaskLog.Infof("Cleanup completed successfully for task ID: %d", id)
 	s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_CLEANUP, true, output))
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_CLEANUP, true, cconstant.TASK_STATUS_SUCCESS, output))
 
 	return true
+}
+
+func (s *taskServer) handleSilentCleanup(id uint64, testName, repoDir string) bool {
+	output, err := s.forceKill(repoDir)
+	if err == nil {
+		s.TaskLog.Infof("Silent cleanup after timeout completed successfully for task ID: %d, test: %s", id, testName)
+		s.TaskLog.Tracef("Output of silent cleanup for task ID: %d, test: %s: %s", id, testName, output)
+
+		return true
+	}
+
+	s.TaskLog.Errorf("Silent cleanup after timeout failed for task ID: %d, test: %s, error: %v", id, testName, err)
+
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output))
+
+	return false
 }
 
 func (s *taskServer) prepareRepo(repoDir, currentTimeStamp string) (string, error) {
@@ -382,11 +469,12 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) (string, erro
 			output += checkoutOutput + "\n"
 		}
 	}
+
 	return output, nil
 }
 
 func (s *taskServer) makeNf(repoDir string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
+	ctx, cancel := context.WithTimeout(context.Background(), constant.MAKE_CMD_TIMEOUT)
 	defer cancel()
 
 	output, err := s.runCmd(
@@ -424,7 +512,7 @@ func (s *taskServer) runTest(testName, repoDir string) (string, error) {
 	return output, nil
 }
 
-func (s *taskServer) cleanup(repoDir string) (string, error) {
+func (s *taskServer) forceKill(repoDir string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), constant.CLEANUP_CMD_TIMEOUT)
 	defer cancel()
 
@@ -440,9 +528,23 @@ func (s *taskServer) cleanup(repoDir string) (string, error) {
 		return output, fmt.Errorf("failed to cleanup: %v", err)
 	}
 
+	return output, nil
+}
+
+func (s *taskServer) removeWorkspace() {
 	if err := os.RemoveAll(s.workspacePath); err != nil {
 		s.TaskLog.Warnf("Failed to remove workspace directory: %v", err)
 	}
+}
 
-	return output, nil
+func (s *taskServer) configureCommand(cmd *exec.Cmd) {
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+}
+
+func (s *taskServer) terminateCommand(cmd *exec.Cmd) error {
+	if cmd.Process == nil {
+		return nil
+	}
+
+	return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 }

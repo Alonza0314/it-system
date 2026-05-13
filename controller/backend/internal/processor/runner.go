@@ -114,6 +114,15 @@ func (p *Processor) RunnerHeartbeat(req *model.RequestRunnerHeartbeat, runner st
 
 func (p *Processor) TtestOutput(req *model.RequestTestOutput, runner string) *model.ErrorDetail {
 	if *req.EndFlag {
+		if req.TestName != "" {
+			if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, req.Status, &req.Log); err != nil {
+				return &model.ErrorDetail{
+					HttpStatus: http.StatusInternalServerError,
+					Detail:     fmt.Sprintf("Failed to transfer test output: %v", err),
+				}
+			}
+		}
+
 		if err := p.itContext.TtestOutputEnd(req.Id); err != nil {
 			return &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
@@ -128,7 +137,7 @@ func (p *Processor) TtestOutput(req *model.RequestTestOutput, runner string) *mo
 			}
 		}
 	} else {
-		if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, &req.Log); err != nil {
+		if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, req.Status, &req.Log); err != nil {
 			return &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,
 				Detail:     fmt.Sprintf("Failed to transfer test output: %v", err),

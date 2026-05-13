@@ -54,6 +54,11 @@
   color: var(--danger-ink);
 }
 
+.statusTimeout {
+  background: #fff3d6;
+  color: #9a5b00;
+}
+
 .statusCanceled {
   background: #f3f4f6;
   color: #6b7280;

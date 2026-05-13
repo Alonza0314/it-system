@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
@@ -468,15 +469,31 @@ func (ctx *taskContext) moveOngoingTaskToHistory(id uint64) error {
 	defer ctx.ongoingQueueLock.Unlock()
 
 	ctx.ongoingQueue.RemoveById(id)
-	task.status = constant.TASK_STATUS_SUCCESS
+	task.setFinalStatus()
 
-	for _, t := range task.pipelines {
-		if t.status != constant.TASK_STATUS_SUCCESS {
-			task.status = constant.TASK_STATUS_FAILED
-			break
+	return ctx.pushHistory(task)
+}
+
+func (t *task) setFinalStatus() {
+	t.status = constant.TASK_STATUS_SUCCESS
+
+	for _, p := range t.pipelines {
+		if p.status == constant.TASK_STATUS_FAILED {
+			t.status = constant.TASK_STATUS_FAILED
+			return
+		}
+		if p.status == constant.TASK_STATUS_TIMEOUT {
+			t.status = constant.TASK_STATUS_TIMEOUT
+			continue
+		}
+		if p.status != constant.TASK_STATUS_SUCCESS {
+			t.status = constant.TASK_STATUS_FAILED
+			return
 		}
 	}
+}
 
+func (ctx *taskContext) pushHistory(task *task) error {
 	ctx.historyQueueLock.Lock()
 	defer ctx.historyQueueLock.Unlock()
 
@@ -518,19 +535,16 @@ func (ctx *taskContext) moveOngoingTaskToHistory(id uint64) error {
 	return nil
 }
 
-func (ctx *taskContext) writeLogToFile(id uint64, testName string, success bool, log *string) error {
+func (ctx *taskContext) writeLogToFile(id uint64, testName string, success bool, status string, log *string) error {
 	ctx.ongoingQueueLock.Lock()
 	defer ctx.ongoingQueueLock.Unlock()
 
 	task := ctx.ongoingQueue.FindById(id)
 	if task != nil {
+		pipelineStatus := normalizePipelineStatus(success, status)
 		for i, t := range task.pipelines {
 			if t.name == testName {
-				if success {
-					task.pipelines[i].status = constant.TASK_STATUS_SUCCESS
-				} else {
-					task.pipelines[i].status = constant.TASK_STATUS_FAILED
-				}
+				task.pipelines[i].status = pipelineStatus
 				break
 			}
 		}
@@ -561,6 +575,27 @@ func (ctx *taskContext) writeLogToFile(id uint64, testName string, success bool,
 	}
 
 	return nil
+}
+
+func normalizePipelineStatus(success bool, status string) string {
+	// Prefer the explicit status when it is one of the known values. This lets
+	// the runner report timeout separately from failed, without trusting unknown
+	// request strings and storing invalid pipeline states.
+	switch strings.ToLower(status) {
+	case constant.TASK_STATUS_SUCCESS:
+		return constant.TASK_STATUS_SUCCESS
+	case constant.TASK_STATUS_FAILED:
+		return constant.TASK_STATUS_FAILED
+	case constant.TASK_STATUS_TIMEOUT:
+		return constant.TASK_STATUS_TIMEOUT
+	}
+
+	// Fall back to the legacy success flag for older runners or requests that do
+	// not provide a valid status field.
+	if success {
+		return constant.TASK_STATUS_SUCCESS
+	}
+	return constant.TASK_STATUS_FAILED
 }
 
 func (ctx *taskContext) deleteHistory() error {

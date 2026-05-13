@@ -30,6 +30,9 @@ function normalizeStatus(status?: ResponseGetTaskStatusEnum) {
   if (status === ResponseGetTaskStatusEnum.Failed) {
     return 'failed'
   }
+  if (status === ResponseGetTaskStatusEnum.Timeout) {
+    return 'timeout'
+  }
   if (status === ResponseGetTaskStatusEnum.Running) {
     return 'running'
   }
@@ -73,6 +76,9 @@ function normalizeTestStatus(status?: string) {
   }
   if (normalized.includes('fail')) {
     return 'failed'
+  }
+  if (normalized.includes('timeout')) {
+    return 'timeout'
   }
   if (normalized.includes('running')) {
     return 'running'
@@ -430,7 +436,7 @@ export default function TaskDetailPage() {
                     <tbody>
                       {tests.map((test) => {
                         const status = normalizeTestStatus(test.status)
-                        const canViewLog = status === 'success' || status === 'failed'
+                        const canViewLog = status === 'success' || status === 'failed' || status === 'timeout'
 
                         return (
                         <tr key={test.name}>

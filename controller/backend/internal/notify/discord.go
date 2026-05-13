@@ -28,17 +28,25 @@ type allowedMentions struct {
 }
 
 func statusEmoji(status string) string {
-	if status == "success" {
+	switch status {
+	case constant.TASK_STATUS_SUCCESS:
 		return "✅"
+	case constant.TASK_STATUS_TIMEOUT:
+		return "❗"
+	default:
+		return "❌"
 	}
-	return "❌"
 }
 
 func statusText(status string) string {
-	if status == "success" {
+	switch status {
+	case constant.TASK_STATUS_SUCCESS:
 		return "Success"
+	case constant.TASK_STATUS_TIMEOUT:
+		return "Timeout"
+	default:
+		return "Failed"
 	}
-	return "Failed"
 }
 
 func reorderPipelinesForDisplay(pipelines []PipelineResult) []PipelineResult {

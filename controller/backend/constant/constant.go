@@ -60,6 +60,7 @@ const (
 	TASK_STATUS_RUNNING  = "running"
 	TASK_STATUS_SUCCESS  = "success"
 	TASK_STATUS_FAILED   = "failed"
+	TASK_STATUS_TIMEOUT  = "timeout"
 	TASK_STATUS_CANCELED = "canceled"
 )
 

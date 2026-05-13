@@ -898,6 +898,7 @@ components:
             - running
             - success
             - failed
+            - timeout
             - canceled
           example: success
         tests:
@@ -1154,6 +1155,13 @@ components:
         success:
           type: boolean
           example: true
+        status:
+          type: string
+          enum:
+            - success
+            - failed
+            - timeout
+          example: timeout
         log:
           type: string
           example: this is the log of TestRegistration
