@@ -470,6 +470,45 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) (string, erro
 		}
 	}
 
+	if s.shouldTidyTestModule(nfPrs) {
+		tidyOutput, err := s.tidyTestModule(repoDir)
+		output += "Running go mod tidy in test module\n" + tidyOutput
+		if err != nil {
+			return output, err
+		}
+	}
+
+	return output, nil
+}
+
+func (s *taskServer) shouldTidyTestModule(nfPrs []model.NfPr) bool {
+	for _, nfPr := range nfPrs {
+		if nfPr.NfName == cconstant.FREE5GC {
+			return len(nfPrs) > 1
+		}
+	}
+
+	return false
+}
+
+func (s *taskServer) tidyTestModule(repoDir string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
+	defer cancel()
+
+	output, err := s.runCmd(
+		ctx,
+		filepath.Join(repoDir, "test"),
+		"go",
+		"mod",
+		"tidy",
+	)
+	if err != nil {
+		if ctx.Err() != nil {
+			return output, fmt.Errorf("go mod tidy timed out in test module: %v", ctx.Err())
+		}
+		return output, fmt.Errorf("failed to run go mod tidy in test module: %v", err)
+	}
+
 	return output, nil
 }
 
