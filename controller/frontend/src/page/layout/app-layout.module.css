@@ -49,6 +49,26 @@
   opacity: 0.92;
 }
 
+.globalActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.userGuideLink {
+  color: #ffffff;
+  font-size: 0.72rem;
+  line-height: 1;
+  text-decoration: none;
+  opacity: 0.82;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+.userGuideLink:hover {
+  color: #ffffff;
+  opacity: 1;
+}
+
 .logoutButton {
   border: 1px solid rgba(210, 210, 215, 0.28);
   border-radius: 9999px;

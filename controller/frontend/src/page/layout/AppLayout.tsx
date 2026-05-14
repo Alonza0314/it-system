@@ -1,6 +1,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import styles from './app-layout.module.css'
 
+const userGuideUrl = 'https://hackmd.io/-JQ1mokTQNq3UpTQuf8-cA'
+
 export default function AppLayout() {
   const navigate = useNavigate()
 
@@ -19,9 +21,20 @@ export default function AppLayout() {
             <h1 className={styles.brand}>IT System</h1>
           </div>
 
-          <button type="button" className={styles.logoutButton} onClick={handleLogout}>
-            Logout
-          </button>
+          <div className={styles.globalActions}>
+            <a
+              href={userGuideUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.userGuideLink}
+              aria-label="Open user guide"
+            >
+              User Guide ↗
+            </a>
+            <button type="button" className={styles.logoutButton} onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
