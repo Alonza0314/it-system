@@ -167,7 +167,10 @@ func (s *taskServer) normalizeOutput(output string) string {
 func (s *taskServer) isTestSuccess(output string) bool {
 	cleanedOutput := s.normalizeOutput(output)
 
-	return !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_1) && !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_2) && !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_3)
+	return !strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_1) &&
+		!strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_2) &&
+		!strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_3) &&
+		!strings.Contains(cleanedOutput, constant.FAIL_MESSAGE_4)
 }
 
 func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string) (string, error) {

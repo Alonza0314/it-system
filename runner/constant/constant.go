@@ -60,4 +60,5 @@ const (
 	FAIL_MESSAGE_1 = "exit status"
 	FAIL_MESSAGE_2 = "--- FAIL:"
 	FAIL_MESSAGE_3 = "\nFAIL\n"
+	FAIL_MESSAGE_4 = "[build failed]"
 )
