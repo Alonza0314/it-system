@@ -131,7 +131,3 @@ Then re-install with `dpkg -i`.
 ## Remove
 
 Please refer to: [controller](./deb/controller.md) / [runner](./deb/runenr.md).
-
-## TODO
-
-- test in free5gc repo should tidy after fetch nf prs
