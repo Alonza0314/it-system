@@ -27,6 +27,8 @@ type BackendIE struct {
 	LogPath string `yaml:"logPath" valid:"required"`
 
 	Discord DiscordIE `yaml:"discord"`
+
+	WriteToDbTimer time.Duration `yaml:"writeToDbTimer" valid:"required"`
 }
 
 type DiscordIE struct {
