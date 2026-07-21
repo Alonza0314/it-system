@@ -22,7 +22,7 @@ type Processor struct {
 	*logger.BackendLogger
 }
 
-func NewProcessor(username, password, dbPath, logPath, jwtSecret, runnerJwtSecret string, maxHistoryLength int, jwtExpiresIn, runnerJwtExpiresIn, runnerCheckTimeInterval time.Duration, discordEnabled bool, discordWebhookURL string, logger *logger.BackendLogger) *Processor {
+func NewProcessor(username, password, dbPath, logPath, jwtSecret, runnerJwtSecret string, maxHistoryLength int, jwtExpiresIn, runnerJwtExpiresIn, runnerCheckTimeInterval time.Duration, discordEnabled bool, discordWebhookURL string, flushTimer time.Duration, logger *logger.BackendLogger) *Processor {
 	return &Processor{
 		username: username,
 		password: password,
@@ -33,7 +33,7 @@ func NewProcessor(username, password, dbPath, logPath, jwtSecret, runnerJwtSecre
 		runnerJwtSecret:    runnerJwtSecret,
 		runnerJwtExpiresIn: runnerJwtExpiresIn,
 
-		itContext: context.NewItContext(dbPath, logPath, maxHistoryLength, runnerCheckTimeInterval, discordEnabled, discordWebhookURL, logger.DcrLog),
+		itContext: context.NewItContext(dbPath, logPath, maxHistoryLength, runnerCheckTimeInterval, discordEnabled, discordWebhookURL, flushTimer, logger.DcrLog),
 
 		BackendLogger: logger,
 	}

@@ -25,5 +25,7 @@ backend:
     enabled: true
     webhookUrlPath: ".db/discord_webhook_url"
 
+  writeToDbTimer: 24h # time.Duration
+
 logger:
   level: "info"

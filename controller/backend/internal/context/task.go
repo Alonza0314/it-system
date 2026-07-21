@@ -1,6 +1,7 @@
 package context
 
 import (
+	cctx "context"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/internal/notify"
@@ -288,9 +290,13 @@ type taskContext struct {
 	discordEnabled    bool
 	discordWebhookURL string
 	discordLogger     loggergoModel.LoggerInterface
+
+	flushTimer  time.Duration
+	flushCtx    cctx.Context
+	flushCancel cctx.CancelFunc
 }
 
-func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext, discordEnabled bool, discordWebhookURL string, discordLogger loggergoModel.LoggerInterface) *taskContext {
+func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext, discordEnabled bool, discordWebhookURL string, discordLogger loggergoModel.LoggerInterface, flushTimer time.Duration) *taskContext {
 	tCtx := &taskContext{
 		pendingQueue: newTaskQueue(),
 		ongoingQueue: newTaskQueue(),
@@ -311,6 +317,8 @@ func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext,
 		discordEnabled:    discordEnabled,
 		discordWebhookURL: discordWebhookURL,
 		discordLogger:     discordLogger,
+
+		flushTimer: flushTimer,
 	}
 
 	if err := os.MkdirAll(logPath, 0755); err != nil {
@@ -336,12 +344,33 @@ func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext,
 		return tCtx.historyQueue[i].id < tCtx.historyQueue[j].id
 	})
 
+	tCtx.flushCtx, tCtx.flushCancel = cctx.WithCancel(cctx.Background())
+	tCtx.startHistoryFlushLoop()
+
 	return tCtx
 }
 
-func releaseTaskContext(ctx *taskContext) error {
-	ctx.historyQueueLock.Lock()
-	defer ctx.historyQueueLock.Unlock()
+func (ctx *taskContext) startHistoryFlushLoop() {
+	go func() {
+		ticker := time.NewTicker(ctx.flushTimer)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.flushCtx.Done():
+				return
+			case <-ticker.C:
+				if err := ctx.flushHistoryToDB(); err != nil && ctx.discordLogger != nil {
+					ctx.discordLogger.Errorf("failed to flush history to DB: %v", err)
+				}
+			}
+		}
+	}()
+}
+
+func (ctx *taskContext) flushHistoryToDB() error {
+	ctx.historyQueueLock.RLock()
+	defer ctx.historyQueueLock.RUnlock()
 
 	if err := ctx.dbContext.RemoveAll([]byte(constant.BUCKET_HISTORY)); err != nil {
 		return fmt.Errorf("failed to clear history tasks from DB: %v", err)
@@ -358,6 +387,14 @@ func releaseTaskContext(ctx *taskContext) error {
 	}
 
 	return nil
+}
+
+func releaseTaskContext(ctx *taskContext) error {
+	if ctx.flushCancel != nil {
+		ctx.flushCancel()
+	}
+
+	return ctx.flushHistoryToDB()
 }
 
 func (ctx *taskContext) getPendingQueue() []task {

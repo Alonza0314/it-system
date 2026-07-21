@@ -64,7 +64,7 @@ func NewBackend(config *config.Config, discordWebhookURL string, logger *logger.
 
 		frontendFilePath: config.Backend.FrontendFilePath,
 
-		Processor: *processor.NewProcessor(config.Backend.Username, config.Backend.Password, config.Backend.DBPath, config.Backend.LogPath, config.Backend.JWT.Secret, config.Backend.RunnerJWT.Secret, config.Backend.MaxHistoryLength, config.Backend.JWT.ExpiresIn, config.Backend.RunnerJWT.ExpiresIn, config.Backend.RunnerCheckTimeInterval, config.Backend.Discord.Enabled, discordWebhookURL, logger),
+		Processor: *processor.NewProcessor(config.Backend.Username, config.Backend.Password, config.Backend.DBPath, config.Backend.LogPath, config.Backend.JWT.Secret, config.Backend.RunnerJWT.Secret, config.Backend.MaxHistoryLength, config.Backend.JWT.ExpiresIn, config.Backend.RunnerJWT.ExpiresIn, config.Backend.RunnerCheckTimeInterval, config.Backend.Discord.Enabled, discordWebhookURL, config.Backend.WriteToDbTimer, logger),
 
 		BackendLogger: logger,
 	}

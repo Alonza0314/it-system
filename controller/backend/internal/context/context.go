@@ -15,13 +15,13 @@ type ItContext struct {
 	runnerContext  *runnerContext
 }
 
-func NewItContext(dbPath, logPath string, maxHistoryLength int, runnerCheckTimeInterval time.Duration, discordEnabled bool, discordWebhookURL string, dcrLog loggergoModel.LoggerInterface) *ItContext {
+func NewItContext(dbPath, logPath string, maxHistoryLength int, runnerCheckTimeInterval time.Duration, discordEnabled bool, discordWebhookURL string, flushTimer time.Duration, dcrLog loggergoModel.LoggerInterface) *ItContext {
 	dbContext := newBboltDbContext(dbPath)
 
 	return &ItContext{
 		githubContext:  newGithubContext(),
 		bboltDbContext: dbContext,
-		taskContext:    newTaskContext(logPath, maxHistoryLength, dbContext, discordEnabled, discordWebhookURL, dcrLog),
+		taskContext:    newTaskContext(logPath, maxHistoryLength, dbContext, discordEnabled, discordWebhookURL, dcrLog, flushTimer),
 		runnerContext:  newRunnerContext(dbContext, runnerCheckTimeInterval),
 	}
 }
