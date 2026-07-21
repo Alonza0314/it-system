@@ -20,6 +20,7 @@ type BackendLogger struct {
 	GitLog  loggergoModel.LoggerInterface
 	RunLog  loggergoModel.LoggerInterface
 	DcrLog  loggergoModel.LoggerInterface
+	CtxLog  loggergoModel.LoggerInterface
 }
 
 func NewBackendLogger(level loggergoUtil.LogLevelString, filePath string, debugMode bool) *BackendLogger {
@@ -38,5 +39,6 @@ func NewBackendLogger(level loggergoUtil.LogLevelString, filePath string, debugM
 		GitLog:  logger.WithTags(constant.GIT_LOG),
 		RunLog:  logger.WithTags(constant.RUN_LOG),
 		DcrLog:  logger.WithTags(constant.DCR_LOG),
+		CtxLog:  logger.WithTag(constant.CTX_LOG),
 	}
 }

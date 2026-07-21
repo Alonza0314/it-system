@@ -13,7 +13,7 @@ import (
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/internal/notify"
-	loggergoModel "github.com/Alonza0314/logger-go/v2/model"
+	"github.com/Alonza0314/it-system/controller/backend/logger"
 )
 
 type taskIdGenerator struct {
@@ -289,14 +289,15 @@ type taskContext struct {
 
 	discordEnabled    bool
 	discordWebhookURL string
-	discordLogger     loggergoModel.LoggerInterface
+
+	*logger.BackendLogger
 
 	flushTimer  time.Duration
 	flushCtx    cctx.Context
 	flushCancel cctx.CancelFunc
 }
 
-func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext, discordEnabled bool, discordWebhookURL string, discordLogger loggergoModel.LoggerInterface, flushTimer time.Duration) *taskContext {
+func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext, discordEnabled bool, discordWebhookURL string, flushTimer time.Duration, logger *logger.BackendLogger) *taskContext {
 	tCtx := &taskContext{
 		pendingQueue: newTaskQueue(),
 		ongoingQueue: newTaskQueue(),
@@ -316,7 +317,8 @@ func newTaskContext(logPath string, maxHistoryLength int, dbCtx *bboltDbContext,
 
 		discordEnabled:    discordEnabled,
 		discordWebhookURL: discordWebhookURL,
-		discordLogger:     discordLogger,
+
+		BackendLogger: logger,
 
 		flushTimer: flushTimer,
 	}
@@ -360,8 +362,8 @@ func (ctx *taskContext) startHistoryFlushLoop() {
 			case <-ctx.flushCtx.Done():
 				return
 			case <-ticker.C:
-				if err := ctx.flushHistoryToDB(); err != nil && ctx.discordLogger != nil {
-					ctx.discordLogger.Errorf("failed to flush history to DB: %v", err)
+				if err := ctx.flushHistoryToDB(); err != nil {
+					ctx.CtxLog.Errorf("failed to flush history to DB: %v", err)
 				}
 			}
 		}
@@ -560,15 +562,15 @@ func (ctx *taskContext) pushHistory(task *task) error {
 		go func(taskID uint64, username, status string) {
 			userDiscordId, err := ctx.dbContext.Load([]byte(constant.BUCKET_DISCORD_ID), []byte(username))
 			if err != nil {
-				ctx.discordLogger.Warnf("failed to load discord user ID for username %s: %v", username, err)
+				ctx.DcrLog.Warnf("failed to load discord user ID for username %s: %v", username, err)
 				userDiscordId = []byte(username)
 			}
 
 			if err := notify.SendTaskNotification(ctx.discordWebhookURL, taskID, username, string(userDiscordId), status, pipelines, nfPrList); err != nil {
-				if ctx.discordLogger != nil {
-					ctx.discordLogger.Errorf("failed to send discord notification for task %d: %v", taskID, err)
+				if ctx.DcrLog != nil {
+					ctx.DcrLog.Errorf("failed to send discord notification for task %d: %v", taskID, err)
 				}
-				ctx.discordLogger.Debugf("send discord notification for task: %d", taskID)
+				ctx.DcrLog.Debugf("send discord notification for task: %d", taskID)
 			}
 		}(task.id, task.username, task.status)
 	}

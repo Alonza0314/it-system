@@ -11,6 +11,7 @@ const (
 	GIT_LOG  = "GIT"
 	RUN_LOG  = "RUN"
 	DCR_LOG  = "DCR"
+	CTX_LOG  = "CTX"
 )
 
 // user level

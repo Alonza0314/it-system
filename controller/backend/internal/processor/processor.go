@@ -33,7 +33,7 @@ func NewProcessor(username, password, dbPath, logPath, jwtSecret, runnerJwtSecre
 		runnerJwtSecret:    runnerJwtSecret,
 		runnerJwtExpiresIn: runnerJwtExpiresIn,
 
-		itContext: context.NewItContext(dbPath, logPath, maxHistoryLength, runnerCheckTimeInterval, discordEnabled, discordWebhookURL, flushTimer, logger.DcrLog),
+		itContext: context.NewItContext(dbPath, logPath, maxHistoryLength, runnerCheckTimeInterval, discordEnabled, discordWebhookURL, flushTimer, logger),
 
 		BackendLogger: logger,
 	}
