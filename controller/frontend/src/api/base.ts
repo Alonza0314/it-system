@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * full-stack-framework API
- * Automatically generated OpenAPI spec from Postman collection \"full-stack-framework\"
+ * free5gc-it-system API
+ * Automatically generated OpenAPI spec from Postman collection \"free5gc-it-system\"
  *
  * The version of the OpenAPI document: 1.0.0
  * 

@@ -22,8 +22,11 @@ type ResponseDeleteTestcases struct {
 }
 
 type Testcase struct {
-	Name string `json:"name" binding:"required"`
-	Link string `json:"link,omitempty"`
+	Id     int    `json:"id,omitempty"`
+	Name   string `json:"name" binding:"required"`
+	Link   string `json:"link,omitempty"`
+	Script string `json:"script,omitempty"`
+	Label  string `json:"label,omitempty"`
 }
 
 type ResponseGetTasks struct {

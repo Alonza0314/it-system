@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * full-stack-framework API
- * Automatically generated OpenAPI spec from Postman collection \"full-stack-framework\"
+ * free5gc-it-system API
+ * Automatically generated OpenAPI spec from Postman collection \"free5gc-it-system\"
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -90,9 +90,18 @@ export interface RequestTestOutput {
     'id': number;
     'testName'?: string;
     'success'?: boolean;
-    'status'?: string;
+    'status'?: RequestTestOutputStatusEnum;
     'log'?: string;
 }
+
+export const RequestTestOutputStatusEnum = {
+    Success: 'success',
+    Failed: 'failed',
+    Timeout: 'timeout',
+} as const;
+
+export type RequestTestOutputStatusEnum = typeof RequestTestOutputStatusEnum[keyof typeof RequestTestOutputStatusEnum];
+
 export interface ResponseGetTask {
     'message': string;
     'id'?: number;
@@ -155,8 +164,11 @@ export interface TestDetail {
     'status': string;
 }
 export interface Testcase {
+    'id'?: number;
     'name': string;
     'link'?: string;
+    'script'?: string;
+    'label'?: string;
 }
 
 /**
@@ -755,6 +767,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);

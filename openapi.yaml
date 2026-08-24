@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: full-stack-framework API
-  description: Automatically generated OpenAPI spec from Postman collection "full-stack-framework"
+  title: free5gc-it-system API
+  description: Automatically generated OpenAPI spec from Postman collection "free5gc-it-system"
   version: 1.0.0
 servers:
   - url: http://127.0.0.1:5000
@@ -47,6 +47,8 @@ paths:
     post:
       summary: Logout
       operationId: logout
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
@@ -804,12 +806,21 @@ components:
       required:
         - name
       properties:
+        id:
+          type: integer
+          example: 1
         name:
           type: string
           example: test-1
         link:
           type: string
           example: https://github.com/free5gc/free5gc#test-1
+        script:
+          type: string
+          example: test.sh
+        label:
+          type: string
+          example: it
     GetTestcasesResponse:
       type: object
       required:
