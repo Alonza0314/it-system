@@ -69,6 +69,24 @@ export default function TestPage() {
 
   const allSelected = testcases.length > 0 && selectedTestcases.length === testcases.length
 
+  const groupedTestcases = useMemo(() => {
+    const groups = new Map<string, typeof testcases>()
+
+    for (const item of testcases) {
+      const key = item.label || 'Unlabeled'
+      const list = groups.get(key)
+      if (list) {
+        list.push(item)
+      } else {
+        groups.set(key, [item])
+      }
+    }
+
+    return Array.from(groups.entries())
+      .map(([label, items]) => [label, [...items].sort((a, b) => (a.id ?? 0) - (b.id ?? 0))] as const)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+  }, [testcases])
+
   function extractErrorMessage(error: unknown, fallback: string) {
     return (
       typeof error === 'object'
@@ -242,8 +260,20 @@ export default function TestPage() {
       return null
     }
 
+    const missingScriptTestcases = selectedTestcases.filter((name) => {
+      const testcase = testcases.find((item) => item.name === name)
+      return !testcase?.script
+    })
+    if (missingScriptTestcases.length > 0) {
+      addError(`Testcase missing script, please update it first: ${missingScriptTestcases.join(', ')}`)
+      return null
+    }
+
     const payload: RequestSubmitTask = {
-      tests: selectedTestcases,
+      tests: selectedTestcases.map((name) => {
+        const testcase = testcases.find((item) => item.name === name)
+        return { name, script: testcase?.script || '' }
+      }),
       nfPrList: enabledNfNames.map((apiName) => ({
         nfName: apiName,
         pr: Number(selectedPrByNf[apiName]),
@@ -318,6 +348,22 @@ export default function TestPage() {
     setSelectedTestcases([])
   }
 
+  function toggleGroupTestcases(label: string, checked: boolean) {
+    const namesInGroup = testcases
+      .filter((item) => (item.label || 'Unlabeled') === label)
+      .map((item) => item.name)
+
+    setSelectedTestcases((prev) => {
+      if (checked) {
+        const merged = new Set(prev)
+        namesInGroup.forEach((name) => merged.add(name))
+        return Array.from(merged)
+      }
+
+      return prev.filter((name) => !namesInGroup.includes(name))
+    })
+  }
+
   function toggleSingleTestcase(name: string, checked: boolean) {
     setSelectedTestcases((prev) => {
       if (checked) {
@@ -390,28 +436,49 @@ export default function TestPage() {
                 <p>Multi-select with quick All option</p>
               </div>
 
-              <div className={styles.testcaseOptions}>
-                <label className={`${styles.testcaseOption} ${styles.allOption}`}>
-                  <input
-                    type="checkbox"
-                    checked={allSelected}
-                    onChange={(event) => toggleAllTestcases(event.target.checked)}
-                    disabled={testcases.length === 0}
-                  />
-                  <span>All</span>
-                </label>
+              <label className={`${styles.testcaseOption} ${styles.allOption}`}>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(event) => toggleAllTestcases(event.target.checked)}
+                  disabled={testcases.length === 0}
+                />
+                <span>All</span>
+              </label>
 
-                {testcases.map((item) => {
-                  const checked = selectedTestcases.includes(item.name)
+              <div className={styles.testcaseGroups}>
+                {groupedTestcases.map(([label, items]) => {
+                  const groupSelected = items.length > 0 && items.every((item) => selectedTestcases.includes(item.name))
                   return (
-                    <label key={item.name} className={styles.testcaseOption}>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(event) => toggleSingleTestcase(item.name, event.target.checked)}
-                      />
-                      <span>{item.name}</span>
-                    </label>
+                    <div key={label} className={styles.testcaseGroup}>
+                      <div className={styles.testcaseGroupHeader}>
+                        <span className={styles.testcaseGroupLabel}>{label}</span>
+                        <label className={`${styles.testcaseOption} ${styles.allOption}`}>
+                          <input
+                            type="checkbox"
+                            checked={groupSelected}
+                            onChange={(event) => toggleGroupTestcases(label, event.target.checked)}
+                          />
+                          <span>All</span>
+                        </label>
+                      </div>
+
+                      <div className={styles.testcaseOptions}>
+                        {items.map((item) => {
+                          const checked = selectedTestcases.includes(item.name)
+                          return (
+                            <label key={item.name} className={styles.testcaseOption}>
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(event) => toggleSingleTestcase(item.name, event.target.checked)}
+                              />
+                              <span>{item.name}</span>
+                            </label>
+                          )
+                        })}
+                      </div>
+                    </div>
                   )
                 })}
 
@@ -512,8 +579,11 @@ export default function TestPage() {
           <section className={styles.confirmSection}>
             <p className={styles.confirmLabel}>Testcases</p>
             <div className={styles.confirmChips}>
-              {(confirmPayload?.tests || []).map((testName) => (
-                <span key={testName} className={styles.confirmChip}>{testName}</span>
+              {(confirmPayload?.tests || []).map((test) => (
+                <span key={test.name} className={styles.confirmChip}>
+                  {test.name}
+                  {test.script && ` (${test.script})`}
+                </span>
               ))}
             </div>
           </section>

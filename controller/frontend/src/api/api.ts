@@ -82,7 +82,7 @@ export interface RequestRunnerHeartbeat {
     'onGoingTask'?: number;
 }
 export interface RequestSubmitTask {
-    'tests': Array<string>;
+    'tests': Array<SubmitTaskTest>;
     'nfPrList': Array<NfPr>;
 }
 export interface RequestTestOutput {
@@ -148,6 +148,10 @@ export interface Runner {
     'ip': string;
     'onGoingTask': number;
     'status': string;
+}
+export interface SubmitTaskTest {
+    'name': string;
+    'script': string;
 }
 export interface TaskSimple {
     'id': number;

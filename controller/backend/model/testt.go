@@ -58,8 +58,13 @@ type TestDetail struct {
 }
 
 type RequestSubmitTask struct {
-	Tests    []string `json:"tests" binding:"required"`
-	NFPrList []NfPr   `json:"nfPrList" binding:"required"`
+	Tests    []Test `json:"tests" binding:"required"`
+	NFPrList []NfPr `json:"nfPrList" binding:"required"`
+}
+
+type Test struct {
+	Name   string `json:"name" binding:"required"`
+	Script string `json:"script" binding:"required"`
 }
 
 type NfPr struct {

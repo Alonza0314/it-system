@@ -65,6 +65,7 @@ func (gen *taskIdGenerator) assignId() (uint64, error) {
 
 type pipeline struct {
 	name   string
+	script string
 	status string
 }
 
@@ -74,6 +75,10 @@ func (p *pipeline) Name() string {
 
 func (p *pipeline) Status() string {
 	return p.status
+}
+
+func (p *pipeline) Script() string {
+	return p.script
 }
 
 type nfPr struct {
