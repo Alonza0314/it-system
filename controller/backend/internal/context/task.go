@@ -14,6 +14,7 @@ import (
 	"github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/internal/notify"
 	"github.com/Alonza0314/it-system/controller/backend/logger"
+	"github.com/Alonza0314/it-system/controller/backend/model"
 )
 
 type taskIdGenerator struct {
@@ -104,7 +105,6 @@ type task struct {
 }
 
 func newTask(id uint64, username string, createTime int64, pipelines []pipeline, nfPrList []nfPr) *task {
-
 	return &task{
 		id:         id,
 		username:   username,
@@ -131,10 +131,10 @@ func (t *task) CreateTime() int64 {
 	return t.createTime
 }
 
-func (t *task) Tests() []string {
-	tests := make([]string, len(t.pipelines))
+func (t *task) Tests() []model.Test {
+	tests := make([]model.Test, len(t.pipelines))
 	for i, pipeline := range t.pipelines {
-		tests[i] = pipeline.name
+		tests[i].Name, tests[i].Script = pipeline.name, pipeline.script
 	}
 
 	return tests
