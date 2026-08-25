@@ -22,8 +22,11 @@ type ResponseDeleteTestcases struct {
 }
 
 type Testcase struct {
-	Name string `json:"name" binding:"required"`
-	Link string `json:"link,omitempty"`
+	Id     int    `json:"id,omitempty"`
+	Name   string `json:"name" binding:"required"`
+	Link   string `json:"link,omitempty"`
+	Script string `json:"script,omitempty"`
+	Label  string `json:"label,omitempty"`
 }
 
 type ResponseGetTasks struct {
@@ -55,8 +58,13 @@ type TestDetail struct {
 }
 
 type RequestSubmitTask struct {
-	Tests    []string `json:"tests" binding:"required"`
-	NFPrList []NfPr   `json:"nfPrList" binding:"required"`
+	Tests    []Test `json:"tests" binding:"required"`
+	NFPrList []NfPr `json:"nfPrList" binding:"required"`
+}
+
+type Test struct {
+	Name   string `json:"name" binding:"required"`
+	Script string `json:"script" binding:"required"`
 }
 
 type NfPr struct {

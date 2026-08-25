@@ -5,6 +5,8 @@ import { getUserHeader } from '../utils/auth'
 interface AddTestcasePayload {
   name: string
   link?: string
+  script?: string
+  label?: string
 }
 
 interface TestcaseContextValue {
@@ -72,6 +74,8 @@ export function TestcaseProvider({ children }: { children: ReactNode }) {
           {
             name: payload.name,
             link: payload.link,
+            script: payload.script,
+            label: payload.label,
           },
         ],
       }, {

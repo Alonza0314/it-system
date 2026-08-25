@@ -3,6 +3,7 @@ package constant
 // log
 const (
 	CFG_LOG  = "CFG"
+	API_LOG  = "API"
 	ACC_LOG  = "ACC"
 	BCK_LOG  = "BCK"
 	PROC_LOG = "PROC"
@@ -50,6 +51,7 @@ const (
 	BUCKET_TENANT     = "tenant"
 	BUCKET_DISCORD_ID = "discord_id"
 	BUCKET_TESTCASE   = "testcase"
+	BUCKET_LABEL      = "label"
 	BUCKET_TASK_ID    = "taskId"
 	BUCKET_RUNNER     = "runner"
 	BUCKET_HISTORY    = "history"

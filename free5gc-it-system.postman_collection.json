@@ -1272,15 +1272,15 @@
                     },
                     {
                       "key": "Date",
-                      "value": "Fri, 24 Apr 2026 01:20:50 GMT"
+                      "value": "Mon, 24 Aug 2026 08:52:37 GMT"
                     },
                     {
                       "key": "Content-Length",
-                      "value": "198"
+                      "value": "281"
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n    \"message\": \"Testcases retrieved successfully\",\n    \"testcases\": [\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}"
+                  "body": "{\n    \"message\": \"Testcases retrieved successfully\",\n    \"testcases\": [\n        {\n            \"id\": 1,\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"id\": 1,\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test_e2e.sh\",\n            \"label\": \"e2e\"\n        }\n    ]\n}"
                 },
                 {
                   "name": "401",
@@ -1389,7 +1389,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                  "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test_e2e.sh\",\n            \"label\": \"e2e\"\n        }\n    ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1417,7 +1417,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test_e2e.sh\",\n            \"label\": \"e2e\"\n        }\n    ]\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -1425,12 +1425,13 @@
                       }
                     },
                     "url": {
-                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/test/testcase",
+                      "raw": "{{SHEMA}}{{BACKEND_URL}}/api/admin/test/testcase",
                       "host": [
                         "{{SHEMA}}{{BACKEND_URL}}"
                       ],
                       "path": [
                         "api",
+                        "admin",
                         "test",
                         "testcase"
                       ]
@@ -1458,7 +1459,7 @@
                     },
                     {
                       "key": "Date",
-                      "value": "Fri, 24 Apr 2026 01:20:16 GMT"
+                      "value": "Mon, 24 Aug 2026 07:04:00 GMT"
                     },
                     {
                       "key": "Content-Length",
@@ -1475,7 +1476,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\"\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\"\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        }\n    ]\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -1533,7 +1534,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        }\n    ]\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -1591,7 +1592,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        }\n    ]\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -1650,7 +1651,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        }\n    ]\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -1709,7 +1710,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\"\n        }\n    ]\n}",
+                      "raw": "{\n    \"testcases\":[\n        {\n            \"name\": \"test-1\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        },\n        {\n            \"name\": \"test-2\",\n            \"link\": \"https://github.com/free5gc/free5gc#test-1\",\n            \"script\": \"test.sh\",\n            \"label\": \"it\"\n        }\n    ]\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -2545,7 +2546,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        {\r\n            \"name\": \"test-1\",\r\n            \"script\": \"test.sh\"\r\n        },\r\n        {\r\n            \"name\": \"test-2\",\r\n            \"script\": \"test_e2e.sh\"\r\n        }\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -2586,7 +2587,7 @@
                     },
                     {
                       "key": "Date",
-                      "value": "Sat, 25 Apr 2026 19:04:21 GMT"
+                      "value": "Mon, 24 Aug 2026 09:35:43 GMT"
                     },
                     {
                       "key": "Content-Length",
@@ -2603,7 +2604,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        {\r\n            \"name\": \"test-1\",\r\n            \"script\": \"test.sh\"\r\n        },\r\n        {\r\n            \"name\": \"test-2\",\r\n            \"script\": \"test_e2e.sh\"\r\n        }\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -2661,7 +2662,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        {\r\n            \"name\": \"test-1\",\r\n            \"script\": \"test.sh\"\r\n        },\r\n        {\r\n            \"name\": \"test-2\",\r\n            \"script\": \"test_e2e.sh\"\r\n        }\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -2719,7 +2720,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        \"test-1\",\r\n        \"test-2\"\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
+                      "raw": "{\r\n    \"tests\":\r\n    [\r\n        {\r\n            \"name\": \"test-1\",\r\n            \"script\": \"test.sh\"\r\n        },\r\n        {\r\n            \"name\": \"test-2\",\r\n            \"script\": \"test_e2e.sh\"\r\n        }\r\n    ],\r\n    \"nfPrList\":\r\n    [\r\n        {\r\n            \"nfName\": \"amf\",\r\n            \"pr\": 100\r\n        },\r\n        {\r\n            \"nfName\": \"smf\",\r\n            \"pr\": 200\r\n        }\r\n    ]\r\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -5003,7 +5004,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"testName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+              "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"testName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
             },
             "url": {
               "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5037,7 +5038,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5159,7 +5160,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5216,7 +5217,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",
@@ -5273,7 +5274,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"status\": \"success\",\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
+                  "raw": "{\r\n    \"endFlag\": false,\r\n    \"id\": 20,\r\n    \"TestName\": \"TestRegistration\",\r\n    \"success\": true,\r\n    \"log\": \"this is the log of TestRegistration\"\r\n}"
                 },
                 "url": {
                   "raw": "{{SHEMA}}{{BACKEND_URL}}/api/run/runner/test-output",

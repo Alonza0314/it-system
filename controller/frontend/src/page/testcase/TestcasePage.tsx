@@ -8,8 +8,12 @@ import styles from './testcase-page.module.css'
 
 interface FormState {
   name: string
+  script: string
   link: string
+  label: string
 }
+
+const emptyFormState: FormState = { name: '', script: '', link: '', label: '' }
 
 export default function TestcasePage() {
   const { testcases, isLoading, hasLoaded, refreshTestcases, addTestcase, deleteTestcase } = useTestcaseContext()
@@ -17,7 +21,7 @@ export default function TestcasePage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [formState, setFormState] = useState<FormState>({ name: '', link: '' })
+  const [formState, setFormState] = useState<FormState>(emptyFormState)
   const [targetDeleteName, setTargetDeleteName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -29,8 +33,21 @@ export default function TestcasePage() {
   }, [refreshTestcases, addError])
 
   const nameValue = formState.name.trim()
+  const scriptValue = formState.script.trim()
   const linkValue = formState.link.trim()
+  const labelValue = formState.label.trim()
   const canAdd = nameValue.length > 0
+
+  const sortedTestcases = useMemo(() => {
+    return [...testcases].sort((a, b) => {
+      const labelCompare = (a.label || '').localeCompare(b.label || '')
+      if (labelCompare !== 0) {
+        return labelCompare
+      }
+
+      return (a.id ?? 0) - (b.id ?? 0)
+    })
+  }, [testcases])
 
   const rowCountLabel = useMemo(() => {
     if (isLoading && !hasLoaded) {
@@ -41,13 +58,13 @@ export default function TestcasePage() {
   }, [isLoading, hasLoaded, testcases.length])
 
   function openAddModal() {
-    setFormState({ name: '', link: '' })
+    setFormState(emptyFormState)
     setIsAddModalOpen(true)
   }
 
   function closeAddModal() {
     setIsAddModalOpen(false)
-    setFormState({ name: '', link: '' })
+    setFormState(emptyFormState)
   }
 
   function openDeleteModal(name: string) {
@@ -70,7 +87,9 @@ export default function TestcasePage() {
     try {
       const message = await addTestcase({
         name: nameValue,
+        script: scriptValue || undefined,
         link: linkValue || undefined,
+        label: labelValue || undefined,
       })
       addSuccess(message)
       closeAddModal()
@@ -120,22 +139,26 @@ export default function TestcasePage() {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Name</th>
+              <th>Script</th>
               <th>Link</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {testcases.length === 0 ? (
+            {sortedTestcases.length === 0 ? (
               <tr>
-                <td colSpan={3} className={styles.empty}>
+                <td colSpan={5} className={styles.empty}>
                   {isLoading ? 'Loading testcases...' : 'No testcases yet'}
                 </td>
               </tr>
             ) : (
-              testcases.map((testcase) => (
+              sortedTestcases.map((testcase) => (
                 <tr key={testcase.name}>
+                  <td>{testcase.id ?? <span className={styles.muted}>-</span>}</td>
                   <td>{testcase.name}</td>
+                  <td>{testcase.script || <span className={styles.muted}>-</span>}</td>
                   <td>
                     {testcase.link ? (
                       <a href={testcase.link} target="_blank" rel="noreferrer" className={styles.link}>
@@ -178,6 +201,16 @@ export default function TestcasePage() {
           />
         </div>
         <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="testcase-script">Testcase Script (optional)</label>
+          <input
+            id="testcase-script"
+            className={styles.input}
+            value={formState.script}
+            onChange={(event) => setFormState((prev) => ({ ...prev, script: event.target.value }))}
+            placeholder="e.g. test.sh"
+          />
+        </div>
+        <div className={styles.formGroup}>
           <label className={styles.label} htmlFor="testcase-link">Testcase Link (optional)</label>
           <input
             id="testcase-link"
@@ -185,6 +218,16 @@ export default function TestcasePage() {
             value={formState.link}
             onChange={(event) => setFormState((prev) => ({ ...prev, link: event.target.value }))}
             placeholder="https://example.com"
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.label} htmlFor="testcase-label">Testcase Label (optional)</label>
+          <input
+            id="testcase-label"
+            className={styles.input}
+            value={formState.label}
+            onChange={(event) => setFormState((prev) => ({ ...prev, label: event.target.value }))}
+            placeholder="e.g. it"
           />
         </div>
       </Modal>

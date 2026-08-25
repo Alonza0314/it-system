@@ -105,7 +105,7 @@ func (ctx *ItContext) GetTask(id uint64) (*task, error) {
 	return ctx.taskContext.getTaskById(id)
 }
 
-func (ctx *ItContext) CreateTask(username string, createTime int64, tests []string, nfPrList []model.NfPr) error {
+func (ctx *ItContext) CreateTask(username string, createTime int64, tests []model.Test, nfPrList []model.NfPr) error {
 	return ctx.taskContext.createTask(username, createTime, convertTestsToPipelines(tests), convertNfPrListToNfPr(nfPrList))
 }
 
@@ -182,7 +182,7 @@ func convertTaskToResponseTask(tasks []task) []model.TaskSimple {
 	return simpleTasks
 }
 
-func convertTestsToPipelines(tests []string) []pipeline {
+func convertTestsToPipelines(tests []model.Test) []pipeline {
 	pipelines := make([]pipeline, len(tests))
 	pipelines = append(pipelines, []pipeline{
 		{
@@ -201,7 +201,8 @@ func convertTestsToPipelines(tests []string) []pipeline {
 
 	for i, test := range tests {
 		pipelines[i] = pipeline{
-			name:   test,
+			name:   test.Name,
+			script: test.Script,
 			status: constant.TASK_STATUS_PENDING,
 		}
 	}

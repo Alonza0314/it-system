@@ -102,7 +102,9 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		return
 	}
 
-	if !s.handleFetchNfPr(task.Id, task.NFPrList, repoDir) {
+	f5gcDir := filepath.Join(repoDir, constant.FREE5GC_REPO)
+
+	if !s.handleFetchNfPr(task.Id, task.NFPrList, f5gcDir) {
 		return
 	}
 
@@ -110,22 +112,22 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		return
 	}
 
-	retryTests := make([]string, 0)
+	retryTests := make([]model.Test, 0)
 	for _, test := range task.Tests {
-		if test == cconstant.TESTCASE_PREPARE_FREE5GC || test == cconstant.TESTCASE_FETCH_PRS || test == cconstant.TESTCASE_MAKE_NF || test == cconstant.TESTCASE_CLEANUP || test == cconstant.FREE5GC {
+		if test.Name == cconstant.TESTCASE_PREPARE_FREE5GC || test.Name == cconstant.TESTCASE_FETCH_PRS || test.Name == cconstant.TESTCASE_MAKE_NF || test.Name == cconstant.TESTCASE_CLEANUP || test.Name == cconstant.FREE5GC {
 			continue
 		}
 
 		s.TaskLog.Infof("Running test: %s for task ID: %d", test, task.Id)
 
-		status := s.handleRunTest(task.Id, test, repoDir)
+		status := s.handleRunTest(task.Id, test.Name, test.Script, repoDir)
 		switch status {
 		case cconstant.TASK_STATUS_FAILED:
 			s.TaskLog.Warnf("Test: %s failed with status: %s for task ID: %d", test, status, task.Id)
 			retryTests = append(retryTests, test)
 		case cconstant.TASK_STATUS_TIMEOUT:
 			s.TaskLog.Warnf("Test: %s timed out for task ID: %d", test, task.Id)
-			if !s.handleSilentCleanup(task.Id, test, repoDir) {
+			if !s.handleSilentCleanup(task.Id, test.Name, repoDir) {
 				return
 			}
 			retryTests = append(retryTests, test)
@@ -137,9 +139,9 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	for _, test := range retryTests {
 		s.TaskLog.Infof("Retrying test once: %s for task ID: %d", test, task.Id)
 
-		status := s.handleRunTest(task.Id, test, repoDir)
+		status := s.handleRunTest(task.Id, test.Name, test.Script, repoDir)
 		if status == cconstant.TASK_STATUS_TIMEOUT {
-			if !s.handleSilentCleanup(task.Id, test, repoDir) {
+			if !s.handleSilentCleanup(task.Id, test.Name, repoDir) {
 				return
 			}
 		}
@@ -217,6 +219,7 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 	}
 	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", id)
 
+	f5gcDir := filepath.Join(repoDir, constant.FREE5GC_REPO)
 	if fetchFree5gcPr {
 		s.TaskLog.Infof("Fetching free5GC PR for task ID: %d", id)
 
@@ -239,7 +242,7 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 
 		if fetchOutput, err := s.runCmd(
 			ctx,
-			repoDir,
+			f5gcDir,
 			"git",
 			"fetch",
 			"origin",
@@ -261,7 +264,7 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 
 		if checkoutOutput, err := s.runCmd(
 			ctx,
-			repoDir,
+			f5gcDir,
 			"git",
 			"checkout",
 			fmt.Sprintf("pr-%d", prNum),
@@ -288,8 +291,8 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 	return true
 }
 
-func (s *taskServer) handleFetchNfPr(id uint64, nfPrs []model.NfPr, repoDir string) bool {
-	output, err := s.fetchNfPr(nfPrs, repoDir)
+func (s *taskServer) handleFetchNfPr(id uint64, nfPrs []model.NfPr, f5gcDir string) bool {
+	output, err := s.fetchNfPr(nfPrs, f5gcDir)
 	if err != nil {
 		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", id, err)
 
@@ -318,8 +321,8 @@ func (s *taskServer) handleMakeNf(id uint64, repoDir string) bool {
 	return true
 }
 
-func (s *taskServer) handleRunTest(id uint64, testName, repoDir string) string {
-	output, err := s.runTest(testName, repoDir)
+func (s *taskServer) handleRunTest(id uint64, testName, testScript, repoDir string) string {
+	output, err := s.runTest(testName, testScript, repoDir)
 	if err != nil {
 		s.TaskLog.Errorf("Failed to run test: %s for task ID: %d, error: %v", testName, id, err)
 
@@ -349,21 +352,31 @@ func (s *taskServer) handleRunTest(id uint64, testName, repoDir string) string {
 }
 
 func (s *taskServer) handleCleanup(id uint64, repoDir string) bool {
-	output, err := s.forceKill(repoDir)
+	output1, err := s.forceKill(repoDir)
 	if err != nil {
 		s.TaskLog.Errorf("Failed to cleanup after tests for task ID: %d, error: %v", id, err)
-		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
+		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output1)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output1))
+
+		return false
+	}
+
+	output2, err := s.cleanImages(repoDir)
+	if err != nil {
+		s.TaskLog.Errorf("Failed to clean docker images for task ID: %d, err: %v", id, err)
+		s.TaskLog.Tracef("output of clean image for task ID: %d: %s", id, output2)
+
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output1+output2))
 
 		return false
 	}
 	s.removeWorkspace()
 
 	s.TaskLog.Infof("Cleanup completed successfully for task ID: %d", id)
-	s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
+	s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output1+output2)
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_CLEANUP, true, cconstant.TASK_STATUS_SUCCESS, output))
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_CLEANUP, true, cconstant.TASK_STATUS_SUCCESS, output1+output2))
 
 	return true
 }
@@ -405,29 +418,40 @@ func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp st
 		return "", err
 	}
 
-	output, err := s.runCmd(
+	output1, err := s.runCmd(
 		ctx,
 		s.workspacePath,
+		"git",
+		"clone",
+		constant.CI_TEST_REPO_URL,
+		currentTimeStamp,
+	)
+	if err != nil {
+		return output1, err
+	}
+
+	output2, err := s.runCmd(
+		ctx,
+		repoDir,
 		"git",
 		"clone",
 		"--recursive",
 		"--jobs",
 		strconv.Itoa(runtime.NumCPU()),
 		constant.FREE5GC_REPO_URL,
-		currentTimeStamp,
 	)
 	if err != nil {
-		return output, err
+		return output1 + "\n" + output2, err
 	}
 
 	if _, err := os.Stat(repoDir); err != nil {
-		return output, err
+		return output1 + "\n" + output2, err
 	}
 
-	return output, nil
+	return output1 + "\n" + output2, nil
 }
 
-func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) (string, error) {
+func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, f5gcDir string) (string, error) {
 	var output string
 
 	for _, nfPr := range nfPrs {
@@ -440,7 +464,7 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) (string, erro
 		ctx, cancel := context.WithTimeout(context.Background(), constant.FETCH_CMD_TIMEOUT)
 		defer cancel()
 
-		nfDir := filepath.Join(repoDir, "NFs", nfPr.NfName)
+		nfDir := filepath.Join(f5gcDir, "NFs", nfPr.NfName)
 		if fetchOutput, err := s.runCmd(
 			ctx,
 			nfDir,
@@ -474,7 +498,7 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, repoDir string) (string, erro
 	}
 
 	if s.shouldTidyTestModule(nfPrs) {
-		tidyOutput, err := s.tidyTestModule(repoDir)
+		tidyOutput, err := s.tidyTestModule(f5gcDir)
 		output += "Running go mod tidy in test module\n" + tidyOutput
 		if err != nil {
 			return output, err
@@ -494,13 +518,13 @@ func (s *taskServer) shouldTidyTestModule(nfPrs []model.NfPr) bool {
 	return false
 }
 
-func (s *taskServer) tidyTestModule(repoDir string) (string, error) {
+func (s *taskServer) tidyTestModule(f5gcDir string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
 	defer cancel()
 
 	output, err := s.runCmd(
 		ctx,
-		filepath.Join(repoDir, "test"),
+		filepath.Join(f5gcDir, "test"),
 		"go",
 		"mod",
 		"tidy",
@@ -534,15 +558,17 @@ func (s *taskServer) makeNf(repoDir string) (string, error) {
 	return output, nil
 }
 
-func (s *taskServer) runTest(testName, repoDir string) (string, error) {
+func (s *taskServer) runTest(testName, testScript, repoDir string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
 	defer cancel()
 
 	output, err := s.runCmd(
 		ctx,
 		repoDir,
-		"./test.sh",
+		"./"+testScript,
+		"--test",
 		testName,
+		"--build",
 	)
 	if err != nil {
 		if ctx.Err() != nil {
@@ -568,6 +594,30 @@ func (s *taskServer) forceKill(repoDir string) (string, error) {
 			return output, fmt.Errorf("cleanup timed out, error: %v", ctx.Err())
 		}
 		return output, fmt.Errorf("failed to cleanup: %v", err)
+	}
+
+	return output, nil
+}
+
+func (s *taskServer) cleanImages(repoDir string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), constant.CLEANUP_CMD_TIMEOUT)
+	defer cancel()
+
+	output, err := s.runCmd(
+		ctx,
+		repoDir,
+		"docker",
+		"system",
+		"prune",
+		"-a",
+		"-f",
+		"--volumes",
+	)
+	if err != nil {
+		if ctx.Err() != nil {
+			return output, fmt.Errorf("clean images timed out, error: %v", ctx.Err())
+		}
+		return output, fmt.Errorf("failed to clean images: %v", err)
 	}
 
 	return output, nil

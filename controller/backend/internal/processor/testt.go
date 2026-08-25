@@ -1,8 +1,10 @@
 package processor
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
@@ -22,11 +24,16 @@ func (p *Processor) GetTestcases() (*model.ResponseGetTestcases, *model.ErrorDet
 	p.ProcLog.Tracef("Testcases details: %+v", testcaseMap)
 
 	testcases := make([]model.Testcase, 0, len(testcaseMap))
-	for name, link := range testcaseMap {
-		testcases = append(testcases, model.Testcase{
-			Name: name,
-			Link: link,
-		})
+	for name, tcBytes := range testcaseMap {
+		var testcase model.Testcase
+		if err := json.Unmarshal([]byte(tcBytes), &testcase); err != nil {
+			p.ProcLog.Errorf("Failed to unmarshal testcase %s: %v", name, err)
+			return nil, &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to unmarshal testcase %s: %v", name, err),
+			}
+		}
+		testcases = append(testcases, testcase)
 	}
 
 	response := &model.ResponseGetTestcases{
@@ -58,7 +65,63 @@ func (p *Processor) AddTestcases(req *model.RequestAddTestcases) (*model.Respons
 	p.ProcLog.Tracef("Testcases to add details: %+v", req.Testcases)
 
 	for _, testcase := range req.Testcases {
-		if err := p.itContext.SaveToDb(constant.BUCKET_TESTCASE, testcase.Name, testcase.Link); err != nil {
+		currentId := 1
+		exists, err := p.itContext.ExistsInDb(constant.BUCKET_LABEL, testcase.Label)
+		if err != nil {
+			p.ProcLog.Errorf("Failed to check if label %s exists in database: %v", testcase.Label, err)
+			return nil, &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to check if label %s exists in database: %v", testcase.Label, err),
+			}
+		}
+		if exists {
+			latestIdString, err := p.itContext.LoadFromDb(constant.BUCKET_LABEL, testcase.Label)
+			if err != nil {
+				p.ProcLog.Errorf("Failed to load latest ID for label %s from database: %v", testcase.Label, err)
+				return nil, &model.ErrorDetail{
+					HttpStatus: http.StatusInternalServerError,
+					Detail:     fmt.Sprintf("Failed to load latest ID for label %s from database: %v", testcase.Label, err),
+				}
+			}
+			latestId, err := strconv.Atoi(latestIdString)
+			if err != nil {
+				p.ProcLog.Errorf("Failed to convert latest ID for label %s to integer: %v", testcase.Label, err)
+				return nil, &model.ErrorDetail{
+					HttpStatus: http.StatusInternalServerError,
+					Detail:     fmt.Sprintf("Failed to convert latest ID for label %s to integer: %v", testcase.Label, err),
+				}
+			}
+			currentId = latestId + 1
+
+			if err := p.itContext.SaveToDb(constant.BUCKET_LABEL, testcase.Label, strconv.Itoa(currentId)); err != nil {
+				p.ProcLog.Errorf("Failed to update latest ID for label %s in database: %v", testcase.Label, err)
+				return nil, &model.ErrorDetail{
+					HttpStatus: http.StatusInternalServerError,
+					Detail:     fmt.Sprintf("Failed to update latest ID for label %s in database: %v", testcase.Label, err),
+				}
+			}
+		} else {
+			if err := p.itContext.SaveToDb(constant.BUCKET_LABEL, testcase.Label, strconv.Itoa(currentId)); err != nil {
+				p.ProcLog.Errorf("Failed to save new label %s with ID %d in database: %v", testcase.Label, currentId, err)
+				return nil, &model.ErrorDetail{
+					HttpStatus: http.StatusInternalServerError,
+					Detail:     fmt.Sprintf("Failed to save new label %s with ID %d in database: %v", testcase.Label, currentId, err),
+				}
+			}
+		}
+
+		testcase.Id = currentId
+
+		tcBytes, err := json.Marshal(testcase)
+		if err != nil {
+			p.ProcLog.Errorf("Failed to marshal testcase %s: %v", testcase.Name, err)
+			return nil, &model.ErrorDetail{
+				HttpStatus: http.StatusInternalServerError,
+				Detail:     fmt.Sprintf("Failed to marshal testcase %s: %v", testcase.Name, err),
+			}
+		}
+
+		if err := p.itContext.SaveToDb(constant.BUCKET_TESTCASE, testcase.Name, string(tcBytes)); err != nil {
 			p.ProcLog.Errorf("Failed to save testcase %s to database: %v", testcase.Name, err)
 			return nil, &model.ErrorDetail{
 				HttpStatus: http.StatusInternalServerError,

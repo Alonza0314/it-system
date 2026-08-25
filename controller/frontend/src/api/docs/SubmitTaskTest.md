@@ -1,21 +1,21 @@
-# RequestSubmitTask
+# SubmitTaskTest
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**tests** | [**Array&lt;SubmitTaskTest&gt;**](SubmitTaskTest.md) |  | [default to undefined]
-**nfPrList** | [**Array&lt;NfPr&gt;**](NfPr.md) |  | [default to undefined]
+**name** | **string** |  | [default to undefined]
+**script** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { RequestSubmitTask } from './api';
+import { SubmitTaskTest } from './api';
 
-const instance: RequestSubmitTask = {
-    tests,
-    nfPrList,
+const instance: SubmitTaskTest = {
+    name,
+    script,
 };
 ```
 

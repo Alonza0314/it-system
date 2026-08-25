@@ -29,6 +29,7 @@ docs/ResponseGetTestLog.md
 docs/ResponseRegisterRunner.md
 docs/ResponseRunnerHeartbeat.md
 docs/Runner.md
+docs/SubmitTaskTest.md
 docs/TaskSimple.md
 docs/Tenant.md
 docs/TestDetail.md

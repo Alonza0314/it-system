@@ -12,6 +12,7 @@ import (
 	"github.com/Alonza0314/it-system/controller/backend/config"
 	"github.com/Alonza0314/it-system/controller/backend/internal/processor"
 	"github.com/Alonza0314/it-system/controller/backend/logger"
+	loggergo "github.com/Alonza0314/logger-go/v2"
 
 	"github.com/free-ran-ue/util"
 	"github.com/gin-gonic/gin"
@@ -68,6 +69,8 @@ func NewBackend(config *config.Config, discordWebhookURL string, logger *logger.
 
 		BackendLogger: logger,
 	}
+
+	gin.DefaultWriter, gin.DefaultErrorWriter = loggergo.NewGinWriter(logger.GinLog), loggergo.NewGinWriter(logger.GinLog)
 
 	b.router = util.NewGinRouter("", nil)
 	b.router.NoRoute(b.returnPages())
