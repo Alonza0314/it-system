@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
+	"github.com/Alonza0314/it-system/controller/backend/internal/logbrief"
 	"github.com/Alonza0314/it-system/controller/backend/model"
 )
 
@@ -273,5 +274,6 @@ func (p *Processor) GetTestLog(id uint64, testName string) (*model.ResponseGetTe
 	return &model.ResponseGetTestLog{
 		Message: "Test log retrieved successfully",
 		Log:     log,
+		Brief:   logbrief.Summarize(log),
 	}, nil
 }

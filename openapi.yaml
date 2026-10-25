@@ -943,6 +943,50 @@ components:
         log:
           type: string
           example: test log content
+        brief:
+          type: array
+          description: Key messages picked out of the log, with the line where each first appears
+          items:
+            $ref: '#/components/schemas/LogBriefEntry'
+    LogBriefEntry:
+      type: object
+      required:
+        - category
+        - message
+        - line
+        - count
+      properties:
+        category:
+          type: string
+          enum:
+            - test
+            - error
+            - event
+          example: event
+        message:
+          type: string
+          example: "[NRF][NFM] NF suspended, no heart-beat received"
+        line:
+          type: integer
+          description: 1-based line of the first occurrence in the log
+          example: 1158
+        count:
+          type: integer
+          example: 11
+        source:
+          type: string
+          description: Container that printed the line, for lines from the compose log
+          example: nrf
+        time:
+          type: string
+          description: Timestamp of the first occurrence, for lines printed by an NF
+          example: "2026-10-25T06:27:39.512046137Z"
+        items:
+          type: array
+          description: Values that differ between merged lines
+          items:
+            type: string
+          example: [CHF, NEF, AUSF]
     SubmitTaskTest:
       type: object
       required:

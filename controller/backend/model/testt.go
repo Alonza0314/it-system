@@ -85,6 +85,23 @@ type ResponseDeleteTasksHistory struct {
 }
 
 type ResponseGetTestLog struct {
-	Message string `json:"message" binding:"required"`
-	Log     string `json:"log,omitempty"`
+	Message string          `json:"message" binding:"required"`
+	Log     string          `json:"log,omitempty"`
+	Brief   []LogBriefEntry `json:"brief,omitempty"`
+}
+
+// LogBriefEntry is one key message picked out of a test log
+type LogBriefEntry struct {
+	// test: test results and assertions, error: errors, event: key NF events
+	Category string `json:"category" binding:"required"`
+	Message  string `json:"message" binding:"required"`
+	// 1-based line of the first occurrence in the log
+	Line  int `json:"line" binding:"required"`
+	Count int `json:"count" binding:"required"`
+	// Container that printed the line, e.g. nrf, for lines from the compose log
+	Source string `json:"source,omitempty"`
+	// Timestamp of the first occurrence, for lines printed by an NF
+	Time string `json:"time,omitempty"`
+	// Values that differ between merged lines, e.g. the NFs that were suspended
+	Items []string `json:"items,omitempty"`
 }

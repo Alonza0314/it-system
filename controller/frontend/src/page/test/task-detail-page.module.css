@@ -260,6 +260,36 @@
   font-size: 1.04rem;
 }
 
+.logTabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0.2rem;
+  background: var(--surface);
+}
+
+.logTab {
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.logTabActive {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.logLineHighlight {
+  background: #fff3c4;
+  outline: 1px solid #f0c94a;
+}
+
 .logContentWrap {
   flex: 1;
   min-height: 0;
