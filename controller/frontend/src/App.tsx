@@ -9,6 +9,7 @@ import TenantPage from './page/tenant/TenantPage'
 import TestPage from './page/test/TestPage'
 import TaskDetailPage from './page/test/TaskDetailPage'
 import RunnerPage from './page/runner/RunnerPage'
+import HistoryPage from './page/history/HistoryPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="runner" element={<RunnerPage />} />
             <Route path="test" element={<TestPage />} />
             <Route path="test/task/:id" element={<TaskDetailPage />} />
+            <Route path="history" element={<HistoryPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

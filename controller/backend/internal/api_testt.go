@@ -25,6 +25,12 @@ func (b *backend) getTestRoutes() util.Routes {
 			HandlerFunc: b.handleGetTasks,
 		},
 		{
+			Name:        "Get tasks detail",
+			Method:      http.MethodGet,
+			Pattern:     "/tasks/detail",
+			HandlerFunc: b.handleGetTasksDetail,
+		},
+		{
 			Name:        "Get task",
 			Method:      http.MethodGet,
 			Pattern:     "/task",
@@ -152,6 +158,22 @@ func (b *backend) handleGetTasks(c *gin.Context) {
 	}
 
 	b.TestLog.Infof("Get tasks successful for %s", c.ClientIP())
+	c.JSON(http.StatusOK, response)
+}
+
+func (b *backend) handleGetTasksDetail(c *gin.Context) {
+	b.TestLog.Infof("Get tasks detail request from %s, user: %s", c.ClientIP(), c.GetHeader("user"))
+
+	response, errDetail := b.Processor.GetTasksDetail()
+	if errDetail != nil {
+		b.TestLog.Errorf("Get tasks detail failed for %s: %s", c.ClientIP(), errDetail.Detail)
+		c.JSON(errDetail.HttpStatus, model.ResponseGetTasksDetail{
+			Message: errDetail.Detail,
+		})
+		return
+	}
+
+	b.TestLog.Infof("Get tasks detail successful for %s", c.ClientIP())
 	c.JSON(http.StatusOK, response)
 }
 

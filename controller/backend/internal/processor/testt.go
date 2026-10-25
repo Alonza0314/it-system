@@ -185,6 +185,18 @@ func (p *Processor) GetTasks() (*model.ResponseGetTasks, *model.ErrorDetail) {
 	}, nil
 }
 
+func (p *Processor) GetTasksDetail() (*model.ResponseGetTasksDetail, *model.ErrorDetail) {
+	pendingTasks, ongoingTasks, historyTasks := p.itContext.GetPendingTaskDetails(), p.itContext.GetOngoingTaskDetails(), p.itContext.GetHistoryTaskDetails()
+	p.ProcLog.Debugf("Retrieved details of %d pending tasks, %d ongoing tasks, and %d history tasks", len(pendingTasks), len(ongoingTasks), len(historyTasks))
+
+	return &model.ResponseGetTasksDetail{
+		Message:     "Tasks retrieved successfully",
+		PendingTask: pendingTasks,
+		OngoingTask: ongoingTasks,
+		HistoryTask: historyTasks,
+	}, nil
+}
+
 func (p *Processor) GetTask(id uint64) (*model.ResponseGetTask, *model.ErrorDetail) {
 	task, err := p.itContext.GetTask(id)
 	if err != nil {

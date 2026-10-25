@@ -15,6 +15,7 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**getRunners**](#getrunners) | **GET** /api/runner | Get runners|
 |[**getTask**](#gettask) | **GET** /api/test/task | Get task|
 |[**getTasks**](#gettasks) | **GET** /api/test/tasks | Get tasks|
+|[**getTasksDetail**](#gettasksdetail) | **GET** /api/test/tasks/detail | Get pending, ongoing and history tasks with their tests and NF PRs|
 |[**getTenants**](#gettenants) | **GET** /api/admin/tenant | Get tenants|
 |[**getTestLog**](#gettestlog) | **GET** /api/test/testlog | Get test log|
 |[**getTestcases**](#gettestcases) | **GET** /api/test/testcase | Get testcases|
@@ -575,6 +576,50 @@ This endpoint does not have any parameters.
 ### Return type
 
 **ResponseGetTasks**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**401** | Unauthorized |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getTasksDetail**
+> ResponseGetTasksDetail getTasksDetail()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getTasksDetail();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**ResponseGetTasksDetail**
 
 ### Authorization
 

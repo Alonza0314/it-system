@@ -1,5 +1,6 @@
 .gitignore
 .npmignore
+.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -25,11 +26,13 @@ docs/RequestSubmitTask.md
 docs/RequestTestOutput.md
 docs/ResponseGetTask.md
 docs/ResponseGetTasks.md
+docs/ResponseGetTasksDetail.md
 docs/ResponseGetTestLog.md
 docs/ResponseRegisterRunner.md
 docs/ResponseRunnerHeartbeat.md
 docs/Runner.md
 docs/SubmitTaskTest.md
+docs/TaskDetail.md
 docs/TaskSimple.md
 docs/Tenant.md
 docs/TestDetail.md
