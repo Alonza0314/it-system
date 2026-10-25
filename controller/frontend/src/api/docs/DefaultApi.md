@@ -22,6 +22,7 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**login**](#login) | **POST** /api/login | Login|
 |[**logout**](#logout) | **POST** /api/logout | Logout|
 |[**registerRunner**](#registerrunner) | **POST** /api/admin/runner | Register runner|
+|[**rerunTask**](#reruntask) | **POST** /api/test/task/rerun | Submit a new task with the testcases and NF PRs of an existing task|
 |[**runnerHeartbeat**](#runnerheartbeat) | **POST** /api/run/runner/heartbeat | Runner heartbeat|
 |[**submitTask**](#submittask) | **POST** /api/test/task | Submit task|
 |[**testOutput**](#testoutput) | **POST** /api/run/runner/test-output | Test output|
@@ -934,6 +935,60 @@ const { status, data } = await apiInstance.registerRunner(
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
 |**409** | Conflict |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **rerunTask**
+> MessageResponse rerunTask()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let id: number; //ID of the task to run again (default to undefined)
+
+const { status, data } = await apiInstance.rerunTask(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**number**] | ID of the task to run again | defaults to undefined|
+
+
+### Return type
+
+**MessageResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**400** | Bad Request |  -  |
+|**401** | Unauthorized |  -  |
+|**404** | Not Found |  -  |
 |**500** | Internal Server Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -6,14 +6,13 @@ import {
   type TaskDetail,
 } from '../../api'
 import { getCurrentUsername, getUserHeader } from '../../utils/auth'
+import { isPipelineStep } from '../../utils/task'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
+import RerunTaskModal from '../../components/test/RerunTaskModal'
 import { useNotifications } from '../../hooks/useNotifications'
 import styles from './history-page.module.css'
 
 const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
-
-// Pipeline steps the runner adds around the selected testcases
-const PIPELINE_STEPS = ['prepare_free5gc', 'fetch_prs', 'make_nf', 'cleanup']
 
 const STATUS_OPTIONS = ['running', 'pending', 'success', 'failed', 'timeout']
 
@@ -31,7 +30,7 @@ function getStatusClassName(status: string) {
 
 function summarizeTests(task: TaskDetail) {
   const tests = task.tests || []
-  const testcases = tests.filter((test) => !PIPELINE_STEPS.includes(test.name))
+  const testcases = tests.filter((test) => !isPipelineStep(test.name))
 
   return {
     passed: testcases.filter((test) => test.status === 'success').length,
@@ -51,7 +50,7 @@ function orderedSteps(task: TaskDetail) {
     ...byName('prepare_free5gc'),
     ...byName('fetch_prs'),
     ...byName('make_nf'),
-    ...tests.filter((test) => !PIPELINE_STEPS.includes(test.name)),
+    ...tests.filter((test) => !isPipelineStep(test.name)),
     ...byName('cleanup'),
   ]
 }
@@ -91,9 +90,10 @@ function matchesSearch(task: TaskDetail, query: string) {
 
 export default function HistoryPage() {
   const navigate = useNavigate()
-  const { errors, successes, addError, removeNotification } = useNotifications()
+  const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
 
   const [tasks, setTasks] = useState<TaskDetail[]>([])
+  const [rerunTarget, setRerunTarget] = useState<TaskDetail | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [userFilter, setUserFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -291,6 +291,15 @@ export default function HistoryPage() {
                           >
                             View
                           </button>
+                          {!isActive && (
+                            <button
+                              type="button"
+                              className={styles.actionButton}
+                              onClick={() => setRerunTarget(task)}
+                            >
+                              Re-run
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -301,6 +310,13 @@ export default function HistoryPage() {
           </div>
         )}
       </article>
+
+      <RerunTaskModal
+        task={rerunTarget}
+        onClose={() => setRerunTarget(null)}
+        onSuccess={addSuccess}
+        onError={addError}
+      />
     </section>
   )
 }

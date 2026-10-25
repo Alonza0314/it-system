@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
@@ -244,6 +245,71 @@ func (p *Processor) SubmitTask(req *model.RequestSubmitTask, username string) (*
 
 	return &model.ResponseSubmitTask{
 		Message: "Task submitted successfully",
+	}, nil
+}
+
+// RerunTask submits a new task, owned by username, with the testcases and
+// NF PRs of task id. Scripts come from the current testcases instead of the
+// original task: the runner always tests the latest ci-test, and history
+// tasks loaded from the database do not keep their scripts.
+func (p *Processor) RerunTask(id uint64, username string) (*model.ResponseRerunTask, *model.ErrorDetail) {
+	task, err := p.itContext.GetTask(id)
+	if err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusNotFound,
+			Detail:     fmt.Sprintf("Task with ID %d not found", id),
+		}
+	}
+
+	testcases, errDetail := p.GetTestcases()
+	if errDetail != nil {
+		return nil, errDetail
+	}
+	scripts := make(map[string]string, len(testcases.Testcases))
+	for _, testcase := range testcases.Testcases {
+		scripts[testcase.Name] = testcase.Script
+	}
+
+	req := &model.RequestSubmitTask{}
+	missing := make([]string, 0)
+	for _, pipeline := range task.Pipelines() {
+		switch pipeline.Name() {
+		case constant.TESTCASE_PREPARE_FREE5GC, constant.TESTCASE_FETCH_PRS, constant.TESTCASE_MAKE_NF, constant.TESTCASE_CLEANUP:
+			continue
+		}
+		script := scripts[pipeline.Name()]
+		if script == "" {
+			missing = append(missing, pipeline.Name())
+			continue
+		}
+		req.Tests = append(req.Tests, model.Test{Name: pipeline.Name(), Script: script})
+	}
+	if len(missing) > 0 {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusBadRequest,
+			Detail:     fmt.Sprintf("Testcases not found or without script: %s", strings.Join(missing, ", ")),
+		}
+	}
+	if len(req.Tests) == 0 {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusBadRequest,
+			Detail:     fmt.Sprintf("Task with ID %d has no testcase to re-run", id),
+		}
+	}
+
+	for _, nfPr := range task.NFPrList() {
+		req.NFPrList = append(req.NFPrList, model.NfPr{
+			NfName: nfPr.NFName(),
+			PR:     nfPr.PR(),
+		})
+	}
+
+	if _, errDetail := p.SubmitTask(req, username); errDetail != nil {
+		return nil, errDetail
+	}
+
+	return &model.ResponseRerunTask{
+		Message: fmt.Sprintf("Task %d submitted again", id),
 	}, nil
 }
 

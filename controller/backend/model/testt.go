@@ -80,6 +80,10 @@ type ResponseCancelTask struct {
 	Message string `json:"message" binding:"required"`
 }
 
+type ResponseRerunTask struct {
+	Message string `json:"message" binding:"required"`
+}
+
 type ResponseDeleteTasksHistory struct {
 	Message string `json:"message" binding:"required"`
 }

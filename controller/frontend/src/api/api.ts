@@ -887,6 +887,47 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Submit a new task with the testcases and NF PRs of an existing task
+         * @param {number} id ID of the task to run again
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rerunTask: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('rerunTask', 'id', id)
+            const localVarPath = `/api/test/task/rerun`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (id !== undefined) {
+                localVarQueryParameter['id'] = id;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Runner heartbeat
          * @param {RequestRunnerHeartbeat} requestRunnerHeartbeat 
          * @param {*} [options] Override http request option.
@@ -1241,6 +1282,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Submit a new task with the testcases and NF PRs of an existing task
+         * @param {number} id ID of the task to run again
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async rerunTask(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MessageResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.rerunTask(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.rerunTask']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Runner heartbeat
          * @param {RequestRunnerHeartbeat} requestRunnerHeartbeat 
          * @param {*} [options] Override http request option.
@@ -1460,6 +1514,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         registerRunner(registerRunnerRequest: RegisterRunnerRequest, options?: RawAxiosRequestConfig): AxiosPromise<ResponseRegisterRunner> {
             return localVarFp.registerRunner(registerRunnerRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Submit a new task with the testcases and NF PRs of an existing task
+         * @param {number} id ID of the task to run again
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rerunTask(id: number, options?: RawAxiosRequestConfig): AxiosPromise<MessageResponse> {
+            return localVarFp.rerunTask(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1688,6 +1752,17 @@ export class DefaultApi extends BaseAPI {
      */
     public registerRunner(registerRunnerRequest: RegisterRunnerRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).registerRunner(registerRunnerRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Submit a new task with the testcases and NF PRs of an existing task
+     * @param {number} id ID of the task to run again
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public rerunTask(id: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).rerunTask(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
