@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **number** | **number** |  | [default to undefined]
 **title** | **string** |  | [default to undefined]
+**state** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,6 +17,7 @@ import { PR } from './api';
 const instance: PR = {
     number,
     title,
+    state,
 };
 ```
 

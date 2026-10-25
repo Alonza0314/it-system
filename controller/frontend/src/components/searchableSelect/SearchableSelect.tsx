@@ -4,6 +4,8 @@ import styles from './searchable-select.module.css'
 export interface SearchableOption {
   value: string
   label: string
+  // Shown but cannot be picked, e.g. "PR #1234 not found"
+  disabled?: boolean
 }
 
 interface SearchableSelectProps {
@@ -19,6 +21,7 @@ interface SearchableSelectProps {
   formatValue?: (value: string) => string
   // Extra option offered for a query, e.g. "Use PR #1234" for a PR not in the list
   customOption?: (query: string) => SearchableOption | null
+  onQueryChange?: (query: string) => void
 }
 
 export default function SearchableSelect({
@@ -32,6 +35,7 @@ export default function SearchableSelect({
   loading = false,
   formatValue = (item) => item,
   customOption,
+  onQueryChange,
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -46,9 +50,14 @@ export default function SearchableSelect({
       ? options.filter((option) => option.label.toLowerCase().includes(keyword))
       : options
     const custom = customOption?.(query.trim())
-    return custom && !options.some((option) => option.value === custom.value)
-      ? [...matches, custom]
-      : matches
+    if (!custom) {
+      return matches
+    }
+
+    // The query names one value exactly (e.g. PR #1), so put it first, using
+    // the listed option when there is one
+    const exact = options.find((option) => option.value === custom.value) ?? custom
+    return [exact, ...matches.filter((option) => option.value !== custom.value)]
   }, [options, query, customOption])
 
   const selectedLabel = value
@@ -87,6 +96,9 @@ export default function SearchableSelect({
   }
 
   function select(option: SearchableOption) {
+    if (option.disabled) {
+      return
+    }
     onChange(option.value)
     setIsOpen(false)
   }
@@ -136,6 +148,7 @@ export default function SearchableSelect({
             onChange={(event) => {
               setQuery(event.target.value)
               setHighlight(0)
+              onQueryChange?.(event.target.value.trim())
             }}
             onKeyDown={handleKeyDown}
           />
@@ -148,10 +161,12 @@ export default function SearchableSelect({
                 data-index={index}
                 role="option"
                 aria-selected={option.value === value}
+                aria-disabled={option.disabled}
                 className={[
                   styles.option,
                   index === highlight ? styles.highlighted : '',
                   option.value === value ? styles.selected : '',
+                  option.disabled ? styles.disabled : '',
                 ].join(' ')}
                 onMouseEnter={() => setHighlight(index)}
                 onClick={() => select(option)}

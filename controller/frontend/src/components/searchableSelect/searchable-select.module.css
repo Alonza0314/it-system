@@ -109,3 +109,12 @@
 .hint {
   color: var(--text-muted);
 }
+
+.disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.disabled.highlighted {
+  background: transparent;
+}

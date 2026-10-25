@@ -1,5 +1,6 @@
 .gitignore
 .npmignore
+.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
@@ -10,6 +11,7 @@ docs/DefaultApi.md
 docs/DeleteTenantsRequest.md
 docs/DeleteTenantsRequestTenantsInner.md
 docs/DeleteTestcasesRequest.md
+docs/GetGithubPRResponse.md
 docs/GetGithubPRsResponse.md
 docs/GetRunnersResponse.md
 docs/GetTenantsResponse.md

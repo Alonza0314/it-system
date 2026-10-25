@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Configuration,
   DefaultApi,
+  type GetGithubPRNfEnum,
   type GetGithubPRsNfEnum,
   type RequestSubmitTask,
   type ResponseGetTasks,
@@ -11,7 +12,7 @@ import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import Modal from '../../components/modal/modal'
 import { useNotifications } from '../../hooks/useNotifications'
-import NfPrRow, { type PrOption } from '../../components/test/NfPrRow'
+import NfPrRow, { type PrLookup, type PrOption } from '../../components/test/NfPrRow'
 import TaskCard from '../../components/test/TaskCard'
 import { useTestcaseContext } from '../../context/testcase-context'
 import styles from './test-page.module.css'
@@ -61,6 +62,7 @@ export default function TestPage() {
   const [prsByNf, setPrsByNf] = useState<Record<string, PrOption[]>>({})
   const [loadingByNf, setLoadingByNf] = useState<Record<string, boolean>>({})
   const [hasFetchedByNf, setHasFetchedByNf] = useState<Record<string, boolean>>({})
+  const [prLookupsByNf, setPrLookupsByNf] = useState<Record<string, Record<string, PrLookup>>>({})
   const [nfPrRows, setNfPrRows] = useState<NfPrRowState[]>([{ key: 0, nf: '', pr: '' }])
   const nextNfPrRowKey = useRef(1)
   const [selectedTestcases, setSelectedTestcases] = useState<string[]>([])
@@ -108,6 +110,7 @@ export default function TestPage() {
     setPrsByNf({})
     setLoadingByNf({})
     setHasFetchedByNf({})
+    setPrLookupsByNf({})
     setNfPrRows([createNfPrRow()])
     setSelectedTestcases([])
   }
@@ -216,6 +219,29 @@ export default function TestPage() {
       addError(message)
     } finally {
       setLoadingByNf((prev) => ({ ...prev, [apiName]: false }))
+    }
+  }
+
+  async function lookupPr(apiName: string, number: string) {
+    if (prLookupsByNf[apiName]?.[number]) {
+      return
+    }
+
+    const setLookup = (lookup: PrLookup) => setPrLookupsByNf((prev) => ({
+      ...prev,
+      [apiName]: { ...prev[apiName], [number]: lookup },
+    }))
+
+    setLookup({ status: 'loading' })
+    try {
+      const response = await api.getGithubPR(apiName as GetGithubPRNfEnum, Number(number), {
+        headers: getUserHeader(),
+      })
+      const pr = response.data.pr
+      setLookup(pr ? { status: 'found', title: pr.title, state: pr.state || 'open' } : { status: 'notFound' })
+    } catch (error: unknown) {
+      const status = (error as { response?: { status?: number } }).response?.status
+      setLookup(status === 404 ? { status: 'notFound' } : { status: 'error' })
     }
   }
 
@@ -459,6 +485,8 @@ export default function TestPage() {
                     prOptions={prsByNf[row.nf] || []}
                     pr={row.pr}
                     isLoadingPrs={Boolean(loadingByNf[row.nf])}
+                    prLookups={prLookupsByNf[row.nf] || {}}
+                    onLookupPr={(number) => lookupPr(row.nf, number)}
                     onSelectNf={(value) => updateRowNf(row.key, value)}
                     onSelectPr={(value) => updateRowPr(row.key, value)}
                     onRemove={() => removeNfPrRow(row.key)}
