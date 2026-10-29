@@ -497,6 +497,8 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, f5gcDir string) (string, erro
 		}
 	}
 
+	output += s.listCommits(f5gcDir, nfPrs)
+
 	if s.shouldTidyTestModule(nfPrs) {
 		tidyOutput, err := s.tidyTestModule(f5gcDir)
 		output += "Running go mod tidy in test module\n" + tidyOutput
@@ -506,6 +508,58 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, f5gcDir string) (string, erro
 	}
 
 	return output, nil
+}
+
+// listCommits reports the commit that ci-test, free5gc and every free5gc
+// submodule are checked out at, so the task log shows which NFs are built
+// from a PR and which from the default branch.
+func (s *taskServer) listCommits(f5gcDir string, nfPrs []model.NfPr) string {
+	ctx, cancel := context.WithTimeout(context.Background(), constant.FETCH_CMD_TIMEOUT)
+	defer cancel()
+
+	prs := make(map[string]int, len(nfPrs))
+	for _, nfPr := range nfPrs {
+		prs[nfPr.NfName] = nfPr.PR
+	}
+
+	b := strings.Builder{}
+	b.WriteString("Commits under test:\n")
+
+	writeLine := func(path, commit string) {
+		fmt.Fprintf(&b, "%-12s %s", path, commit)
+		if pr, ok := prs[filepath.Base(path)]; ok {
+			fmt.Fprintf(&b, " (PR #%d)", pr)
+		}
+		b.WriteString("\n")
+	}
+
+	for _, repo := range []struct{ path, dir string }{
+		{constant.CI_TEST_REPO, filepath.Dir(f5gcDir)},
+		{constant.FREE5GC_REPO, f5gcDir},
+	} {
+		commit, err := s.runCmd(ctx, repo.dir, "git", "log", "-1", "--oneline")
+		if err != nil {
+			s.TaskLog.Warnf("Failed to read commit of %s: %v", repo.path, err)
+			writeLine(repo.path, "unknown")
+			continue
+		}
+		writeLine(repo.path, strings.TrimSpace(commit))
+	}
+
+	submodules, err := s.runCmd(ctx, f5gcDir, "git", "submodule", "foreach", "--quiet", `echo "$sm_path $(git log -1 --oneline)"`)
+	if err != nil {
+		s.TaskLog.Warnf("Failed to read commits of free5gc submodules: %v", err)
+		return b.String() + submodules + "\n"
+	}
+	for line := range strings.SplitSeq(strings.TrimSpace(submodules), "\n") {
+		if line == "" {
+			continue
+		}
+		path, commit, _ := strings.Cut(line, " ")
+		writeLine(path, commit)
+	}
+
+	return b.String()
 }
 
 func (s *taskServer) shouldTidyTestModule(nfPrs []model.NfPr) bool {
