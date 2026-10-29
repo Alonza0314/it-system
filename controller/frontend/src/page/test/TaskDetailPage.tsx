@@ -4,10 +4,12 @@ import {
   Configuration,
   DefaultApi,
   ResponseGetTaskStatusEnum,
+  type LogBriefEntry,
   type ResponseGetTask,
 } from '../../api'
 import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
+import LogBrief, { hasLogProblem } from '../../components/test/LogBrief'
 import { useNotifications } from '../../hooks/useNotifications'
 import Modal from '../../components/modal/modal'
 import Button from '../../components/button/button'
@@ -183,6 +185,22 @@ function parseAnsiLog(log: string): AnsiSegment[] {
   return segments
 }
 
+// Splits segments at newlines, so each log line can be shown and found on its own
+function splitLines(segments: AnsiSegment[]): AnsiSegment[][] {
+  const lines: AnsiSegment[][] = [[]]
+  for (const segment of segments) {
+    segment.text.split('\n').forEach((text, index) => {
+      if (index > 0) {
+        lines.push([])
+      }
+      if (text) {
+        lines[lines.length - 1].push({ ...segment, text })
+      }
+    })
+  }
+  return lines
+}
+
 export default function TaskDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -197,6 +215,9 @@ export default function TaskDetailPage() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false)
   const [isLogLoading, setIsLogLoading] = useState(false)
   const [logContent, setLogContent] = useState('')
+  const [logBrief, setLogBrief] = useState<LogBriefEntry[]>([])
+  const [logTab, setLogTab] = useState<'brief' | 'full'>('full')
+  const [highlightLine, setHighlightLine] = useState<number | null>(null)
   const [activeTestName, setActiveTestName] = useState('')
 
   const taskId = Number(id)
@@ -242,7 +263,7 @@ export default function TaskDetailPage() {
       })
       .map(({ index: _index, ...test }) => test)
   }, [task])
-  const renderedLogSegments = useMemo(() => parseAnsiLog(logContent), [logContent])
+  const renderedLogLines = useMemo(() => splitLines(parseAnsiLog(logContent)), [logContent])
 
   const api = useMemo(() => new DefaultApi(new Configuration({
     basePath: apiBasePath,
@@ -274,6 +295,12 @@ export default function TaskDetailPage() {
       }
     }
   }
+
+  useEffect(() => {
+    if (logTab === 'full' && highlightLine !== null) {
+      document.querySelector(`[data-line="${highlightLine}"]`)?.scrollIntoView({ block: 'center' })
+    }
+  }, [logTab, highlightLine, renderedLogLines])
 
   useEffect(() => {
     if (!Number.isFinite(taskId) || taskId <= 0) {
@@ -332,6 +359,11 @@ export default function TaskDetailPage() {
     setIsLogModalOpen(false)
   }
 
+  function jumpToLogLine(line: number) {
+    setHighlightLine(line)
+    setLogTab('full')
+  }
+
   async function handleOpenTestLog(testName: string) {
     if (!Number.isFinite(taskId) || taskId <= 0) {
       addError('Invalid task id')
@@ -340,6 +372,8 @@ export default function TaskDetailPage() {
 
     setActiveTestName(testName)
     setLogContent('')
+    setLogBrief([])
+    setHighlightLine(null)
     setIsLogModalOpen(true)
     setIsLogLoading(true)
 
@@ -352,7 +386,11 @@ export default function TaskDetailPage() {
         },
       )
 
+      const brief = response.data.brief || []
       setLogContent(normalizeRawLog(response.data.log || ''))
+      setLogBrief(brief)
+      // Open the brief when it has something wrong to point at
+      setLogTab(hasLogProblem(brief) ? 'brief' : 'full')
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&
@@ -512,25 +550,57 @@ export default function TaskDetailPage() {
               <h3>
                 Test Log: {activeTestName || '-'}
               </h3>
+              <div className={styles.logTabs} role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={logTab === 'brief'}
+                  className={`${styles.logTab} ${logTab === 'brief' ? styles.logTabActive : ''}`}
+                  onClick={() => setLogTab('brief')}
+                >
+                  Brief ({logBrief.length})
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={logTab === 'full'}
+                  className={`${styles.logTab} ${logTab === 'full' ? styles.logTabActive : ''}`}
+                  onClick={() => setLogTab('full')}
+                >
+                  Full log
+                </button>
+              </div>
               <Button variant="secondary" onClick={closeLogModal}>Close</Button>
             </div>
 
             <div className={styles.logContentWrap}>
               {isLogLoading ? (
                 <p className={styles.loading}>Loading test log...</p>
+              ) : logTab === 'brief' ? (
+                <LogBrief entries={logBrief} onJumpToLine={jumpToLogLine} />
               ) : (
                 <pre className={styles.logContent}>
                   {logContent
-                    ? renderedLogSegments.map((segment, index) => (
-                        <span
-                          key={`${index}-${segment.text.length}`}
-                          style={{
-                            color: segment.color,
-                            fontWeight: segment.bold ? 700 : 400,
-                          }}
+                    ? renderedLogLines.map((segments, index) => (
+                        <div
+                          key={index}
+                          data-line={index + 1}
+                          className={index + 1 === highlightLine ? styles.logLineHighlight : undefined}
                         >
-                          {segment.text}
-                        </span>
+                          {segments.length === 0
+                            ? '\u200b'
+                            : segments.map((segment, segmentIndex) => (
+                                <span
+                                  key={segmentIndex}
+                                  style={{
+                                    color: segment.color,
+                                    fontWeight: segment.bold ? 700 : 400,
+                                  }}
+                                >
+                                  {segment.text}
+                                </span>
+                              ))}
+                        </div>
                       ))
                     : 'No log content'}
                 </pre>

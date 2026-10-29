@@ -16,6 +16,7 @@ docs/GetGithubPRsResponse.md
 docs/GetRunnersResponse.md
 docs/GetTenantsResponse.md
 docs/GetTestcasesResponse.md
+docs/LogBriefEntry.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/MessageResponse.md

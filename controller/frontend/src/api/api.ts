@@ -58,6 +58,36 @@ export interface GetTestcasesResponse {
     'message': string;
     'testcases'?: Array<Testcase>;
 }
+export interface LogBriefEntry {
+    'category': LogBriefEntryCategoryEnum;
+    'message': string;
+    /**
+     * 1-based line of the first occurrence in the log
+     */
+    'line': number;
+    'count': number;
+    /**
+     * Container that printed the line, for lines from the compose log
+     */
+    'source'?: string;
+    /**
+     * Timestamp of the first occurrence, for lines printed by an NF
+     */
+    'time'?: string;
+    /**
+     * Values that differ between merged lines
+     */
+    'items'?: Array<string>;
+}
+
+export const LogBriefEntryCategoryEnum = {
+    Test: 'test',
+    Error: 'error',
+    Event: 'event',
+} as const;
+
+export type LogBriefEntryCategoryEnum = typeof LogBriefEntryCategoryEnum[keyof typeof LogBriefEntryCategoryEnum];
+
 export interface LoginRequest {
     'username': string;
     'password': string;
@@ -152,6 +182,10 @@ export interface ResponseGetTasksDetail {
 export interface ResponseGetTestLog {
     'message': string;
     'log'?: string;
+    /**
+     * Key messages picked out of the log, with the line where each first appears
+     */
+    'brief'?: Array<LogBriefEntry>;
 }
 export interface ResponseRegisterRunner {
     'message': string;
