@@ -1,0 +1,45 @@
+.row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(0, 3fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.label {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.removeButton {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.removeButton:hover {
+  background: var(--danger-soft);
+  color: var(--danger-ink);
+}
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .removeButton {
+    justify-self: end;
+  }
+}

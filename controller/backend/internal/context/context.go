@@ -46,6 +46,10 @@ func (ctx *ItContext) GetPrList(nf string) ([]pr, error) {
 	return ctx.githubContext.getPrList(nf)
 }
 
+func (ctx *ItContext) GetPr(nf string, number int) (*pr, error) {
+	return ctx.githubContext.getPr(nf, number)
+}
+
 func (ctx *ItContext) SaveToDb(bucket, key, value string) error {
 	return ctx.bboltDbContext.Save([]byte(bucket), []byte(key), []byte(value))
 }

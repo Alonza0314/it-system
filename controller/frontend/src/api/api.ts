@@ -38,6 +38,10 @@ export interface DeleteTenantsRequestTenantsInner {
 export interface DeleteTestcasesRequest {
     'testcases': Array<Testcase>;
 }
+export interface GetGithubPRResponse {
+    'message': string;
+    'pr'?: PR;
+}
 export interface GetGithubPRsResponse {
     'message': string;
     'prs': Array<PR>;
@@ -72,7 +76,17 @@ export interface NfPr {
 export interface PR {
     'number': number;
     'title': string;
+    'state'?: PRStateEnum;
 }
+
+export const PRStateEnum = {
+    Open: 'open',
+    Closed: 'closed',
+    Merged: 'merged',
+} as const;
+
+export type PRStateEnum = typeof PRStateEnum[keyof typeof PRStateEnum];
+
 export interface RegisterRunnerRequest {
     'name': string;
     'ip': string;
@@ -446,6 +460,54 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(deleteTestcasesRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get one Github PR, including closed and merged ones
+         * @param {GetGithubPRNfEnum} nf Target network function
+         * @param {number} number PR number
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getGithubPR: async (nf: GetGithubPRNfEnum, number: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'nf' is not null or undefined
+            assertParamExists('getGithubPR', 'nf', nf)
+            // verify required parameter 'number' is not null or undefined
+            assertParamExists('getGithubPR', 'number', number)
+            const localVarPath = `/api/github/pr`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (nf !== undefined) {
+                localVarQueryParameter['nf'] = nf;
+            }
+
+            if (number !== undefined) {
+                localVarQueryParameter['number'] = number;
+            }
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1043,6 +1105,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get one Github PR, including closed and merged ones
+         * @param {GetGithubPRNfEnum} nf Target network function
+         * @param {number} number PR number
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getGithubPR(nf: GetGithubPRNfEnum, number: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetGithubPRResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getGithubPR(nf, number, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getGithubPR']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get Github PRs
          * @param {GetGithubPRsNfEnum} nf Target network function
          * @param {*} [options] Override http request option.
@@ -1286,6 +1362,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get one Github PR, including closed and merged ones
+         * @param {GetGithubPRNfEnum} nf Target network function
+         * @param {number} number PR number
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getGithubPR(nf: GetGithubPRNfEnum, number: number, options?: RawAxiosRequestConfig): AxiosPromise<GetGithubPRResponse> {
+            return localVarFp.getGithubPR(nf, number, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get Github PRs
          * @param {GetGithubPRsNfEnum} nf Target network function
          * @param {*} [options] Override http request option.
@@ -1495,6 +1582,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get one Github PR, including closed and merged ones
+     * @param {GetGithubPRNfEnum} nf Target network function
+     * @param {number} number PR number
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getGithubPR(nf: GetGithubPRNfEnum, number: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getGithubPR(nf, number, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get Github PRs
      * @param {GetGithubPRsNfEnum} nf Target network function
      * @param {*} [options] Override http request option.
@@ -1633,6 +1732,23 @@ export class DefaultApi extends BaseAPI {
     }
 }
 
+export const GetGithubPRNfEnum = {
+    Amf: 'amf',
+    Ausf: 'ausf',
+    Bsf: 'bsf',
+    Chf: 'chf',
+    N3iwf: 'n3iwf',
+    Nef: 'nef',
+    Nrf: 'nrf',
+    Nssf: 'nssf',
+    Pcf: 'pcf',
+    Smf: 'smf',
+    Tngf: 'tngf',
+    Udm: 'udm',
+    Udr: 'udr',
+    Upf: 'upf',
+} as const;
+export type GetGithubPRNfEnum = typeof GetGithubPRNfEnum[keyof typeof GetGithubPRNfEnum];
 export const GetGithubPRsNfEnum = {
     Amf: 'amf',
     Ausf: 'ausf',

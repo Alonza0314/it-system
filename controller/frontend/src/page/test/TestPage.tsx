@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Configuration,
   DefaultApi,
+  type GetGithubPRNfEnum,
   type GetGithubPRsNfEnum,
   type RequestSubmitTask,
   type ResponseGetTasks,
@@ -11,7 +12,7 @@ import { getUserHeader } from '../../utils/auth'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import Modal from '../../components/modal/modal'
 import { useNotifications } from '../../hooks/useNotifications'
-import NfPrSelector, { type PrOption } from '../../components/test/NfPrSelector'
+import NfPrRow, { type PrLookup, type PrOption } from '../../components/test/NfPrRow'
 import TaskCard from '../../components/test/TaskCard'
 import { useTestcaseContext } from '../../context/testcase-context'
 import styles from './test-page.module.css'
@@ -39,6 +40,12 @@ const NF_ORDER: NfDef[] = [
   { label: 'UPF', apiName: 'upf' },
 ]
 
+interface NfPrRowState {
+  key: number
+  nf: string
+  pr: string
+}
+
 const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 
 export default function TestPage() {
@@ -55,8 +62,9 @@ export default function TestPage() {
   const [prsByNf, setPrsByNf] = useState<Record<string, PrOption[]>>({})
   const [loadingByNf, setLoadingByNf] = useState<Record<string, boolean>>({})
   const [hasFetchedByNf, setHasFetchedByNf] = useState<Record<string, boolean>>({})
-  const [enabledNf, setEnabledNf] = useState<Record<string, boolean>>({})
-  const [selectedPrByNf, setSelectedPrByNf] = useState<Record<string, string>>({})
+  const [prLookupsByNf, setPrLookupsByNf] = useState<Record<string, Record<string, PrLookup>>>({})
+  const [nfPrRows, setNfPrRows] = useState<NfPrRowState[]>([{ key: 0, nf: '', pr: '' }])
+  const nextNfPrRowKey = useRef(1)
   const [selectedTestcases, setSelectedTestcases] = useState<string[]>([])
   const [pendingTasks, setPendingTasks] = useState<TaskSimple[]>([])
   const [ongoingTasks, setOngoingTasks] = useState<TaskSimple[]>([])
@@ -102,9 +110,13 @@ export default function TestPage() {
     setPrsByNf({})
     setLoadingByNf({})
     setHasFetchedByNf({})
-    setEnabledNf({})
-    setSelectedPrByNf({})
+    setPrLookupsByNf({})
+    setNfPrRows([createNfPrRow()])
     setSelectedTestcases([])
+  }
+
+  function createNfPrRow(): NfPrRowState {
+    return { key: nextNfPrRowKey.current++, nf: '', pr: '' }
   }
 
   async function refreshTaskQueues(options?: { showLoading?: boolean; notifyError?: boolean }) {
@@ -210,6 +222,29 @@ export default function TestPage() {
     }
   }
 
+  async function lookupPr(apiName: string, number: string) {
+    if (prLookupsByNf[apiName]?.[number]) {
+      return
+    }
+
+    const setLookup = (lookup: PrLookup) => setPrLookupsByNf((prev) => ({
+      ...prev,
+      [apiName]: { ...prev[apiName], [number]: lookup },
+    }))
+
+    setLookup({ status: 'loading' })
+    try {
+      const response = await api.getGithubPR(apiName as GetGithubPRNfEnum, Number(number), {
+        headers: getUserHeader(),
+      })
+      const pr = response.data.pr
+      setLookup(pr ? { status: 'found', title: pr.title, state: pr.state || 'open' } : { status: 'notFound' })
+    } catch (error: unknown) {
+      const status = (error as { response?: { status?: number } }).response?.status
+      setLookup(status === 404 ? { status: 'notFound' } : { status: 'error' })
+    }
+  }
+
   async function handleSubmitTask() {
     const payload = prepareSubmitPayload()
     if (!payload) {
@@ -245,16 +280,22 @@ export default function TestPage() {
       return null
     }
 
-    const enabledNfNames = NF_ORDER
-      .map((nf) => nf.apiName)
-      .filter((apiName) => Boolean(enabledNf[apiName]))
+    const selectedRows = nfPrRows.filter((row) => row.nf)
 
-    if (enabledNfNames.length === 0) {
-      addError('Please enable at least one NF')
+    if (selectedRows.length === 0) {
+      addError('Please select at least one NF')
       return null
     }
 
-    const missingPrNf = enabledNfNames.filter((apiName) => !selectedPrByNf[apiName])
+    const duplicateNf = selectedRows
+      .map((row) => row.nf)
+      .filter((nf, index, list) => list.indexOf(nf) !== index)
+    if (duplicateNf.length > 0) {
+      addError(`NF selected more than once: ${Array.from(new Set(duplicateNf)).join(', ')}`)
+      return null
+    }
+
+    const missingPrNf = selectedRows.filter((row) => !row.pr).map((row) => row.nf)
     if (missingPrNf.length > 0) {
       addError(`Please select PR for: ${missingPrNf.join(', ')}`)
       return null
@@ -274,9 +315,9 @@ export default function TestPage() {
         const testcase = testcases.find((item) => item.name === name)
         return { name, script: testcase?.script || '' }
       }),
-      nfPrList: enabledNfNames.map((apiName) => ({
-        nfName: apiName,
-        pr: Number(selectedPrByNf[apiName]),
+      nfPrList: selectedRows.map((row) => ({
+        nfName: row.nf,
+        pr: Number(row.pr),
       })),
     }
 
@@ -321,22 +362,34 @@ export default function TestPage() {
     }
   }
 
-  function updateNfToggle(apiName: string, checked: boolean) {
-    setEnabledNf((prev) => ({ ...prev, [apiName]: checked }))
-
-    if (checked) {
-      loadPrsForNf(apiName).catch(() => {
-        // Error notification is handled in loadPrsForNf
-      })
-    }
-
-    if (!checked) {
-      setSelectedPrByNf((prev) => ({ ...prev, [apiName]: '' }))
-    }
+  // NFs that another row already uses are left out, so an NF cannot be picked twice
+  function getNfOptions(rowKey: number) {
+    return NF_ORDER
+      .filter((nf) => !nfPrRows.some((row) => row.key !== rowKey && row.nf === nf.apiName))
+      .map((nf) => ({ value: nf.apiName, label: nf.label }))
   }
 
-  function updateSelectedPr(apiName: string, value: string) {
-    setSelectedPrByNf((prev) => ({ ...prev, [apiName]: value }))
+  function updateRowNf(rowKey: number, apiName: string) {
+    setNfPrRows((prev) => prev.map((row) => (row.key === rowKey ? { ...row, nf: apiName, pr: '' } : row)))
+
+    loadPrsForNf(apiName).catch(() => {
+      // Error notification is handled in loadPrsForNf
+    })
+  }
+
+  function updateRowPr(rowKey: number, value: string) {
+    setNfPrRows((prev) => prev.map((row) => (row.key === rowKey ? { ...row, pr: value } : row)))
+  }
+
+  function addNfPrRow() {
+    setNfPrRows((prev) => [...prev, createNfPrRow()])
+  }
+
+  function removeNfPrRow(rowKey: number) {
+    setNfPrRows((prev) => {
+      const rest = prev.filter((row) => row.key !== rowKey)
+      return rest.length > 0 ? rest : [createNfPrRow()]
+    })
   }
 
   function toggleAllTestcases(checked: boolean) {
@@ -417,18 +470,39 @@ export default function TestPage() {
       <section className={`${styles.formPanel} ${isFormOpen ? styles.formPanelOpen : ''}`} aria-hidden={!isFormOpen}>
         <div className={styles.formInner}>
           <div className={styles.formGrid}>
-            {NF_ORDER.map((nf) => (
-              <NfPrSelector
-                key={nf.apiName}
-                label={nf.label}
-                checked={Boolean(enabledNf[nf.apiName])}
-                options={prsByNf[nf.apiName] || []}
-                selectedPr={selectedPrByNf[nf.apiName] || ''}
-                disabled={Boolean(loadingByNf[nf.apiName])}
-                onToggle={(checked) => updateNfToggle(nf.apiName, checked)}
-                onSelectPr={(value) => updateSelectedPr(nf.apiName, value)}
-              />
-            ))}
+            <section className={styles.nfPrPicker}>
+              <div className={styles.testcaseHeader}>
+                <h3>NF PRs</h3>
+                <p>Pick an NF, then search its PRs by number or title</p>
+              </div>
+
+              <div className={styles.nfPrRows}>
+                {nfPrRows.map((row) => (
+                  <NfPrRow
+                    key={row.key}
+                    nfOptions={getNfOptions(row.key)}
+                    nf={row.nf}
+                    prOptions={prsByNf[row.nf] || []}
+                    pr={row.pr}
+                    isLoadingPrs={Boolean(loadingByNf[row.nf])}
+                    prLookups={prLookupsByNf[row.nf] || {}}
+                    onLookupPr={(number) => lookupPr(row.nf, number)}
+                    onSelectNf={(value) => updateRowNf(row.key, value)}
+                    onSelectPr={(value) => updateRowPr(row.key, value)}
+                    onRemove={() => removeNfPrRow(row.key)}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className={styles.addNfPrButton}
+                onClick={addNfPrRow}
+                disabled={nfPrRows.length >= NF_ORDER.length}
+              >
+                + Add NF
+              </button>
+            </section>
 
             <section className={styles.testcasePicker}>
               <div className={styles.testcaseHeader}>

@@ -11,6 +11,7 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**deleteTasksHistory**](#deletetaskshistory) | **DELETE** /api/admin/test/history | Delete tasks history|
 |[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
 |[**deleteTestcases**](#deletetestcases) | **DELETE** /api/admin/test/testcase | Delete testcases|
+|[**getGithubPR**](#getgithubpr) | **GET** /api/github/pr | Get one Github PR, including closed and merged ones|
 |[**getGithubPRs**](#getgithubprs) | **GET** /api/github | Get Github PRs|
 |[**getRunners**](#getrunners) | **GET** /api/runner | Get runners|
 |[**getTask**](#gettask) | **GET** /api/test/task | Get task|
@@ -395,6 +396,63 @@ const { status, data } = await apiInstance.deleteTestcases(
 |**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden |  -  |
+|**404** | Not Found |  -  |
+|**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getGithubPR**
+> GetGithubPRResponse getGithubPR()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let nf: 'amf' | 'ausf' | 'bsf' | 'chf' | 'n3iwf' | 'nef' | 'nrf' | 'nssf' | 'pcf' | 'smf' | 'tngf' | 'udm' | 'udr' | 'upf'; //Target network function (default to undefined)
+let number: number; //PR number (default to undefined)
+
+const { status, data } = await apiInstance.getGithubPR(
+    nf,
+    number
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **nf** | [**&#39;amf&#39; | &#39;ausf&#39; | &#39;bsf&#39; | &#39;chf&#39; | &#39;n3iwf&#39; | &#39;nef&#39; | &#39;nrf&#39; | &#39;nssf&#39; | &#39;pcf&#39; | &#39;smf&#39; | &#39;tngf&#39; | &#39;udm&#39; | &#39;udr&#39; | &#39;upf&#39;**]**Array<&#39;amf&#39; &#124; &#39;ausf&#39; &#124; &#39;bsf&#39; &#124; &#39;chf&#39; &#124; &#39;n3iwf&#39; &#124; &#39;nef&#39; &#124; &#39;nrf&#39; &#124; &#39;nssf&#39; &#124; &#39;pcf&#39; &#124; &#39;smf&#39; &#124; &#39;tngf&#39; &#124; &#39;udm&#39; &#124; &#39;udr&#39; &#124; &#39;upf&#39;>** | Target network function | defaults to undefined|
+| **number** | [**number**] | PR number | defaults to undefined|
+
+
+### Return type
+
+**GetGithubPRResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**400** | Bad Request |  -  |
+|**401** | Unauthorized |  -  |
 |**404** | Not Found |  -  |
 |**500** | Internal Server Error |  -  |
 

@@ -26,6 +26,7 @@ const (
 // github
 const (
 	GITHUB_FREE5GC_BASE_API_URL = "https://api.github.com/repos/free5gc/%s/pulls"
+	GITHUB_PR_STATE_MERGED      = "merged"
 	FREE5GC                     = "free5gc"
 	AMF                         = "amf"
 	AUSF                        = "ausf"
