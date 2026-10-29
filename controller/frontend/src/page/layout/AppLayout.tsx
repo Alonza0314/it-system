@@ -54,6 +54,12 @@ export default function AppLayout() {
               Test
             </NavLink>
             <NavLink
+              to="/history"
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
+              History
+            </NavLink>
+            <NavLink
               to="/tenant"
               className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
             >

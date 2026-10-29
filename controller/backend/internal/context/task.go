@@ -226,16 +226,7 @@ func newTaskQueue() taskQueue {
 func (q *taskQueue) copy() []task {
 	tasks := make([]task, len(*q))
 	for i, t := range *q {
-		pipeline := make([]pipeline, len(t.pipelines))
-		copy(pipeline, t.pipelines)
-
-		tasks[i] = task{
-			id:         t.id,
-			username:   t.username,
-			status:     t.status,
-			createTime: t.createTime,
-			pipelines:  pipeline,
-		}
+		tasks[i] = t.copy()
 	}
 
 	return tasks

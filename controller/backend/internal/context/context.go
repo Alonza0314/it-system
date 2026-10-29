@@ -105,6 +105,18 @@ func (ctx *ItContext) GetHistoryTasks() []model.TaskSimple {
 	return convertTaskToResponseTask(ctx.taskContext.getHistoryQueue())
 }
 
+func (ctx *ItContext) GetPendingTaskDetails() []model.TaskDetail {
+	return convertTaskToTaskDetail(ctx.taskContext.getPendingQueue())
+}
+
+func (ctx *ItContext) GetOngoingTaskDetails() []model.TaskDetail {
+	return convertTaskToTaskDetail(ctx.taskContext.getOngoingQueue())
+}
+
+func (ctx *ItContext) GetHistoryTaskDetails() []model.TaskDetail {
+	return convertTaskToTaskDetail(ctx.taskContext.getHistoryQueue())
+}
+
 func (ctx *ItContext) GetTask(id uint64) (*task, error) {
 	return ctx.taskContext.getTaskById(id)
 }
@@ -184,6 +196,32 @@ func convertTaskToResponseTask(tasks []task) []model.TaskSimple {
 	}
 
 	return simpleTasks
+}
+
+func convertTaskToTaskDetail(tasks []task) []model.TaskDetail {
+	details := make([]model.TaskDetail, len(tasks))
+	for i, t := range tasks {
+		details[i] = model.TaskDetail{
+			Id:         t.ID(),
+			Username:   t.Username(),
+			Status:     t.Status(),
+			CreateTime: t.CreateTime(),
+		}
+		for _, pipeline := range t.Pipelines() {
+			details[i].Tests = append(details[i].Tests, model.TestDetail{
+				Name:   pipeline.Name(),
+				Status: pipeline.Status(),
+			})
+		}
+		for _, nfPr := range t.NFPrList() {
+			details[i].NFPrList = append(details[i].NFPrList, model.NfPr{
+				NfName: nfPr.NFName(),
+				PR:     nfPr.PR(),
+			})
+		}
+	}
+
+	return details
 }
 
 func convertTestsToPipelines(tests []model.Test) []pipeline {

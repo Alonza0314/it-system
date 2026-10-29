@@ -80,8 +80,28 @@ type ResponseCancelTask struct {
 	Message string `json:"message" binding:"required"`
 }
 
+type ResponseRerunTask struct {
+	Message string `json:"message" binding:"required"`
+}
+
 type ResponseDeleteTasksHistory struct {
 	Message string `json:"message" binding:"required"`
+}
+
+type ResponseGetTasksDetail struct {
+	Message     string       `json:"message" binding:"required"`
+	PendingTask []TaskDetail `json:"pendingTask,omitempty"`
+	OngoingTask []TaskDetail `json:"ongoingTask,omitempty"`
+	HistoryTask []TaskDetail `json:"historyTask,omitempty"`
+}
+
+type TaskDetail struct {
+	Id         uint64       `json:"id" binding:"required"`
+	Username   string       `json:"username" binding:"required"`
+	Status     string       `json:"status" binding:"required"`
+	CreateTime int64        `json:"createTime" binding:"required"`
+	Tests      []TestDetail `json:"tests,omitempty"`
+	NFPrList   []NfPr       `json:"nfPrList,omitempty"`
 }
 
 type ResponseGetTestLog struct {

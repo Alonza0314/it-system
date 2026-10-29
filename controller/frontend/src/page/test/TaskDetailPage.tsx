@@ -11,6 +11,7 @@ import NotificationContainer from '../../components/notifications/NotificationCo
 import { useNotifications } from '../../hooks/useNotifications'
 import Modal from '../../components/modal/modal'
 import Button from '../../components/button/button'
+import RerunTaskModal from '../../components/test/RerunTaskModal'
 import styles from './task-detail-page.module.css'
 
 const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
@@ -192,6 +193,7 @@ export default function TaskDetailPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
+  const [isRerunModalOpen, setIsRerunModalOpen] = useState(false)
   const [isLogModalOpen, setIsLogModalOpen] = useState(false)
   const [isLogLoading, setIsLogLoading] = useState(false)
   const [logContent, setLogContent] = useState('')
@@ -201,6 +203,7 @@ export default function TaskDetailPage() {
   const fromQueue = searchParams.get('from')
   const canCancelTask = fromQueue !== 'ongoing' && fromQueue !== 'history'
   const taskStatus = normalizeStatus(task?.status)
+  const canRerunTask = taskStatus === 'success' || taskStatus === 'failed' || taskStatus === 'timeout'
   const tests = useMemo<TaskTestItem[]>(() => {
     const rawTests = (task?.tests || []) as unknown[]
 
@@ -387,6 +390,11 @@ export default function TaskDetailPage() {
         </div>
         <div className={styles.actions}>
           <Button variant="secondary" onClick={() => navigate('/test')}>Back</Button>
+          {canRerunTask && (
+            <Button onClick={() => setIsRerunModalOpen(true)} disabled={isLoading}>
+              Re-run
+            </Button>
+          )}
           {canCancelTask && (
             <Button onClick={openCancelModal} disabled={isCancelling || isLoading}>
               {isCancelling ? 'Cancelling...' : 'Cancel Task'}
@@ -489,6 +497,13 @@ export default function TaskDetailPage() {
           </p>
         </Modal>
       )}
+
+      <RerunTaskModal
+        task={isRerunModalOpen ? task : null}
+        onClose={() => setIsRerunModalOpen(false)}
+        onSuccess={addSuccess}
+        onError={addError}
+      />
 
       {isLogModalOpen && (
         <div className={styles.logOverlay} onClick={closeLogModal}>
