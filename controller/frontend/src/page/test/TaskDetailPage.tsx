@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Configuration,
@@ -219,6 +219,8 @@ export default function TaskDetailPage() {
   const [logTab, setLogTab] = useState<'brief' | 'full'>('full')
   const [highlightLine, setHighlightLine] = useState<number | null>(null)
   const [activeTestName, setActiveTestName] = useState('')
+  const pollTimer = useRef<number | undefined>(undefined)
+  const isPollFailing = useRef(false)
 
   const taskId = Number(id)
   const fromQueue = searchParams.get('from')
@@ -280,6 +282,7 @@ export default function TaskDetailPage() {
         headers: getUserHeader(),
       })
       setTask(response.data)
+      isPollFailing.current = false
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&
@@ -288,7 +291,16 @@ export default function TaskDetailPage() {
         typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
           ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to load task detail'
           : 'Failed to load task detail'
-      addError(message)
+
+      // The task is gone, e.g. cancelled, so there is nothing left to poll
+      if ((error as { response?: { status?: number } }).response?.status === 404) {
+        window.clearInterval(pollTimer.current)
+      }
+      // A failing background poll is reported once, not every 5 seconds
+      if (showLoading || !isPollFailing.current) {
+        addError(message)
+      }
+      isPollFailing.current = true
     } finally {
       if (showLoading) {
         setIsLoading(false)
@@ -311,12 +323,12 @@ export default function TaskDetailPage() {
 
     void fetchTaskDetail(true)
 
-    const interval = window.setInterval(() => {
+    pollTimer.current = window.setInterval(() => {
       void fetchTaskDetail(false)
     }, 5000)
 
     return () => {
-      window.clearInterval(interval)
+      window.clearInterval(pollTimer.current)
     }
   }, [api, taskId, navigate, addError])
 
