@@ -90,7 +90,7 @@ function matchesSearch(task: TaskDetail, query: string) {
 
 export default function HistoryPage() {
   const navigate = useNavigate()
-  const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
+  const { errors, successes, addError, removeNotification } = useNotifications()
 
   const [tasks, setTasks] = useState<TaskDetail[]>([])
   const [rerunTarget, setRerunTarget] = useState<TaskDetail | null>(null)
@@ -314,7 +314,7 @@ export default function HistoryPage() {
       <RerunTaskModal
         task={rerunTarget}
         onClose={() => setRerunTarget(null)}
-        onSuccess={addSuccess}
+        onSuccess={(message) => navigate('/test', { state: { success: message } })}
         onError={addError}
       />
     </section>
