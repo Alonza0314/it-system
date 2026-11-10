@@ -32,8 +32,7 @@ func newHttpSenderMessage(msgType constant.HttpSenderMessageType, heartbeat *mod
 type httpSenderServer struct {
 	runnerName string
 
-	controllerIP   string
-	controllerPort int
+	controllerURL string
 
 	token string
 
@@ -51,14 +50,13 @@ type httpSenderServer struct {
 	*logger.RunnerLogger
 }
 
-func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, cancelChannel chan uint64, logger *logger.RunnerLogger) *httpSenderServer {
+func newHttpSenderServer(runnerName, controllerURL string, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, cancelChannel chan uint64, logger *logger.RunnerLogger) *httpSenderServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &httpSenderServer{
 		runnerName: runnerName,
 
-		controllerIP:   controllerIP,
-		controllerPort: controllerPort,
+		controllerURL: controllerURL,
 
 		token: token,
 
@@ -123,11 +121,11 @@ func (s *httpSenderServer) dispatchMessage(msg httpSenderMessage) {
 }
 
 func (s *httpSenderServer) getHeartbeatUrl() string {
-	return fmt.Sprintf(constant.API_RUNNER_HEARTBEAT, s.controllerIP, s.controllerPort)
+	return s.controllerURL + constant.API_RUNNER_HEARTBEAT
 }
 
 func (s *httpSenderServer) getTestOutputUrl() string {
-	return fmt.Sprintf(constant.API_RUNNER_TEST_OUTPUT, s.controllerIP, s.controllerPort)
+	return s.controllerURL + constant.API_RUNNER_TEST_OUTPUT
 }
 
 func (s *httpSenderServer) getHeader() map[string]string {

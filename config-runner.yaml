@@ -3,6 +3,9 @@ runner:
 
   controller_ip: "127.0.0.1"
   controller_port: 8888
+  # set to https://<host> when the controller is behind an HTTPS reverse proxy;
+  # it replaces controller_ip and controller_port
+  controller_url: ""
 
   token_path: ".db/token"
 
