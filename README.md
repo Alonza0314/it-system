@@ -77,6 +77,8 @@ wget https://github.com/Alonza0314/it-system/releases/download/v1.0.2/it-system-
 sudo dpkg -i it-system-controller_1.0.2_amd64.deb
 ```
 
+The controller serves plain HTTP. To serve it over HTTPS, put a reverse proxy in front of it: see [HTTPS](./deb/https.md).
+
 ### Runner
 
 Before install runner, please make sure your runner host has installed go, gtp5g and mongodb:
