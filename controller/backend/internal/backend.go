@@ -73,12 +73,28 @@ func NewBackend(config *config.Config, discordWebhookURL string, logger *logger.
 	gin.DefaultWriter, gin.DefaultErrorWriter = loggergo.NewGinWriter(logger.GinLog), loggergo.NewGinWriter(logger.GinLog)
 
 	b.router = util.NewGinRouter("", nil)
+	setTrustedProxies(b.router, config.Backend.TrustedProxies, logger)
 	b.router.NoRoute(b.returnPages())
 
 	addServices(b.router, b)
 	addMiddleware(b.router)
 
 	return b
+}
+
+// setTrustedProxies makes gin believe X-Forwarded-For only from the listed
+// proxies. gin's default trusts every peer, so any client could choose the
+// address that the logs show.
+func setTrustedProxies(router *gin.Engine, proxies []string, log *logger.BackendLogger) {
+	if err := router.SetTrustedProxies(proxies); err != nil {
+		log.CfgLog.Errorf("Invalid backend.trustedProxies %v, trusting no proxy: %v", proxies, err)
+		_ = router.SetTrustedProxies(nil)
+		return
+	}
+
+	if len(proxies) > 0 {
+		log.CfgLog.Infof("Trusting X-Forwarded-For from %v", proxies)
+	}
 }
 
 func (b *backend) returnPages() gin.HandlerFunc {
