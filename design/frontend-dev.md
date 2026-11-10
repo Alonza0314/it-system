@@ -23,9 +23,10 @@
 
 ## Stack and Runtime
 - React 19 + TypeScript + Vite + React Router + Axios
-- API base URL:
+- API base URL (`src/utils/apiBase.ts`):
   - `VITE_API_BASE_URL` if set
-  - fallback: `${protocol}//${hostname}:8888`
+  - `yarn dev`: `${protocol}//${hostname}:8888`
+  - build served by the controller (or by an HTTPS reverse proxy in front of it): the page's own origin
 - Local storage:
   - token key: `token`
   - username key: `username`

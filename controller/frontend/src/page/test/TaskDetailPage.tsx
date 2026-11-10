@@ -15,8 +15,7 @@ import Modal from '../../components/modal/modal'
 import Button from '../../components/button/button'
 import RerunTaskModal from '../../components/test/RerunTaskModal'
 import styles from './task-detail-page.module.css'
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
+import { apiBasePath } from '../../utils/apiBase'
 
 function formatCreateTime(unixTime?: number) {
   if (!unixTime) {

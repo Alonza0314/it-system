@@ -17,6 +17,7 @@ import NfPrRow, { type PrLookup, type PrOption } from '../../components/test/NfP
 import TaskCard from '../../components/test/TaskCard'
 import { useTestcaseContext } from '../../context/testcase-context'
 import styles from './test-page.module.css'
+import { apiBasePath } from '../../utils/apiBase'
 
 interface NfDef {
   label: string
@@ -47,8 +48,6 @@ interface NfPrRowState {
   nf: string
   pr: string
 }
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 
 export default function TestPage() {
   const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
