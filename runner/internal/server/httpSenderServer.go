@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	cconstant "github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/model"
 	"github.com/Alonza0314/it-system/runner/constant"
 	"github.com/Alonza0314/it-system/runner/logger"
@@ -42,12 +43,15 @@ type httpSenderServer struct {
 
 	taskChan chan model.ResponseRunnerHeartbeat
 
+	// cancelChan carries the id of a task the controller no longer runs
+	cancelChan chan uint64
+
 	status constant.RunnerStatus
 
 	*logger.RunnerLogger
 }
 
-func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, logger *logger.RunnerLogger) *httpSenderServer {
+func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, cancelChannel chan uint64, logger *logger.RunnerLogger) *httpSenderServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &httpSenderServer{
@@ -63,6 +67,8 @@ func newHttpSenderServer(runnerName, controllerIP string, controllerPort, httpSe
 		msgChanCancel: cancel,
 
 		taskChan: taskChannel,
+
+		cancelChan: cancelChannel,
 
 		status: constant.STATUS_IDLE,
 
@@ -202,6 +208,13 @@ func (s *httpSenderServer) sendTestOutput(testOutput *model.RequestTestOutput) {
 		switch response.StatusCode {
 		case http.StatusNoContent:
 			sendSuccess = true
+			if response.Headers.Get(cconstant.TASK_CANCELED_HEADER) != "" {
+				s.HttpLog.Warnf("Controller reports task ID: %d is not running any more, stopping it", testOutput.Id)
+				select {
+				case s.cancelChan <- testOutput.Id:
+				default:
+				}
+			}
 			if *testOutput.EndFlag {
 				s.setStatusIdle()
 				s.HttpLog.Debugf("Controller responded with no content for test output with end flag true, runner status set to idle.")

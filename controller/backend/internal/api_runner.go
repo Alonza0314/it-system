@@ -2,7 +2,9 @@ package internal
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/Alonza0314/it-system/controller/backend/constant"
 	"github.com/Alonza0314/it-system/controller/backend/model"
 
 	"github.com/free-ran-ue/util"
@@ -163,7 +165,8 @@ func (b *backend) handleTestOutput(c *gin.Context) {
 		return
 	}
 
-	if errDetail := b.Processor.TtestOutput(&req, c.GetHeader("user")); errDetail != nil {
+	canceled, errDetail := b.Processor.TtestOutput(&req, c.GetHeader("user"))
+	if errDetail != nil {
 		b.RunLog.Errorf("Test Output failed for %s: %s", c.ClientIP(), errDetail.Detail)
 		c.JSON(errDetail.HttpStatus, model.ResponseRunnerTestOutput{
 			Message: errDetail.Detail,
@@ -171,6 +174,11 @@ func (b *backend) handleTestOutput(c *gin.Context) {
 		return
 	}
 
-	b.RunLog.Infof("Test Output successful for %s", c.ClientIP())
+	if canceled {
+		b.RunLog.Infof("Task %d is not running any more, telling runner %s to stop it", req.Id, c.GetHeader("user"))
+		c.Header(constant.TASK_CANCELED_HEADER, strconv.FormatUint(req.Id, 10))
+	} else {
+		b.RunLog.Infof("Test Output successful for %s", c.ClientIP())
+	}
 	c.Status(http.StatusNoContent)
 }

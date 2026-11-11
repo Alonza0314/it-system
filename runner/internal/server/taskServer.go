@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -25,25 +26,32 @@ import (
 type taskServer struct {
 	workspacePath string
 
-	msgChannel  chan httpSenderMessage
-	taskChannel chan model.ResponseRunnerHeartbeat
+	msgChannel    chan httpSenderMessage
+	taskChannel   chan model.ResponseRunnerHeartbeat
+	cancelChannel chan uint64
 
 	taskCtx    context.Context
 	taskCancel context.CancelFunc
+
+	// the task being run, so a cancel from the controller can stop it
+	currentLock   sync.Mutex
+	currentId     uint64
+	currentCancel context.CancelFunc
 
 	testCmdTimeout time.Duration
 
 	*logger.RunnerLogger
 }
 
-func newtaskServer(workspace string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, logger *logger.RunnerLogger) *taskServer {
+func newtaskServer(workspace string, msgChannel chan httpSenderMessage, taskChannel chan model.ResponseRunnerHeartbeat, cancelChannel chan uint64, logger *logger.RunnerLogger) *taskServer {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &taskServer{
 		workspacePath: workspace,
 
-		msgChannel:  msgChannel,
-		taskChannel: taskChannel,
+		msgChannel:    msgChannel,
+		taskChannel:   taskChannel,
+		cancelChannel: cancelChannel,
 
 		taskCtx:    ctx,
 		taskCancel: cancel,
@@ -66,7 +74,71 @@ func (s *taskServer) Start() error {
 		}
 	}()
 
+	go func() {
+		for {
+			select {
+			case <-s.taskCtx.Done():
+				return
+			case id, ok := <-s.cancelChannel:
+				if !ok {
+					return
+				}
+				s.cancelTask(id)
+			}
+		}
+	}()
+
 	return nil
+}
+
+func (s *taskServer) setCurrentTask(id uint64, cancel context.CancelFunc) {
+	s.currentLock.Lock()
+	defer s.currentLock.Unlock()
+
+	s.currentId, s.currentCancel = id, cancel
+}
+
+// cancelTask stops the task the controller no longer runs. The command of the
+// running step is killed through its context; a cancel for a task that has
+// already ended is ignored.
+func (s *taskServer) cancelTask(id uint64) {
+	s.currentLock.Lock()
+	defer s.currentLock.Unlock()
+
+	if s.currentId != id || s.currentCancel == nil {
+		s.TaskLog.Debugf("Ignoring cancel for task ID: %d, it is not running", id)
+		return
+	}
+
+	s.TaskLog.Warnf("Task ID: %d was canceled on the controller, stopping it", id)
+	s.currentCancel()
+}
+
+// finishIfCanceled ends a canceled task: it removes the containers and images
+// the interrupted step left behind and reports the end of the task, so the
+// controller marks this runner idle. It returns false if the task was not
+// canceled.
+func (s *taskServer) finishIfCanceled(ctx context.Context, id uint64, repoDir string) bool {
+	if ctx.Err() == nil {
+		return false
+	}
+
+	if _, err := os.Stat(repoDir); err == nil {
+		if output, err := s.forceKill(repoDir); err != nil {
+			s.TaskLog.Warnf("Failed to stop containers of canceled task ID: %d, error: %v", id, err)
+			s.TaskLog.Tracef("Output of force kill for task ID: %d: %s", id, output)
+		}
+		if output, err := s.cleanImages(repoDir); err != nil {
+			s.TaskLog.Warnf("Failed to clean docker images of canceled task ID: %d, error: %v", id, err)
+			s.TaskLog.Tracef("Output of clean images for task ID: %d: %s", id, output)
+		}
+	}
+	s.removeWorkspace()
+
+	s.TaskLog.Infof("Canceled task ID: %d stopped and cleaned up", id)
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_CANCELED, "Task canceled on the controller"))
+
+	return true
 }
 
 func (s *taskServer) Stop() error {
@@ -102,17 +174,27 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 
 	repoDir := filepath.Join(s.workspacePath, currentTimeStamp)
 
-	if !s.handlePrepeareRepo(task.Id, repoDir, currentTimeStamp, slices.ContainsFunc(task.NFPrList, func(nfPr model.NfPr) bool { return nfPr.NfName == cconstant.FREE5GC }), task.NFPrList) {
+	// Not derived from s.taskCtx: stopping the runner keeps its old behavior
+	// and does not go through the cancel path.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	s.setCurrentTask(task.Id, cancel)
+	defer s.setCurrentTask(0, nil)
+
+	if !s.handlePrepeareRepo(ctx, task.Id, repoDir, currentTimeStamp, slices.ContainsFunc(task.NFPrList, func(nfPr model.NfPr) bool { return nfPr.NfName == cconstant.FREE5GC }), task.NFPrList) {
+		s.finishIfCanceled(ctx, task.Id, repoDir)
 		return
 	}
 
 	f5gcDir := filepath.Join(repoDir, constant.FREE5GC_REPO)
 
-	if !s.handleFetchNfPr(task.Id, task.NFPrList, f5gcDir) {
+	if !s.handleFetchNfPr(ctx, task.Id, task.NFPrList, f5gcDir) {
+		s.finishIfCanceled(ctx, task.Id, repoDir)
 		return
 	}
 
-	if !s.handleMakeNf(task.Id, repoDir) {
+	if !s.handleMakeNf(ctx, task.Id, repoDir) {
+		s.finishIfCanceled(ctx, task.Id, repoDir)
 		return
 	}
 
@@ -122,10 +204,17 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 			continue
 		}
 
+		if s.finishIfCanceled(ctx, task.Id, repoDir) {
+			return
+		}
+
 		s.TaskLog.Infof("Running test: %s for task ID: %d", test, task.Id)
 
-		status := s.handleRunTest(task.Id, test.Name, test.Script, repoDir)
+		status := s.handleRunTest(ctx, task.Id, test.Name, test.Script, repoDir)
 		switch status {
+		case cconstant.TASK_STATUS_CANCELED:
+			s.finishIfCanceled(ctx, task.Id, repoDir)
+			return
 		case cconstant.TASK_STATUS_FAILED:
 			s.TaskLog.Warnf("Test: %s failed with status: %s for task ID: %d", test, status, task.Id)
 			retryTests = append(retryTests, test)
@@ -141,14 +230,26 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	}
 
 	for _, test := range retryTests {
+		if s.finishIfCanceled(ctx, task.Id, repoDir) {
+			return
+		}
+
 		s.TaskLog.Infof("Retrying test once: %s for task ID: %d", test, task.Id)
 
-		status := s.handleRunTest(task.Id, test.Name, test.Script, repoDir)
+		status := s.handleRunTest(ctx, task.Id, test.Name, test.Script, repoDir)
+		if status == cconstant.TASK_STATUS_CANCELED {
+			s.finishIfCanceled(ctx, task.Id, repoDir)
+			return
+		}
 		if status == cconstant.TASK_STATUS_TIMEOUT {
 			if !s.handleSilentCleanup(task.Id, test.Name, repoDir) {
 				return
 			}
 		}
+	}
+
+	if s.finishIfCanceled(ctx, task.Id, repoDir) {
+		return
 	}
 
 	if !s.handleCleanup(task.Id, repoDir) {
@@ -213,9 +314,14 @@ func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string
 	return output.String(), nil
 }
 
-func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp string, fetchFree5gcPr bool, nfPrs []model.NfPr) bool {
-	output, err := s.prepareRepo(repoDir, currentTimeStamp)
+// The handle* steps below do not report a failure when ctx is canceled: the
+// task was canceled on the controller and handleTask reports its end.
+func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir, currentTimeStamp string, fetchFree5gcPr bool, nfPrs []model.NfPr) bool {
+	output, err := s.prepareRepo(ctx, repoDir, currentTimeStamp)
 	if err != nil {
+		if ctx.Err() != nil {
+			return false
+		}
 		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", id, err)
 
 		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
@@ -241,7 +347,8 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 			return true
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), constant.FETCH_CMD_TIMEOUT)
+		taskCtx := ctx
+		ctx, cancel := context.WithTimeout(taskCtx, constant.FETCH_CMD_TIMEOUT)
 		defer cancel()
 
 		if fetchOutput, err := s.runCmd(
@@ -252,6 +359,9 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 			"origin",
 			fmt.Sprintf("pull/%d/head:pr-%d", prNum, prNum),
 		); err != nil {
+			if taskCtx.Err() != nil {
+				return false
+			}
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Fetch free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
 				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+fetchOutput))
@@ -273,6 +383,9 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 			"checkout",
 			fmt.Sprintf("pr-%d", prNum),
 		); err != nil {
+			if taskCtx.Err() != nil {
+				return false
+			}
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Checkout free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
 				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+checkoutOutput))
@@ -295,9 +408,12 @@ func (s *taskServer) handlePrepeareRepo(id uint64, repoDir, currentTimeStamp str
 	return true
 }
 
-func (s *taskServer) handleFetchNfPr(id uint64, nfPrs []model.NfPr, f5gcDir string) bool {
-	output, err := s.fetchNfPr(nfPrs, f5gcDir)
+func (s *taskServer) handleFetchNfPr(ctx context.Context, id uint64, nfPrs []model.NfPr, f5gcDir string) bool {
+	output, err := s.fetchNfPr(ctx, nfPrs, f5gcDir)
 	if err != nil {
+		if ctx.Err() != nil {
+			return false
+		}
 		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", id, err)
 
 		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
@@ -310,9 +426,12 @@ func (s *taskServer) handleFetchNfPr(id uint64, nfPrs []model.NfPr, f5gcDir stri
 	return true
 }
 
-func (s *taskServer) handleMakeNf(id uint64, repoDir string) bool {
-	output, err := s.makeNf(repoDir)
+func (s *taskServer) handleMakeNf(ctx context.Context, id uint64, repoDir string) bool {
+	output, err := s.makeNf(ctx, repoDir)
 	if err != nil {
+		if ctx.Err() != nil {
+			return false
+		}
 		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", id, err)
 
 		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
@@ -325,9 +444,12 @@ func (s *taskServer) handleMakeNf(id uint64, repoDir string) bool {
 	return true
 }
 
-func (s *taskServer) handleRunTest(id uint64, testName, testScript, repoDir string) string {
-	output, err := s.runTest(testName, testScript, repoDir)
+func (s *taskServer) handleRunTest(ctx context.Context, id uint64, testName, testScript, repoDir string) string {
+	output, err := s.runTest(ctx, testName, testScript, repoDir)
 	if err != nil {
+		if ctx.Err() != nil {
+			return cconstant.TASK_STATUS_CANCELED
+		}
 		s.TaskLog.Errorf("Failed to run test: %s for task ID: %d, error: %v", testName, id, err)
 
 		status := cconstant.TASK_STATUS_FAILED
@@ -401,8 +523,8 @@ func (s *taskServer) handleSilentCleanup(id uint64, testName, repoDir string) bo
 	return false
 }
 
-func (s *taskServer) prepareRepo(repoDir, currentTimeStamp string) (string, error) {
-	prepareRepoCtx, prepareRepoCancel := context.WithTimeout(context.Background(), constant.CLONE_CMD_TIMEOUT)
+func (s *taskServer) prepareRepo(ctx context.Context, repoDir, currentTimeStamp string) (string, error) {
+	prepareRepoCtx, prepareRepoCancel := context.WithTimeout(ctx, constant.CLONE_CMD_TIMEOUT)
 	defer prepareRepoCancel()
 
 	output, err := s.cloneRepo(prepareRepoCtx, repoDir, currentTimeStamp)
@@ -455,7 +577,7 @@ func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp st
 	return output1 + "\n" + output2, nil
 }
 
-func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, f5gcDir string) (string, error) {
+func (s *taskServer) fetchNfPr(taskCtx context.Context, nfPrs []model.NfPr, f5gcDir string) (string, error) {
 	var output string
 
 	for _, nfPr := range nfPrs {
@@ -465,7 +587,7 @@ func (s *taskServer) fetchNfPr(nfPrs []model.NfPr, f5gcDir string) (string, erro
 
 		s.TaskLog.Debugf("Fetching NF-PR for NF: %s, PR: %d", nfPr.NfName, nfPr.PR)
 
-		ctx, cancel := context.WithTimeout(context.Background(), constant.FETCH_CMD_TIMEOUT)
+		ctx, cancel := context.WithTimeout(taskCtx, constant.FETCH_CMD_TIMEOUT)
 		defer cancel()
 
 		nfDir := filepath.Join(f5gcDir, "NFs", nfPr.NfName)
@@ -597,8 +719,8 @@ func (s *taskServer) tidyTestModule(f5gcDir string) (string, error) {
 	return output, nil
 }
 
-func (s *taskServer) makeNf(repoDir string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), constant.MAKE_CMD_TIMEOUT)
+func (s *taskServer) makeNf(taskCtx context.Context, repoDir string) (string, error) {
+	ctx, cancel := context.WithTimeout(taskCtx, constant.MAKE_CMD_TIMEOUT)
 	defer cancel()
 
 	output, err := s.runCmd(
@@ -616,8 +738,8 @@ func (s *taskServer) makeNf(repoDir string) (string, error) {
 	return output, nil
 }
 
-func (s *taskServer) runTest(testName, testScript, repoDir string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), s.testCmdTimeout)
+func (s *taskServer) runTest(taskCtx context.Context, testName, testScript, repoDir string) (string, error) {
+	ctx, cancel := context.WithTimeout(taskCtx, s.testCmdTimeout)
 	defer cancel()
 
 	output, err := s.runCmd(

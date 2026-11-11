@@ -129,8 +129,19 @@ func (ctx *ItContext) GetFirstPendingTaskAndMoveToOngoing() (*task, error) {
 	return ctx.taskContext.getFirstPendingTaskAndMoveToOngoing()
 }
 
-func (ctx *ItContext) CancelTask(id uint64) error {
-	return ctx.taskContext.cancelTask(id)
+// CancelTask cancels a pending or running task and reports whether it was
+// running. The runner of a running task is released right away.
+func (ctx *ItContext) CancelTask(id uint64) (bool, error) {
+	running, err := ctx.taskContext.cancelTask(id)
+	if err != nil {
+		return false, err
+	}
+
+	if running {
+		ctx.runnerContext.releaseTask(id)
+	}
+
+	return running, nil
 }
 
 func (ctx *ItContext) TtestOutputEnd(id uint64) error {

@@ -1,10 +1,12 @@
 package processor
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
+	"github.com/Alonza0314/it-system/controller/backend/internal/context"
 	"github.com/Alonza0314/it-system/controller/backend/model"
 
 	"github.com/free-ran-ue/util"
@@ -112,38 +114,48 @@ func (p *Processor) RunnerHeartbeat(req *model.RequestRunnerHeartbeat, runner st
 	}, nil
 }
 
-func (p *Processor) TtestOutput(req *model.RequestTestOutput, runner string) *model.ErrorDetail {
-	if *req.EndFlag {
-		if req.TestName != "" {
-			if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, req.Status, &req.Log); err != nil {
-				return &model.ErrorDetail{
+// TtestOutput stores a runner's output for a task. It returns canceled=true
+// when the task is not running on the controller any more (a user canceled
+// it, or it was lost when the controller restarted): the output is dropped and
+// the runner should stop working on the task. The runner is still set idle
+// when it reports the end of the task.
+func (p *Processor) TtestOutput(req *model.RequestTestOutput, runner string) (bool, *model.ErrorDetail) {
+	canceled := false
+
+	if req.TestName != "" {
+		if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, req.Status, &req.Log); err != nil {
+			if !errors.Is(err, context.ErrTaskNotOngoing) {
+				return false, &model.ErrorDetail{
 					HttpStatus: http.StatusInternalServerError,
 					Detail:     fmt.Sprintf("Failed to transfer test output: %v", err),
 				}
 			}
-		}
-
-		if err := p.itContext.TtestOutputEnd(req.Id); err != nil {
-			return &model.ErrorDetail{
-				HttpStatus: http.StatusInternalServerError,
-				Detail:     fmt.Sprintf("Failed to end test output: %v", err),
-			}
-		}
-
-		if err := p.itContext.HeartbeatWithoutTask(runner); err != nil {
-			return &model.ErrorDetail{
-				HttpStatus: http.StatusInternalServerError,
-				Detail:     fmt.Sprintf("Failed to update runner status: %v", err),
-			}
-		}
-	} else {
-		if err := p.itContext.TtestOutputTransfer(req.Id, req.TestName, req.Success, req.Status, &req.Log); err != nil {
-			return &model.ErrorDetail{
-				HttpStatus: http.StatusInternalServerError,
-				Detail:     fmt.Sprintf("Failed to transfer test output: %v", err),
-			}
+			canceled = true
 		}
 	}
 
-	return nil
+	if !*req.EndFlag {
+		return canceled, nil
+	}
+
+	if !canceled {
+		if err := p.itContext.TtestOutputEnd(req.Id); err != nil {
+			if !errors.Is(err, context.ErrTaskNotOngoing) {
+				return false, &model.ErrorDetail{
+					HttpStatus: http.StatusInternalServerError,
+					Detail:     fmt.Sprintf("Failed to end test output: %v", err),
+				}
+			}
+			canceled = true
+		}
+	}
+
+	if err := p.itContext.HeartbeatWithoutTask(runner); err != nil {
+		return canceled, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to update runner status: %v", err),
+		}
+	}
+
+	return canceled, nil
 }

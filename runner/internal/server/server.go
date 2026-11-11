@@ -14,21 +14,24 @@ type Server struct {
 	heartbeatServer  *heartbeatServer
 	taskServer       *taskServer
 
-	msgChannel  chan httpSenderMessage
-	taskChannel chan model.ResponseRunnerHeartbeat
+	msgChannel    chan httpSenderMessage
+	taskChannel   chan model.ResponseRunnerHeartbeat
+	cancelChannel chan uint64
 }
 
 func NewServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, heartbeatInterval time.Duration, workspacePath string, logger *logger.RunnerLogger) *Server {
 	msgChannel := make(chan httpSenderMessage, httpSenderChannelSize)
 	taskChannel := make(chan model.ResponseRunnerHeartbeat, httpSenderChannelSize)
+	cancelChannel := make(chan uint64, httpSenderChannelSize)
 
 	return &Server{
-		httpSenderServer: newHttpSenderServer(runnerName, controllerIP, controllerPort, httpSenderChannelSize, token, msgChannel, taskChannel, logger),
+		httpSenderServer: newHttpSenderServer(runnerName, controllerIP, controllerPort, httpSenderChannelSize, token, msgChannel, taskChannel, cancelChannel, logger),
 		heartbeatServer:  newHeartbeatServer(msgChannel, heartbeatInterval, logger),
-		taskServer:       newtaskServer(workspacePath, msgChannel, taskChannel, logger),
+		taskServer:       newtaskServer(workspacePath, msgChannel, taskChannel, cancelChannel, logger),
 
-		msgChannel:  msgChannel,
-		taskChannel: taskChannel,
+		msgChannel:    msgChannel,
+		taskChannel:   taskChannel,
+		cancelChannel: cancelChannel,
 	}
 }
 
@@ -68,6 +71,7 @@ func (s *Server) Stop() error {
 
 	close(s.taskChannel)
 	close(s.msgChannel)
+	close(s.cancelChannel)
 
 	if b.Len() == 0 {
 		return nil

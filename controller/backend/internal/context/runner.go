@@ -59,6 +59,18 @@ func (r *runner) setRunning(taskId uint64) {
 	r.status, r.onGoingtask, r.lastActiveTime = constant.RUNNER_STATUS_RUNNING, taskId, time.Now().Unix()
 }
 
+// releaseTask clears a canceled task from the runner. lastActiveTime is kept,
+// so a runner that died while running the task shows as offline at the next
+// status check instead of staying "running" forever.
+func (r *runner) releaseTask(taskId uint64) {
+	r.rwLock.Lock()
+	defer r.rwLock.Unlock()
+
+	if r.onGoingtask == taskId {
+		r.status, r.onGoingtask = constant.RUNNER_STATUS_IDLE, 0
+	}
+}
+
 func (r *runner) copy() runnerWithoutLock {
 	r.rwLock.RLock()
 	defer r.rwLock.RUnlock()
@@ -183,6 +195,15 @@ func (ctx *runnerContext) getRunners() []runnerWithoutLock {
 	}
 
 	return runnerList
+}
+
+func (ctx *runnerContext) releaseTask(taskId uint64) {
+	ctx.rwLock.RLock()
+	defer ctx.rwLock.RUnlock()
+
+	for _, r := range ctx.runners {
+		r.releaseTask(taskId)
+	}
 }
 
 func (ctx *runnerContext) heartbeatWithoutTask(name string) error {
