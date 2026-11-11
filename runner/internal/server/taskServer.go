@@ -31,6 +31,8 @@ type taskServer struct {
 	taskCtx    context.Context
 	taskCancel context.CancelFunc
 
+	testCmdTimeout time.Duration
+
 	*logger.RunnerLogger
 }
 
@@ -45,6 +47,8 @@ func newtaskServer(workspace string, msgChannel chan httpSenderMessage, taskChan
 
 		taskCtx:    ctx,
 		taskCancel: cancel,
+
+		testCmdTimeout: constant.TEST_CMD_TIMEOUT,
 
 		RunnerLogger: logger,
 	}
@@ -613,7 +617,7 @@ func (s *taskServer) makeNf(repoDir string) (string, error) {
 }
 
 func (s *taskServer) runTest(testName, testScript, repoDir string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), constant.TEST_CMD_TIMEOUT)
+	ctx, cancel := context.WithTimeout(context.Background(), s.testCmdTimeout)
 	defer cancel()
 
 	output, err := s.runCmd(
@@ -626,7 +630,9 @@ func (s *taskServer) runTest(testName, testScript, repoDir string) (string, erro
 	)
 	if err != nil {
 		if ctx.Err() != nil {
-			return output, fmt.Errorf("run test timed out for test: %s, error: %v", testName, ctx.Err())
+			// %w keeps context.DeadlineExceeded, which handleRunTest checks to
+			// report the test as timed out and clean up its containers
+			return output, fmt.Errorf("run test timed out for test: %s, error: %w", testName, ctx.Err())
 		}
 		return output, fmt.Errorf("failed to run test: %s, error: %v", testName, err)
 	}
