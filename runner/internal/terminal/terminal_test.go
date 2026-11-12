@@ -161,11 +161,14 @@ func TestSessionEndsDespiteDetachedHolder(t *testing.T) {
 	go func() { waitErr <- cmd.Wait() }()
 
 	marker := fmt.Sprintf("%d", 31000+os.Getpid()%1000)
-	script := fmt.Sprintf("sleep %s1 & setsid -f sleep %s2; echo STARTED\n", marker, marker)
+	// the terminal echoes the command, and dash may print its prompt after
+	// that echo and before the output, so match text that only the output
+	// contains
+	script := fmt.Sprintf("sleep %s1 & setsid -f sleep %s2; echo STA\"\"RTED\n", marker, marker)
 	if _, err := ptmx.Write([]byte(script)); err != nil {
 		t.Fatal(err)
 	}
-	readUntil(t, ptmx, regexp.MustCompile(`(?m)^STARTED`))
+	readUntil(t, ptmx, regexp.MustCompile(`STARTED`))
 	if got := len(processesWith("sleep " + marker)); got != 2 {
 		t.Fatalf("%d sleep processes started, want 2", got)
 	}
