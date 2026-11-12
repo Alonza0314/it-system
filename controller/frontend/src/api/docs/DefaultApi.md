@@ -7,6 +7,7 @@ All URIs are relative to *http://127.0.0.1:5000*
 |[**addTenants**](#addtenants) | **POST** /api/admin/tenant | Add tenants|
 |[**addTestcases**](#addtestcases) | **POST** /api/admin/test/testcase | Add testcases|
 |[**cancelTask**](#canceltask) | **DELETE** /api/test/task | Cancel task|
+|[**createTerminalTicket**](#createterminalticket) | **POST** /api/admin/runner/terminal/ticket | Create a terminal ticket|
 |[**deleteRunner**](#deleterunner) | **DELETE** /api/admin/runner | Delete runner|
 |[**deleteTasksHistory**](#deletetaskshistory) | **DELETE** /api/admin/test/history | Delete tasks history|
 |[**deleteTenants**](#deletetenants) | **DELETE** /api/admin/tenant | Delete tenants|
@@ -189,6 +190,65 @@ const { status, data } = await apiInstance.cancelTask(
 |**400** | Bad Request |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal Server Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **createTerminalTicket**
+> TerminalTicketResponse createTerminalTicket(terminalTicketRequest)
+
+Returns a one-time ticket, valid for `expiresIn` seconds, for opening an interactive shell on a runner. Connect a WebSocket to `/api/terminal/ws` with the subprotocols `it-terminal.v1` and `ticket.<ticket>`; the protocol is described in `design/runner-terminal.md`. The terminal is off unless both the controller and the runner enable it. 
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    TerminalTicketRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let terminalTicketRequest: TerminalTicketRequest; //
+
+const { status, data } = await apiInstance.createTerminalTicket(
+    terminalTicketRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **terminalTicketRequest** | **TerminalTicketRequest**|  | |
+
+
+### Return type
+
+**TerminalTicketResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+|**400** | Bad Request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Not an admin, not in the allowed users, or not from an allowed address |  -  |
+|**404** | Runner not found |  -  |
+|**409** | Runner is offline or has not enabled the terminal |  -  |
+|**429** | Session limit reached |  -  |
+|**503** | Terminal is disabled on this controller |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

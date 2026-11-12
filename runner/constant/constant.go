@@ -11,6 +11,7 @@ const (
 	RUN_LOG  = "RUN"
 	HTTP_LOG = "HTTP"
 	TASK_LOG = "TASK"
+	TERM_LOG = "TERM"
 )
 
 type HttpSenderMessageType string
@@ -35,6 +36,10 @@ const (
 	// paths under the controller base URL (config.RunnerIE.ControllerBaseURL)
 	API_RUNNER_HEARTBEAT   = "/api/run/runner/heartbeat"
 	API_RUNNER_TEST_OUTPUT = "/api/run/runner/test-output"
+
+	// WebSocket paths; an https base URL makes them wss
+	API_RUNNER_TERMINAL_CONTROL = "/api/run/runner/terminal/control"
+	API_RUNNER_TERMINAL_SESSION = "/api/run/runner/terminal/session"
 )
 
 type RunnerStatus string

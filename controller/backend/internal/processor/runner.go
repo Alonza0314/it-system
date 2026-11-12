@@ -20,7 +20,22 @@ func (p *Processor) RegisterRunner(req *model.RequestRegisterRunner) (*model.Res
 		}
 	}
 
+	registrationID, err := newRegistrationID()
+	if err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to create registration id: %v", err),
+		}
+	}
+	if err := p.itContext.SaveToDb(constant.BUCKET_RUNNER_REGISTRATION, req.Name, registrationID); err != nil {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusInternalServerError,
+			Detail:     fmt.Sprintf("Failed to register runner: %v", err),
+		}
+	}
+
 	if err := p.itContext.RegisterRunner(req.Name, req.IP); err != nil {
+		_ = p.itContext.RemoveFromDb(constant.BUCKET_RUNNER_REGISTRATION, req.Name)
 		return nil, &model.ErrorDetail{
 			HttpStatus: http.StatusInternalServerError,
 			Detail:     fmt.Sprintf("Failed to register runner: %v", err),
@@ -28,8 +43,9 @@ func (p *Processor) RegisterRunner(req *model.RequestRegisterRunner) (*model.Res
 	}
 
 	claims := map[string]interface{}{
-		"user":                        req.Name,
-		constant.USER_LEVEL_CLAIM_TAG: constant.USER_LEVEL_RUNNER,
+		"user":                                 req.Name,
+		constant.USER_LEVEL_CLAIM_TAG:          constant.USER_LEVEL_RUNNER,
+		constant.RUNNER_REGISTRATION_CLAIM_TAG: registrationID,
 	}
 	token, err := util.CreateJWT(p.runnerJwtSecret, constant.RUNNER_JWT_SUBJECT_TAG, p.runnerJwtExpiresIn, claims)
 	if err != nil {
@@ -59,6 +75,8 @@ func (p *Processor) DeleteRunner(name string) (*model.ResponseDeleteRunner, *mod
 			Detail:     fmt.Sprintf("Failed to delete runner: %v", err),
 		}
 	}
+	// databases from before registration ids have no such bucket
+	_ = p.itContext.RemoveFromDb(constant.BUCKET_RUNNER_REGISTRATION, name)
 
 	return &model.ResponseDeleteRunner{
 		Message: "Runner deleted successfully",

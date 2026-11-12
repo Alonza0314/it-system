@@ -83,6 +83,7 @@ func addAdminAuthMiddleware(b *backend) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		c.Set(constant.CLAIMS_CONTEXT_KEY, claims)
 		c.Next()
 	}
 }
@@ -121,6 +122,7 @@ func addRunnerAuthMiddleware(b *backend) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		c.Set(constant.CLAIMS_CONTEXT_KEY, claims)
 		c.Next()
 	}
 }

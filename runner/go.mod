@@ -5,6 +5,8 @@ go 1.26.2
 require (
 	github.com/Alonza0314/it-system/controller/backend v0.0.0-20260509095041-0c62c291f796
 	github.com/Alonza0314/logger-go/v2 v2.1.0
+	github.com/coder/websocket v1.8.15
+	github.com/creack/pty v1.1.24
 	github.com/free-ran-ue/util v0.0.4
 	github.com/spf13/cobra v1.10.2
 )

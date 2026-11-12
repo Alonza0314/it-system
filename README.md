@@ -79,6 +79,8 @@ sudo dpkg -i it-system-controller_1.0.2_amd64.deb
 
 The controller serves plain HTTP. To serve it over HTTPS, put a reverse proxy in front of it: see [HTTPS](./deb/https.md).
 
+Admins can open a shell on a runner from the Runner page once both sides enable it: see [Runner terminal](./design/runner-terminal.md).
+
 ### Runner
 
 Before install runner, please make sure your runner host has installed go, gtp5g and mongodb:

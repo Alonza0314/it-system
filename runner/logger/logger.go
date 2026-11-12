@@ -15,6 +15,7 @@ type RunnerLogger struct {
 	RunLog  loggergoModel.LoggerInterface
 	HttpLog loggergoModel.LoggerInterface
 	TaskLog loggergoModel.LoggerInterface
+	TermLog loggergoModel.LoggerInterface
 }
 
 func NewRunnerLogger(level loggergoUtil.LogLevelString, filePath string, debugMode bool) *RunnerLogger {
@@ -28,5 +29,6 @@ func NewRunnerLogger(level loggergoUtil.LogLevelString, filePath string, debugMo
 		RunLog:  logger.WithTags(constant.RUN_LOG),
 		HttpLog: logger.WithTags(constant.HTTP_LOG),
 		TaskLog: logger.WithTags(constant.TASK_LOG),
+		TermLog: logger.WithTags(constant.TERM_LOG),
 	}
 }

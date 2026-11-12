@@ -92,3 +92,11 @@ curl -sI http://it.example.org | grep -i location # redirect to https
 Open `https://it.example.org`, log in, and check that the Runner page lists
 the runners as idle. From outside the runner network,
 `curl -m 5 http://<public IP>:8888` should time out.
+
+## Runner terminal
+
+The [runner terminal](../design/runner-terminal.md) needs this setup: with
+`terminal.allowInsecureHttp: false` it accepts only browsers that come
+through a proxy in `trustedProxies` with `X-Forwarded-Proto: https`, which
+Caddy sets. Caddy passes the terminal's WebSocket connections through as
+they are.

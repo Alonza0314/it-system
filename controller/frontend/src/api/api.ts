@@ -237,6 +237,19 @@ export interface Tenant {
     'discord_id': string;
     'role': string;
 }
+export interface TerminalTicketRequest {
+    'runner': string;
+    'cols'?: number;
+    'rows'?: number;
+}
+export interface TerminalTicketResponse {
+    'message': string;
+    'ticket'?: string;
+    /**
+     * Seconds until the ticket expires
+     */
+    'expiresIn'?: number;
+}
 export interface TestDetail {
     'name': string;
     'status': string;
@@ -367,6 +380,45 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Returns a one-time ticket, valid for `expiresIn` seconds, for opening an interactive shell on a runner. Connect a WebSocket to `/api/terminal/ws` with the subprotocols `it-terminal.v1` and `ticket.<ticket>`; the protocol is described in `design/runner-terminal.md`. The terminal is off unless both the controller and the runner enable it. 
+         * @summary Create a terminal ticket
+         * @param {TerminalTicketRequest} terminalTicketRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createTerminalTicket: async (terminalTicketRequest: TerminalTicketRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'terminalTicketRequest' is not null or undefined
+            assertParamExists('createTerminalTicket', 'terminalTicketRequest', terminalTicketRequest)
+            const localVarPath = `/api/admin/runner/terminal/ticket`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(terminalTicketRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1188,6 +1240,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Returns a one-time ticket, valid for `expiresIn` seconds, for opening an interactive shell on a runner. Connect a WebSocket to `/api/terminal/ws` with the subprotocols `it-terminal.v1` and `ticket.<ticket>`; the protocol is described in `design/runner-terminal.md`. The terminal is off unless both the controller and the runner enable it. 
+         * @summary Create a terminal ticket
+         * @param {TerminalTicketRequest} terminalTicketRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createTerminalTicket(terminalTicketRequest: TerminalTicketRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TerminalTicketResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createTerminalTicket(terminalTicketRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createTerminalTicket']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Delete runner
          * @param {string} name Runner name
@@ -1482,6 +1547,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.cancelTask(id, options).then((request) => request(axios, basePath));
         },
         /**
+         * Returns a one-time ticket, valid for `expiresIn` seconds, for opening an interactive shell on a runner. Connect a WebSocket to `/api/terminal/ws` with the subprotocols `it-terminal.v1` and `ticket.<ticket>`; the protocol is described in `design/runner-terminal.md`. The terminal is off unless both the controller and the runner enable it. 
+         * @summary Create a terminal ticket
+         * @param {TerminalTicketRequest} terminalTicketRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createTerminalTicket(terminalTicketRequest: TerminalTicketRequest, options?: RawAxiosRequestConfig): AxiosPromise<TerminalTicketResponse> {
+            return localVarFp.createTerminalTicket(terminalTicketRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Delete runner
          * @param {string} name Runner name
@@ -1714,6 +1789,17 @@ export class DefaultApi extends BaseAPI {
      */
     public cancelTask(id: number, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).cancelTask(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns a one-time ticket, valid for `expiresIn` seconds, for opening an interactive shell on a runner. Connect a WebSocket to `/api/terminal/ws` with the subprotocols `it-terminal.v1` and `ticket.<ticket>`; the protocol is described in `design/runner-terminal.md`. The terminal is off unless both the controller and the runner enable it. 
+     * @summary Create a terminal ticket
+     * @param {TerminalTicketRequest} terminalTicketRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createTerminalTicket(terminalTicketRequest: TerminalTicketRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createTerminalTicket(terminalTicketRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
