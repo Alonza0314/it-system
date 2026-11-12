@@ -597,6 +597,7 @@ paths:
               - udm
               - udr
               - upf
+              - webconsole
             example: amf
       security:
         - bearerAuth: []
@@ -652,6 +653,7 @@ paths:
               - udm
               - udr
               - upf
+              - webconsole
             example: amf
         - name: number
           in: query

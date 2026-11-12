@@ -1947,6 +1947,7 @@ export const GetGithubPRNfEnum = {
     Udm: 'udm',
     Udr: 'udr',
     Upf: 'upf',
+    Webconsole: 'webconsole',
 } as const;
 export type GetGithubPRNfEnum = typeof GetGithubPRNfEnum[keyof typeof GetGithubPRNfEnum];
 export const GetGithubPRsNfEnum = {
@@ -1964,6 +1965,7 @@ export const GetGithubPRsNfEnum = {
     Udm: 'udm',
     Udr: 'udr',
     Upf: 'upf',
+    Webconsole: 'webconsole',
 } as const;
 export type GetGithubPRsNfEnum = typeof GetGithubPRsNfEnum[keyof typeof GetGithubPRsNfEnum];
 

@@ -43,9 +43,10 @@ const (
 	UDR                         = "udr"
 	UPF                         = "upf"
 	GO_UPF                      = "go-upf"
+	WEBCONSOLE                  = "webconsole"
 )
 
-var NF_LIST = []string{FREE5GC, AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNGF, UDM, UDR, UPF}
+var NF_LIST = []string{FREE5GC, AMF, AUSF, BSF, CHF, N3IWF, NEF, NRF, NSSF, PCF, SMF, TNGF, UDM, UDR, UPF, WEBCONSOLE}
 
 // db
 const (

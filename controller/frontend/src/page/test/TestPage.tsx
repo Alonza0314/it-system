@@ -39,6 +39,7 @@ const NF_ORDER: NfDef[] = [
   { label: 'UDM', apiName: 'udm' },
   { label: 'UDR', apiName: 'udr' },
   { label: 'UPF', apiName: 'upf' },
+  { label: 'WebConsole', apiName: 'webconsole' },
 ]
 
 interface NfPrRowState {
