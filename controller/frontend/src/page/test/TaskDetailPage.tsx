@@ -551,7 +551,7 @@ export default function TaskDetailPage() {
       <RerunTaskModal
         task={isRerunModalOpen ? task : null}
         onClose={() => setIsRerunModalOpen(false)}
-        onSuccess={addSuccess}
+        onSuccess={(message) => navigate('/test', { state: { success: message } })}
         onError={addError}
       />
 

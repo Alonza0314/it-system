@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Configuration,
   DefaultApi,
@@ -51,6 +52,9 @@ const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.prot
 export default function TestPage() {
   const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
   const { testcases, hasLoaded: hasTestcasesLoaded, refreshTestcases } = useTestcaseContext()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const hasShownLocationMessage = useRef(false)
 
   const [isLoadingTasks, setIsLoadingTasks] = useState(false)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -163,6 +167,21 @@ export default function TestPage() {
       window.clearInterval(timer)
     }
   }, [addError])
+
+  // Another page that sends the user here, e.g. after a re-run, passes its success
+  // message in the location state. Show it once and drop it, so a reload does not repeat it.
+  useEffect(() => {
+    if (hasShownLocationMessage.current) {
+      return
+    }
+    hasShownLocationMessage.current = true
+
+    const success = (location.state as { success?: unknown } | null)?.success
+    if (typeof success === 'string' && success !== '') {
+      addSuccess(success)
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [location, navigate, addSuccess])
 
   useEffect(() => {
     if (!isFormOpen || hasTestcasesLoaded) {
