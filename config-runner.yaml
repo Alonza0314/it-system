@@ -15,5 +15,15 @@ runner:
 
   workspace_path: ".db/workspace"
 
+  # lets controller admins open a shell here; see design/runner-terminal.md
+  terminal:
+    enabled: false
+    user: ""        # account the shell runs as, required when enabled
+    shell: ""       # default: the user's login shell
+    nice: 10
+    max_sessions: 2
+    idle_timeout: 15m
+    max_duration: 2h
+
 logger:
   level: "info"

@@ -31,6 +31,28 @@ type RunnerIE struct {
 	HttpSenderChannelSize int `yaml:"http_sender_channel_size" valid:"required,gt=0"`
 
 	WorkspacePath string `yaml:"workspace_path" valid:"required"`
+
+	Terminal TerminalIE `yaml:"terminal"`
+}
+
+// TerminalIE lets admins open a shell on this runner from the Runner page
+// (off by default). The controller must enable it too.
+// See design/runner-terminal.md.
+type TerminalIE struct {
+	Enabled bool `yaml:"enabled"`
+
+	// User is the OS account the shell runs as; required when enabled.
+	// Write "root" to run it as root. An account in the docker group can
+	// control docker and so is root-equivalent.
+	User string `yaml:"user"`
+	// Shell defaults to the user's login shell, or /bin/sh.
+	Shell string `yaml:"shell"`
+	// Nice is the shell's niceness (default 10), so it yields to tests.
+	Nice *int `yaml:"nice"`
+
+	MaxSessions int           `yaml:"max_sessions"`
+	IdleTimeout time.Duration `yaml:"idle_timeout"`
+	MaxDuration time.Duration `yaml:"max_duration"`
 }
 
 // ControllerBaseURL returns controller_url when it is set, otherwise
