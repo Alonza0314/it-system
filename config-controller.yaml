@@ -31,5 +31,19 @@ backend:
 
   writeToDbTimer: 24h # time.Duration
 
+  # web terminal to runners for admins; see design/runner-terminal.md
+  terminal:
+    enabled: false
+    # false: browsers must come over HTTPS through backend.trustedProxies
+    allowInsecureHttp: false
+    allowedUsers: []        # empty: every admin
+    allowedClientCIDRs: []  # empty: any address
+    allowedOrigins: []      # extra origins, e.g. ["localhost:5173"] for yarn dev
+    ticketTTL: 30s
+    idleTimeout: 15m
+    maxDuration: 2h
+    maxSessionsPerRunner: 2
+    maxSessions: 6
+
 logger:
   level: "info"

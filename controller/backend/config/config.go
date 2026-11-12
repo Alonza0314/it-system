@@ -34,11 +34,41 @@ type BackendIE struct {
 	Discord DiscordIE `yaml:"discord"`
 
 	WriteToDbTimer time.Duration `yaml:"writeToDbTimer" valid:"required"`
+
+	Terminal TerminalIE `yaml:"terminal"`
 }
 
 type DiscordIE struct {
 	Enabled        bool   `yaml:"enabled"`
 	WebhookUrlPath string `yaml:"webhookUrlPath"`
+}
+
+// TerminalIE configures the admin web terminal to runners (off by default).
+// See design/runner-terminal.md.
+type TerminalIE struct {
+	Enabled bool `yaml:"enabled"`
+
+	// AllowInsecureHttp lets browsers open a terminal over plain HTTP. When
+	// false, a browser must come over HTTPS through a reverse proxy listed in
+	// backend.trustedProxies (deb/https.md); the controller does not start
+	// the terminal without one.
+	AllowInsecureHttp bool `yaml:"allowInsecureHttp"`
+
+	// AllowedUsers limits who may open a terminal; empty means every admin.
+	AllowedUsers []string `yaml:"allowedUsers"`
+	// AllowedClientCIDRs limits where browsers may connect from, by the
+	// client address (X-Forwarded-For counts only from backend.trustedProxies);
+	// empty means anywhere.
+	AllowedClientCIDRs []string `yaml:"allowedClientCIDRs"`
+	// AllowedOrigins are extra browser origins (host patterns, such as
+	// "localhost:5173") accepted besides the controller's own host.
+	AllowedOrigins []string `yaml:"allowedOrigins"`
+
+	TicketTTL            time.Duration `yaml:"ticketTTL"`
+	IdleTimeout          time.Duration `yaml:"idleTimeout"`
+	MaxDuration          time.Duration `yaml:"maxDuration"`
+	MaxSessionsPerRunner int           `yaml:"maxSessionsPerRunner"`
+	MaxSessions          int           `yaml:"maxSessions"`
 }
 
 type JWTIE struct {

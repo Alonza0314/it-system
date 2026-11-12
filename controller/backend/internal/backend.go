@@ -11,6 +11,7 @@ import (
 
 	"github.com/Alonza0314/it-system/controller/backend/config"
 	"github.com/Alonza0314/it-system/controller/backend/internal/processor"
+	"github.com/Alonza0314/it-system/controller/backend/internal/terminal"
 	"github.com/Alonza0314/it-system/controller/backend/logger"
 	loggergo "github.com/Alonza0314/logger-go/v2"
 
@@ -39,6 +40,8 @@ type backend struct {
 	frontendFilePath string
 
 	processor.Processor
+
+	terminal *terminal.Hub
 
 	*logger.BackendLogger
 }
@@ -69,6 +72,8 @@ func NewBackend(config *config.Config, discordWebhookURL string, logger *logger.
 
 		BackendLogger: logger,
 	}
+
+	b.terminal = newTerminalHub(config, &b.Processor, logger)
 
 	gin.DefaultWriter, gin.DefaultErrorWriter = loggergo.NewGinWriter(logger.GinLog), loggergo.NewGinWriter(logger.GinLog)
 
@@ -137,6 +142,10 @@ func (b *backend) Stop() {
 	fmt.Println()
 	b.BckLog.Infoln("Stopping backend server...")
 
+	if b.terminal != nil {
+		b.terminal.Close()
+	}
+
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdownCancel()
 
@@ -187,6 +196,15 @@ func addServices(router *gin.Engine, b *backend) {
 	addRoutes(adminRunnerGroup, b.getAdminRunnerRoutes())
 	runRunnerGroup := runGroup.Group("/runner")
 	addRoutes(runRunnerGroup, b.getRunRunnerRoutes())
+
+	// terminal: the ticket is admin-only; the browser WebSocket cannot send a
+	// Bearer token, so it is authenticated by that one-time ticket instead
+	adminRunnerTerminalGroup := adminRunnerGroup.Group("/terminal")
+	addRoutes(adminRunnerTerminalGroup, b.getAdminRunnerTerminalRoutes())
+	terminalGroup := apiGroup.Group("/terminal")
+	addRoutes(terminalGroup, b.getTerminalRoutes())
+	runRunnerTerminalGroup := runRunnerGroup.Group("/terminal")
+	addRoutes(runRunnerTerminalGroup, b.getRunRunnerTerminalRoutes())
 }
 
 func addRoutes(group *gin.RouterGroup, routes util.Routes) {

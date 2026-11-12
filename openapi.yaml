@@ -806,6 +806,75 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
 
+  /api/admin/runner/terminal/ticket:
+    post:
+      summary: Create a terminal ticket
+      description: |
+        Returns a one-time ticket, valid for `expiresIn` seconds, for opening
+        an interactive shell on a runner. Connect a WebSocket to
+        `/api/terminal/ws` with the subprotocols `it-terminal.v1` and
+        `ticket.<ticket>`; the protocol is described in
+        `design/runner-terminal.md`. The terminal is off unless both the
+        controller and the runner enable it.
+      operationId: createTerminalTicket
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerminalTicketRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalTicketResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Not an admin, not in the allowed users, or not from an allowed address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Runner not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: Runner is offline or has not enabled the terminal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '429':
+          description: Session limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '503':
+          description: Terminal is disabled on this controller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
   /api/admin/test/history:
     delete:
       summary: Delete tasks history
@@ -1404,6 +1473,39 @@ components:
         token:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    TerminalTicketRequest:
+      type: object
+      required:
+        - runner
+      properties:
+        runner:
+          type: string
+          example: runner-1
+        cols:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          example: 80
+        rows:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          example: 24
+    TerminalTicketResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Terminal ticket created
+        ticket:
+          type: string
+          example: 3q2-7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        expiresIn:
+          type: integer
+          description: Seconds until the ticket expires
+          example: 30
     RequestRunnerHeartbeat:
       type: object
       required:

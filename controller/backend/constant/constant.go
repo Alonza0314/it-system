@@ -13,6 +13,7 @@ const (
 	RUN_LOG  = "RUN"
 	DCR_LOG  = "DCR"
 	CTX_LOG  = "CTX"
+	TERM_LOG = "TERM"
 )
 
 // user level
@@ -59,6 +60,10 @@ const (
 	BUCKET_HISTORY    = "history"
 )
 
+// BUCKET_RUNNER_REGISTRATION maps a runner name to the id of its current
+// registration (see RUNNER_REGISTRATION_CLAIM_TAG).
+const BUCKET_RUNNER_REGISTRATION = "runner_registration"
+
 // task status
 const (
 	TASK_STATUS_PENDING  = "pending"
@@ -78,6 +83,21 @@ const TASK_CANCELED_HEADER = "X-Task-Canceled"
 // runner name
 const (
 	RUNNER_JWT_SUBJECT_TAG = "runner"
+	// claim of a runner token holding the id of the registration it was issued
+	// for; deleting or re-registering the runner invalidates it for the terminal
+	RUNNER_REGISTRATION_CLAIM_TAG = "rid"
+)
+
+// gin context key of the JWT claims, set by the admin and runner middleware
+const (
+	CLAIMS_CONTEXT_KEY = "claims"
+)
+
+// defaults shipped in config-controller.yaml; the terminal refuses to start with them
+const (
+	DEFAULT_BACKEND_PASSWORD  = "0000"
+	DEFAULT_JWT_SECRET        = "free5gc-it-system"
+	DEFAULT_RUNNER_JWT_SECRET = "free5gc-it-runner"
 )
 
 // runner status
