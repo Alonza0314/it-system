@@ -40,3 +40,14 @@ export function getUserHeader(): Record<string, string> {
   const username = getCurrentUsername()
   return username ? { user: username } : {}
 }
+
+// user_level from the JWT. Only for showing or hiding UI; the backend checks
+// it on every admin request.
+export function getCurrentUserLevel(): string {
+  const token = localStorage.getItem('token') || ''
+  return readStringClaim(decodeJwtPayload(token), 'user_level')
+}
+
+export function isAdmin(): boolean {
+  return getCurrentUserLevel() === 'admin'
+}

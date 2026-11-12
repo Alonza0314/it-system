@@ -1,9 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import NotificationContainer from '../../components/notifications/NotificationContainer'
 import Modal from '../../components/modal/modal'
 import { useNotifications } from '../../hooks/useNotifications'
 import { deleteRunner, getRunners, type Runner } from '../../api/runner'
+import { isAdmin } from '../../utils/auth'
 import styles from './runner-page.module.css'
+
+// xterm.js and the terminal font are loaded only when a terminal is opened
+const RunnerTerminalWindow = lazy(() => import('../../components/runnerTerminal/RunnerTerminalWindow'))
 
 function getStatusClass(status: string) {
   const normalized = status.toLowerCase()
@@ -23,6 +27,10 @@ export default function RunnerPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [targetDeleteName, setTargetDeleteName] = useState('')
   const [deletingName, setDeletingName] = useState('')
+  const [canOpenTerminal] = useState(isAdmin)
+  // open terminal windows, most recently focused last
+  const [terminals, setTerminals] = useState<string[]>([])
+  const [focusOrder, setFocusOrder] = useState<string[]>([])
 
   const refreshRunners = useCallback(async () => {
     setIsLoading(true)
@@ -72,6 +80,20 @@ export default function RunnerPage() {
       return acc
     }, { offline: 0, idle: 0, running: 0 })
   }, [runners])
+
+  function focusTerminal(name: string) {
+    setFocusOrder((order) => (order[order.length - 1] === name ? order : [...order.filter((n) => n !== name), name]))
+  }
+
+  function openTerminal(name: string) {
+    setTerminals((open) => (open.includes(name) ? open : [...open, name]))
+    focusTerminal(name)
+  }
+
+  function closeTerminal(name: string) {
+    setTerminals((open) => open.filter((n) => n !== name))
+    setFocusOrder((order) => order.filter((n) => n !== name))
+  }
 
   function openDeleteModal(name: string) {
     setTargetDeleteName(name)
@@ -149,17 +171,32 @@ export default function RunnerPage() {
             <article key={`${runner.name}-${runner.ip}`} className={`${styles.runnerCard} ${getStatusClass(runner.status)}`}>
               <div className={styles.cardHeader}>
                 <h3>{runner.name}</h3>
-                <button
-                  type="button"
-                  className={styles.deleteButton}
-                  onClick={() => openDeleteModal(runner.name)}
-                  disabled={deletingName === runner.name}
-                  aria-label={`Delete runner ${runner.name}`}
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={styles.trashIcon}>
-                    <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9zM7 9h2v8H7V9z" fill="currentColor" />
-                  </svg>
-                </button>
+                <div className={styles.cardActions}>
+                  {canOpenTerminal && (
+                    <button
+                      type="button"
+                      className={styles.terminalButton}
+                      onClick={() => openTerminal(runner.name)}
+                      aria-label={`Open terminal on runner ${runner.name}`}
+                      title="Open terminal"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={styles.terminalIcon}>
+                        <path d="M3 5h18v14H3V5zm2 2v10h14V7H5zm1.6 1.6L10 12l-3.4 3.4-1.1-1.1L7.8 12 5.5 9.7l1.1-1.1zM11 14.5h6V16h-6v-1.5z" fill="currentColor" />
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    onClick={() => openDeleteModal(runner.name)}
+                    disabled={deletingName === runner.name}
+                    aria-label={`Delete runner ${runner.name}`}
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={styles.trashIcon}>
+                      <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9zM7 9h2v8H7V9z" fill="currentColor" />
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <div className={styles.cardBody}>
@@ -175,6 +212,20 @@ export default function RunnerPage() {
           )}
         </section>
       )}
+
+      <Suspense fallback={null}>
+        {terminals.map((name, index) => (
+          <RunnerTerminalWindow
+            key={name}
+            runner={name}
+            onGoingTask={runners.find((r) => r.name === name)?.onGoingTask ?? 0}
+            offset={index}
+            zIndex={1100 + Math.max(0, focusOrder.indexOf(name))}
+            onFocus={() => focusTerminal(name)}
+            onClose={() => closeTerminal(name)}
+          />
+        ))}
+      </Suspense>
 
       <Modal
         isOpen={isDeleteModalOpen}

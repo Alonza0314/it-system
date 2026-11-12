@@ -134,6 +134,35 @@
   overflow: hidden;
 }
 
+.cardActions {
+  display: flex;
+  gap: 0.45rem;
+  flex: none;
+}
+
+.terminalButton {
+  border: 1px solid var(--border-strong);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.terminalButton:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.terminalIcon {
+  width: 17px;
+  height: 17px;
+}
+
 .deleteButton {
   border: 1px solid var(--danger-border);
   width: 32px;

@@ -37,6 +37,8 @@ docs/SubmitTaskTest.md
 docs/TaskDetail.md
 docs/TaskSimple.md
 docs/Tenant.md
+docs/TerminalTicketRequest.md
+docs/TerminalTicketResponse.md
 docs/TestDetail.md
 docs/Testcase.md
 git_push.sh

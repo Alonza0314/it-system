@@ -1,0 +1,206 @@
+.window {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 22px 70px rgba(0, 0, 0, 0.45);
+  /* clip, not hidden: focusing xterm's textarea must not scroll the window */
+  overflow: clip;
+  touch-action: none;
+  /* the site's negative letter-spacing would make xterm measure its cells
+     narrower than it draws them, pushing the last columns out of view */
+  letter-spacing: normal;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 40px;
+  padding: 0 0.45rem 0 0.8rem;
+  background: linear-gradient(#323234, #2a2a2c);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.55);
+  color: #f5f5f7;
+  cursor: move;
+  user-select: none;
+  flex: none;
+}
+
+.titleIcon {
+  width: 15px;
+  height: 15px;
+  color: #8e8e93;
+  flex: none;
+}
+
+.title {
+  min-width: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.5rem 0.12rem 0.42rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  flex: none;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.stateConnecting {
+  color: #ffb340;
+}
+
+.stateConnecting .dot {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.stateConnected {
+  color: #4cd964;
+}
+
+.stateClosed {
+  color: #aeaeb2;
+}
+
+.stateError {
+  color: #ff6961;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stateConnecting .dot {
+    animation: none;
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.textButton,
+.closeButton {
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #d1d1d6;
+  cursor: pointer;
+  flex: none;
+}
+
+.textButton {
+  padding: 0.28rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: rgba(10, 132, 255, 0.18);
+  color: #70b4ff;
+}
+
+.textButton:hover {
+  background: rgba(10, 132, 255, 0.3);
+}
+
+.closeButton {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton svg {
+  width: 15px;
+  height: 15px;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.textButton:focus-visible,
+.closeButton:focus-visible {
+  outline: 2px solid #0a84ff;
+  outline-offset: 1px;
+}
+
+.warning,
+.error,
+.notice {
+  margin: 0;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  flex: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.warning {
+  background: rgba(255, 214, 10, 0.12);
+  color: #ffd60a;
+}
+
+.error {
+  background: rgba(255, 105, 97, 0.12);
+  color: #ff8a80;
+}
+
+.notice {
+  background: rgba(255, 255, 255, 0.05);
+  color: #aeaeb2;
+}
+
+.terminalHost {
+  flex: 1;
+  min-height: 0;
+  background: #1c1c1e;
+}
+
+/* padding on the xterm element, which the fit addon subtracts; padding on the
+   host would make the terminal taller than the window */
+.terminalHost :global(.xterm) {
+  height: 100%;
+  padding: 0.55rem 0.15rem 0.4rem 0.7rem;
+}
+
+/* scrollbar of the xterm viewport */
+.terminalHost :global(.xterm-viewport) {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  background:
+    linear-gradient(135deg, transparent 55%, rgba(255, 255, 255, 0.22) 55%, rgba(255, 255, 255, 0.22) 62%, transparent 62%, transparent 74%, rgba(255, 255, 255, 0.22) 74%, rgba(255, 255, 255, 0.22) 81%, transparent 81%);
+}
