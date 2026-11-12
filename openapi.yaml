@@ -200,6 +200,12 @@ paths:
 
     delete:
       summary: Cancel task
+      description: >-
+        Cancels a pending or running task. A pending task is removed from the
+        queue. A running task is moved to the history with status `canceled`
+        (steps that already finished keep their result) and its runner is
+        released; the runner learns about it from the `X-Task-Canceled` header
+        the next time it reports output, then stops and cleans up.
       operationId: cancelTask
       security:
         - bearerAuth: []
@@ -228,6 +234,18 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: No task with this ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '409':
+          description: The task has already finished
           content:
             application/json:
               schema:
@@ -878,7 +896,17 @@ paths:
               $ref: '#/components/schemas/RequestTestOutput'
       responses:
         '204':
-          description: No Content
+          description: >-
+            No Content. When the task is not running any more (it was canceled,
+            or lost when the controller restarted) the output is dropped and the
+            `X-Task-Canceled` header is set; the runner should stop the task and
+            report its end.
+          headers:
+            X-Task-Canceled:
+              description: ID of the task the runner should stop
+              schema:
+                type: integer
+                format: uint64
         '400':
           description: Bad Request
           content:

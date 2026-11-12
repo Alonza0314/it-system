@@ -68,6 +68,12 @@ const (
 	TASK_STATUS_CANCELED = "canceled"
 )
 
+// TASK_CANCELED_HEADER is set on the reply to a runner's test output when the
+// task is no longer running on the controller: a user canceled it, or it was
+// lost when the controller restarted. The value is the task id. The reply is
+// still 204, so runners that do not know the header keep working as before.
+const TASK_CANCELED_HEADER = "X-Task-Canceled"
+
 // runner name
 const (
 	RUNNER_JWT_SUBJECT_TAG = "runner"

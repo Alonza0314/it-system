@@ -4,6 +4,7 @@ import (
 	cctx "context"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -15,6 +16,16 @@ import (
 	"github.com/Alonza0314/it-system/controller/backend/internal/notify"
 	"github.com/Alonza0314/it-system/controller/backend/logger"
 	"github.com/Alonza0314/it-system/controller/backend/model"
+)
+
+var (
+	// ErrTaskNotFound means no queue holds a task with the given id.
+	ErrTaskNotFound = errors.New("task not found")
+	// ErrTaskFinished means the task is already in the history.
+	ErrTaskFinished = errors.New("task already finished")
+	// ErrTaskNotOngoing means a runner reported output for a task that is not
+	// running any more: it was canceled, or lost when the controller restarted.
+	ErrTaskNotOngoing = errors.New("task is not running")
 )
 
 type taskIdGenerator struct {
@@ -485,28 +496,69 @@ func (ctx *taskContext) getFirstPendingTaskAndMoveToOngoing() (*task, error) {
 	return task, nil
 }
 
-func (ctx *taskContext) cancelTask(id uint64) error {
+// cancelTask drops a pending task, or moves a running task to the history as
+// canceled. It reports whether the task was running, so the caller can release
+// the runner. The runner itself learns about it from TASK_CANCELED_HEADER the
+// next time it reports output.
+func (ctx *taskContext) cancelTask(id uint64) (bool, error) {
 	ctx.pendingQueueLock.Lock()
 	defer ctx.pendingQueueLock.Unlock()
 
-	ctx.pendingQueue.RemoveById(id)
-
-	return nil
-}
-
-func (ctx *taskContext) moveOngoingTaskToHistory(id uint64) error {
-	task, err := ctx.getTaskById(id)
-	if err != nil {
-		return err
+	if ctx.pendingQueue.FindById(id) != nil {
+		ctx.pendingQueue.RemoveById(id)
+		return false, nil
 	}
 
 	ctx.ongoingQueueLock.Lock()
 	defer ctx.ongoingQueueLock.Unlock()
 
+	task := ctx.ongoingQueue.FindById(id)
+	if task == nil {
+		ctx.historyQueueLock.RLock()
+		finished := ctx.historyQueue.FindById(id) != nil
+		ctx.historyQueueLock.RUnlock()
+
+		if finished {
+			return false, fmt.Errorf("task %d: %w", id, ErrTaskFinished)
+		}
+		return false, fmt.Errorf("task %d: %w", id, ErrTaskNotFound)
+	}
+
+	ctx.ongoingQueue.RemoveById(id)
+	task.markCanceled()
+
+	return true, ctx.pushHistory(task)
+}
+
+// moveOngoingTaskToHistory finds and removes the task under one lock, so a
+// task canceled at the same moment cannot end up in the history twice.
+func (ctx *taskContext) moveOngoingTaskToHistory(id uint64) error {
+	ctx.ongoingQueueLock.Lock()
+	defer ctx.ongoingQueueLock.Unlock()
+
+	task := ctx.ongoingQueue.FindById(id)
+	if task == nil {
+		return fmt.Errorf("task %d: %w", id, ErrTaskNotOngoing)
+	}
+
 	ctx.ongoingQueue.RemoveById(id)
 	task.setFinalStatus()
 
 	return ctx.pushHistory(task)
+}
+
+// markCanceled keeps the result of the steps that already finished and marks
+// the rest as canceled.
+func (t *task) markCanceled() {
+	t.status = constant.TASK_STATUS_CANCELED
+
+	for i := range t.pipelines {
+		switch t.pipelines[i].status {
+		case constant.TASK_STATUS_SUCCESS, constant.TASK_STATUS_FAILED, constant.TASK_STATUS_TIMEOUT:
+		default:
+			t.pipelines[i].status = constant.TASK_STATUS_CANCELED
+		}
+	}
 }
 
 func (t *task) setFinalStatus() {
@@ -590,7 +642,7 @@ func (ctx *taskContext) writeLogToFile(id uint64, testName string, success bool,
 	}
 
 	if task == nil {
-		return fmt.Errorf("task with id %d not found", id)
+		return fmt.Errorf("task %d: %w", id, ErrTaskNotOngoing)
 	}
 
 	logDir := task.getLogDir(ctx.logPath)

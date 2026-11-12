@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   Configuration,
   DefaultApi,
@@ -204,7 +204,6 @@ function splitLines(segments: AnsiSegment[]): AnsiSegment[][] {
 export default function TaskDetailPage() {
   const navigate = useNavigate()
   const { id } = useParams()
-  const [searchParams] = useSearchParams()
   const { errors, successes, addError, addSuccess, removeNotification } = useNotifications()
 
   const [task, setTask] = useState<ResponseGetTask | null>(null)
@@ -223,9 +222,8 @@ export default function TaskDetailPage() {
   const isPollFailing = useRef(false)
 
   const taskId = Number(id)
-  const fromQueue = searchParams.get('from')
-  const canCancelTask = fromQueue !== 'ongoing' && fromQueue !== 'history'
   const taskStatus = normalizeStatus(task?.status)
+  const canCancelTask = taskStatus === 'pending' || taskStatus === 'running'
   const canRerunTask = taskStatus === 'success' || taskStatus === 'failed' || taskStatus === 'timeout'
   const tests = useMemo<TaskTestItem[]>(() => {
     const rawTests = (task?.tests || []) as unknown[]
@@ -545,6 +543,12 @@ export default function TaskDetailPage() {
           <p className={styles.confirmMessage}>
             Are you sure you want to cancel task "#{taskId}"?
           </p>
+          {taskStatus === 'running' && (
+            <p className={styles.confirmMessage}>
+              The task is running. Its runner stops when the step it is on ends (up to 10 minutes for a test, 30 for
+              make), then cleans up and takes the next task.
+            </p>
+          )}
         </Modal>
       )}
 

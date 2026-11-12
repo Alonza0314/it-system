@@ -2,6 +2,7 @@ package processor
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Alonza0314/it-system/controller/backend/constant"
+	"github.com/Alonza0314/it-system/controller/backend/internal/context"
 	"github.com/Alonza0314/it-system/controller/backend/internal/logbrief"
 	"github.com/Alonza0314/it-system/controller/backend/model"
 )
@@ -315,11 +317,27 @@ func (p *Processor) RerunTask(id uint64, username string) (*model.ResponseRerunT
 }
 
 func (p *Processor) CancelTask(id uint64) (*model.ResponseCancelTask, *model.ErrorDetail) {
-	if err := p.itContext.CancelTask(id); err != nil {
+	running, err := p.itContext.CancelTask(id)
+	if err != nil {
+		status := http.StatusInternalServerError
+		switch {
+		case errors.Is(err, context.ErrTaskNotFound):
+			status = http.StatusNotFound
+		case errors.Is(err, context.ErrTaskFinished):
+			status = http.StatusConflict
+		}
+
 		return nil, &model.ErrorDetail{
-			HttpStatus: http.StatusInternalServerError,
+			HttpStatus: status,
 			Detail:     fmt.Sprintf("Failed to cancel task: %v", err),
 		}
+	}
+
+	if running {
+		p.ProcLog.Infof("Canceled running task %d; its runner stops after the step it is on", id)
+		return &model.ResponseCancelTask{
+			Message: fmt.Sprintf("Task %d cancelled. Its runner stops after the step it is running now, then cleans up.", id),
+		}, nil
 	}
 
 	return &model.ResponseCancelTask{
