@@ -577,6 +577,16 @@ func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp st
 	return output1 + "\n" + output2, nil
 }
 
+// nfRepoDir is where an NF's submodule is in the free5gc repository:
+// NFs/<nf>, except webconsole, which is at the top level.
+func nfRepoDir(f5gcDir, nf string) string {
+	if nf == cconstant.WEBCONSOLE {
+		return filepath.Join(f5gcDir, nf)
+	}
+
+	return filepath.Join(f5gcDir, "NFs", nf)
+}
+
 func (s *taskServer) fetchNfPr(taskCtx context.Context, nfPrs []model.NfPr, f5gcDir string) (string, error) {
 	var output string
 
@@ -590,7 +600,7 @@ func (s *taskServer) fetchNfPr(taskCtx context.Context, nfPrs []model.NfPr, f5gc
 		ctx, cancel := context.WithTimeout(taskCtx, constant.FETCH_CMD_TIMEOUT)
 		defer cancel()
 
-		nfDir := filepath.Join(f5gcDir, "NFs", nfPr.NfName)
+		nfDir := nfRepoDir(f5gcDir, nfPr.NfName)
 		if fetchOutput, err := s.runCmd(
 			ctx,
 			nfDir,
