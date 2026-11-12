@@ -2,12 +2,10 @@ package server
 
 import (
 	"context"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strconv"
 	"testing"
 	"time"
 
@@ -143,14 +141,8 @@ func TestSendTestOutputPassesCancelToTaskServer(t *testing.T) {
 	}))
 	defer controller.Close()
 
-	host, portString, err := net.SplitHostPort(controller.Listener.Addr().String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	port, _ := strconv.Atoi(portString)
-
 	cancelChannel := make(chan uint64, 1)
-	s := newHttpSenderServer("runner-1", host, port, 1, "token", nil, nil, cancelChannel, newTestLogger())
+	s := newHttpSenderServer("runner-1", controller.URL, 1, "token", nil, nil, cancelChannel, newTestLogger())
 	s.setStatusRunning()
 
 	end := true

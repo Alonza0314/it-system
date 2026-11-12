@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { Configuration, DefaultApi, type Testcase } from '../api'
 import { getUserHeader } from '../utils/auth'
+import { apiBasePath } from '../utils/apiBase'
 
 interface AddTestcasePayload {
   name: string
@@ -19,8 +20,6 @@ interface TestcaseContextValue {
 }
 
 const TestcaseContext = createContext<TestcaseContextValue | undefined>(undefined)
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (

@@ -23,8 +23,6 @@ const (
 
 // controller api
 const (
-	HTTP_API = "http://%s:%d"
-
 	HTTP_RETRY_TIMES = 3
 
 	AUTHENTICATION_HEADER_KEY   = "Authorization"
@@ -34,8 +32,9 @@ const (
 	API_RUNNER_HEARTBEAT_ACTION   = http.MethodPost
 	API_RUNNER_TEST_OUTPUT_ACTION = http.MethodPost
 
-	API_RUNNER_HEARTBEAT   = HTTP_API + "/api/run/runner/heartbeat"
-	API_RUNNER_TEST_OUTPUT = HTTP_API + "/api/run/runner/test-output"
+	// paths under the controller base URL (config.RunnerIE.ControllerBaseURL)
+	API_RUNNER_HEARTBEAT   = "/api/run/runner/heartbeat"
+	API_RUNNER_TEST_OUTPUT = "/api/run/runner/test-output"
 )
 
 type RunnerStatus string

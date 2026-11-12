@@ -12,8 +12,7 @@ import (
 type runner struct {
 	name string
 
-	controllerIP   string
-	controllerPort int
+	controllerURL string
 
 	server.Server
 
@@ -21,13 +20,18 @@ type runner struct {
 }
 
 func NewRunner(config *config.Config, token string, logger *logger.RunnerLogger) *runner {
+	controllerURL, err := config.Runner.ControllerBaseURL()
+	if err != nil {
+		logger.CfgLog.Errorf("Invalid controller address: %v", err)
+		return nil
+	}
+
 	return &runner{
 		name: config.Runner.Name,
 
-		controllerIP:   config.Runner.ControllerIP,
-		controllerPort: config.Runner.ControllerPort,
+		controllerURL: controllerURL,
 
-		Server: *server.NewServer(config.Runner.Name, config.Runner.ControllerIP, config.Runner.ControllerPort, config.Runner.HttpSenderChannelSize, token, config.Runner.HeartbeatInterval, config.Runner.WorkspacePath, logger),
+		Server: *server.NewServer(config.Runner.Name, controllerURL, config.Runner.HttpSenderChannelSize, token, config.Runner.HeartbeatInterval, config.Runner.WorkspacePath, logger),
 
 		RunnerLogger: logger,
 	}
@@ -43,7 +47,7 @@ func (r *runner) Start() {
 	}()
 	time.Sleep(500 * time.Millisecond)
 
-	r.RunLog.Infof("Runner started with controller IP: %s, controller Port: %d", r.controllerIP, r.controllerPort)
+	r.RunLog.Infof("Runner started with controller: %s", r.controllerURL)
 }
 
 func (r *runner) Stop() {

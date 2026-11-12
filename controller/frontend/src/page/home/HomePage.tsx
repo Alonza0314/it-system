@@ -6,8 +6,7 @@ import { Configuration, DefaultApi } from '../../api'
 import { getRunners } from '../../api/runner'
 import { getUserHeader } from '../../utils/auth'
 import styles from './home-page.module.css'
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
+import { apiBasePath } from '../../utils/apiBase'
 
 export default function HomePage() {
   const navigate = useNavigate()

@@ -11,8 +11,7 @@ import NotificationContainer from '../../components/notifications/NotificationCo
 import RerunTaskModal from '../../components/test/RerunTaskModal'
 import { useNotifications } from '../../hooks/useNotifications'
 import styles from './history-page.module.css'
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
+import { apiBasePath } from '../../utils/apiBase'
 
 const STATUS_OPTIONS = ['running', 'pending', 'success', 'failed', 'timeout']
 

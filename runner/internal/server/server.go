@@ -19,13 +19,13 @@ type Server struct {
 	cancelChannel chan uint64
 }
 
-func NewServer(runnerName, controllerIP string, controllerPort, httpSenderChannelSize int, token string, heartbeatInterval time.Duration, workspacePath string, logger *logger.RunnerLogger) *Server {
+func NewServer(runnerName, controllerURL string, httpSenderChannelSize int, token string, heartbeatInterval time.Duration, workspacePath string, logger *logger.RunnerLogger) *Server {
 	msgChannel := make(chan httpSenderMessage, httpSenderChannelSize)
 	taskChannel := make(chan model.ResponseRunnerHeartbeat, httpSenderChannelSize)
 	cancelChannel := make(chan uint64, httpSenderChannelSize)
 
 	return &Server{
-		httpSenderServer: newHttpSenderServer(runnerName, controllerIP, controllerPort, httpSenderChannelSize, token, msgChannel, taskChannel, cancelChannel, logger),
+		httpSenderServer: newHttpSenderServer(runnerName, controllerURL, httpSenderChannelSize, token, msgChannel, taskChannel, cancelChannel, logger),
 		heartbeatServer:  newHeartbeatServer(msgChannel, heartbeatInterval, logger),
 		taskServer:       newtaskServer(workspacePath, msgChannel, taskChannel, cancelChannel, logger),
 

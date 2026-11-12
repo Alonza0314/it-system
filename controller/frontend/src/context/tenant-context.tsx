@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { Configuration, DefaultApi, type Tenant } from '../api'
 import { getUserHeader } from '../utils/auth'
+import { apiBasePath } from '../utils/apiBase'
 
 interface AddTenantPayload {
   username: string
@@ -23,8 +24,6 @@ interface TenantContextValue {
 }
 
 const TenantContext = createContext<TenantContextValue | undefined>(undefined)
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 
 function getErrorResponse(error: unknown) {
   if (

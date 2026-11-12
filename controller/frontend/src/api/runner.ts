@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getUserHeader } from '../utils/auth'
+import { apiBasePath } from '../utils/apiBase'
 
 export interface Runner {
   name: string
@@ -16,8 +17,6 @@ interface GetRunnersResponse {
 interface MessageResponse {
   message?: string
 }
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token') || ''

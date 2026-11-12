@@ -4,6 +4,10 @@ backend:
 
   port: 8888
 
+  # reverse proxies whose X-Forwarded-For is trusted, e.g. ["127.0.0.1"] for
+  # an HTTPS proxy on the same host (see deb/https.md); empty trusts none
+  trustedProxies: []
+
   jwt:
     secret: "free5gc-it-system"
     expiresIn: 1h

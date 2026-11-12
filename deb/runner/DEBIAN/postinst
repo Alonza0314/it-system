@@ -9,7 +9,7 @@ CONFIG_FILE="/etc/it-system/config-runner.yaml"
 RUNNER_BASE_DIR="/usr/share/it-system-runner"
 
 escape_sed_replacement() {
-  printf '%s' "$1" | sed 's/[\\&]/\\&/g'
+  printf '%s' "$1" | sed 's/[\\&/]/\\&/g'
 }
 
 escape_json_string() {
@@ -29,7 +29,11 @@ yaml_get_unquoted() {
 prompt_value() {
   label="$1"
   default_value="$2"
-  printf "%s [%s]: " "$label" "$default_value" >&2
+  if [ -n "$default_value" ]; then
+    printf "%s [%s]: " "$label" "$default_value" >&2
+  else
+    printf "%s: " "$label" >&2
+  fi
   IFS= read -r input_value || true
   if [ -z "$input_value" ]; then
     printf '%s' "$default_value"
@@ -64,10 +68,18 @@ update_config_values() {
   runner_name_escaped="$(escape_sed_replacement "$1")"
   controller_ip_escaped="$(escape_sed_replacement "$3")"
   controller_port_escaped="$(escape_sed_replacement "$4")"
+  controller_url_escaped="$(escape_sed_replacement "$5")"
 
   sed -i "0,/^[[:space:]]*name:[[:space:]]*\".*\"[[:space:]]*$/s//  name: \"${runner_name_escaped}\"/" "$CONFIG_FILE"
   sed -i "0,/^[[:space:]]*controller_ip:[[:space:]]*\".*\"[[:space:]]*$/s//  controller_ip: \"${controller_ip_escaped}\"/" "$CONFIG_FILE"
   sed -i "0,/^[[:space:]]*controller_port:[[:space:]]*[0-9][0-9]*[[:space:]]*$/s//  controller_port: ${controller_port_escaped}/" "$CONFIG_FILE"
+
+  # configs from before controller_url existed have no such line
+  if grep -q '^[[:space:]]*controller_url:' "$CONFIG_FILE"; then
+    sed -i "0,/^[[:space:]]*controller_url:.*$/s//  controller_url: \"${controller_url_escaped}\"/" "$CONFIG_FILE"
+  elif [ -n "$5" ]; then
+    sed -i "0,/^[[:space:]]*controller_port:.*$/s//&\n  controller_url: \"${controller_url_escaped}\"/" "$CONFIG_FILE"
+  fi
 }
 
 save_runner_token() {
@@ -148,6 +160,7 @@ register_runner() {
   default_runner_name="$(yaml_get_quoted name)"
   default_controller_ip="$(yaml_get_quoted controller_ip)"
   default_controller_port="$(yaml_get_unquoted controller_port)"
+  default_controller_url="$(yaml_get_quoted controller_url)"
 
   if [ -z "$default_runner_name" ]; then default_runner_name="runner"; fi
   if [ -z "$default_controller_ip" ]; then default_controller_ip="127.0.0.1"; fi
@@ -156,8 +169,24 @@ register_runner() {
   echo "Register IT System Runner"
   runner_name="$(prompt_value "Runner name" "$default_runner_name")"
   runner_ip="$(prompt_value "Runner IP" "127.0.0.1")"
-  controller_ip="$(prompt_value "Controller IP" "$default_controller_ip")"
-  controller_port="$(prompt_value "Controller Port" "$default_controller_port")"
+  controller_url="$(prompt_value "Controller URL, e.g. https://it.example.org (empty: use Controller IP and Port)" "$default_controller_url")"
+  controller_url="${controller_url%/}"
+  if [ -n "$controller_url" ]; then
+    case "$controller_url" in
+      http://*|https://*) ;;
+      *)
+        echo "[it-system-runner] controller URL must start with http:// or https://"
+        exit 1
+        ;;
+    esac
+    controller_ip="$default_controller_ip"
+    controller_port="$default_controller_port"
+    controller_base_url="$controller_url"
+  else
+    controller_ip="$(prompt_value "Controller IP" "$default_controller_ip")"
+    controller_port="$(prompt_value "Controller Port" "$default_controller_port")"
+    controller_base_url="http://${controller_ip}:${controller_port}"
+  fi
   admin_username="$(prompt_value "Controller admin username" "admin")"
   admin_password="$(prompt_password "Controller admin password")"
 
@@ -166,10 +195,10 @@ register_runner() {
     exit 1
   fi
 
-  update_config_values "$runner_name" "$runner_ip" "$controller_ip" "$controller_port"
+  update_config_values "$runner_name" "$runner_ip" "$controller_ip" "$controller_port" "$controller_url"
 
   login_payload=$(printf '{"username":"%s","password":"%s"}' "$(escape_json_string "$admin_username")" "$(escape_json_string "$admin_password")")
-  login_result=$(curl -sS -w '\n%{http_code}' -H 'Content-Type: application/json' -X POST -d "$login_payload" "http://${controller_ip}:${controller_port}/api/login")
+  login_result=$(curl -sS -w '\n%{http_code}' -H 'Content-Type: application/json' -X POST -d "$login_payload" "${controller_base_url}/api/login")
   login_status="$(extract_http_status "$login_result")"
   login_body="$(extract_http_body "$login_result")"
 
@@ -186,7 +215,7 @@ register_runner() {
   fi
 
   register_payload=$(printf '{"name":"%s","ip":"%s"}' "$(escape_json_string "$runner_name")" "$(escape_json_string "$runner_ip")")
-  register_result=$(curl -sS -w '\n%{http_code}' -H 'Content-Type: application/json' -H "Authorization: Bearer ${admin_token}" -X POST -d "$register_payload" "http://${controller_ip}:${controller_port}/api/admin/runner")
+  register_result=$(curl -sS -w '\n%{http_code}' -H 'Content-Type: application/json' -H "Authorization: Bearer ${admin_token}" -X POST -d "$register_payload" "${controller_base_url}/api/admin/runner")
   register_status="$(extract_http_status "$register_result")"
   register_body="$(extract_http_body "$register_result")"
 

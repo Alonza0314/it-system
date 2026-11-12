@@ -9,8 +9,7 @@ import { getUserHeader } from '../../utils/auth'
 import { isPipelineStep } from '../../utils/task'
 import Modal from '../modal/modal'
 import styles from './rerun-task-modal.module.css'
-
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
+import { apiBasePath } from '../../utils/apiBase'
 
 interface RerunTaskModalProps {
   // The task to run again; the modal is closed when it is null

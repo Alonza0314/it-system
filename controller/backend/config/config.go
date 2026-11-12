@@ -13,6 +13,11 @@ type BackendIE struct {
 
 	Port int `yaml:"port" valid:"required"`
 
+	// TrustedProxies lists the reverse proxies (IPs or CIDRs, such as
+	// "127.0.0.1" for a proxy on the same host) whose X-Forwarded-For header
+	// is believed when logging the client address. Empty trusts no proxy.
+	TrustedProxies []string `yaml:"trustedProxies"`
+
 	JWT JWTIE `yaml:"jwt" valid:"required"`
 
 	RunnerJWT JWTIE `yaml:"runnerJwt" valid:"required"`

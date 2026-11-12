@@ -5,8 +5,8 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { Configuration, DefaultApi } from '../../api'
 import { useNavigate } from 'react-router-dom'
 import styles from './login-page.module.css'
+import { apiBasePath } from '../../utils/apiBase'
 
-const apiBasePath = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8888`
 const api = new DefaultApi(new Configuration({ basePath: apiBasePath }))
 
 export default function LoginPage() {

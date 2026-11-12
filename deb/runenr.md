@@ -46,14 +46,14 @@ During install when runner token is missing (for example fresh install or reinst
 
 - runner name
 - runner ip
-- controller ip
-- controller port
+- controller URL, such as `https://it.example.org` for a controller behind HTTPS ([HTTPS](./https.md)); leave empty to give the controller ip and port instead
+- controller ip and controller port (only when the URL is empty)
 - controller admin username
 - controller admin password
 
 Installer flow:
 
-1. Update `/etc/it-system/config-runner.yaml` fields: `name`, `controller_ip`, `controller_port`
+1. Update `/etc/it-system/config-runner.yaml` fields: `name`, `controller_ip`, `controller_port`, `controller_url`
 2. Login controller via `POST /api/login`
 3. Register runner via `POST /api/admin/runner` with payload:
 
