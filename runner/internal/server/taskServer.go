@@ -179,19 +179,19 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	defer s.setCurrentTask(0, nil)
 
 	if !s.handlePrepeareRepo(ctx, task.Id, repoDir, currentTimeStamp, slices.ContainsFunc(task.NFPrList, func(nfPr model.NfPr) bool { return nfPr.NfName == cconstant.FREE5GC }), task.NFPrList) {
-		s.finishIfCanceled(ctx, task.Id, repoDir)
+		s.endFailedStep(ctx, task.Id, repoDir)
 		return
 	}
 
 	f5gcDir := filepath.Join(repoDir, constant.FREE5GC_REPO)
 
 	if !s.handleFetchNfPr(ctx, task.Id, task.NFPrList, f5gcDir) {
-		s.finishIfCanceled(ctx, task.Id, repoDir)
+		s.endFailedStep(ctx, task.Id, repoDir)
 		return
 	}
 
 	if !s.handleMakeNf(ctx, task.Id, repoDir) {
-		s.finishIfCanceled(ctx, task.Id, repoDir)
+		s.endFailedStep(ctx, task.Id, repoDir)
 		return
 	}
 
@@ -256,6 +256,18 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	s.handleCleanup(task.Id, repoDir)
 }
 
+// endFailedStep ends a task whose prepare, fetch or make step did not finish.
+// The step has reported its failure; the cleanup then ends the task, so the
+// next task does not start from a half-built state. A canceled task is ended
+// by finishIfCanceled instead.
+func (s *taskServer) endFailedStep(ctx context.Context, id uint64, repoDir string) {
+	if s.finishIfCanceled(ctx, id, repoDir) {
+		return
+	}
+
+	s.handleCleanup(id, repoDir)
+}
+
 func (s *taskServer) normalizeOutput(output string) string {
 	ansiEscape := regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]`)
 	cleaned := ansiEscape.ReplaceAllString(output, "")
@@ -318,7 +330,7 @@ func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir,
 		}
 		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", id)
@@ -358,12 +370,12 @@ func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir,
 			}
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Fetch free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
-				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+fetchOutput))
+				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+fetchOutput))
 
 				return false
 			}
 			s.TaskLog.Errorf("Failed to fetch free5GC PR for task ID: %d, error: %v", id, err)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+fetchOutput))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+fetchOutput))
 
 			return false
 		} else {
@@ -382,12 +394,12 @@ func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir,
 			}
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Checkout free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
-				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+checkoutOutput))
+				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+checkoutOutput))
 
 				return false
 			}
 			s.TaskLog.Errorf("Failed to checkout free5GC PR for task ID: %d, error: %v", id, err)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+checkoutOutput))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+checkoutOutput))
 
 			return false
 		} else {
@@ -410,7 +422,7 @@ func (s *taskServer) handleFetchNfPr(ctx context.Context, id uint64, nfPrs []mod
 		}
 		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_FETCH_PRS, false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", id)
@@ -428,7 +440,7 @@ func (s *taskServer) handleMakeNf(ctx context.Context, id uint64, repoDir string
 		}
 		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_MAKE_NF, false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("NF made successfully for task ID: %d", id)

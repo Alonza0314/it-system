@@ -43,19 +43,28 @@ func readCalls(t *testing.T, calls string) string {
 
 // fakeTaskCommands fakes what handleTask runs. Cloning ci-test creates a
 // checkout with the given scripts (file name → body), cloning free5gc creates
-// an empty directory, other git commands succeed and print nothing.
-func fakeTaskCommands(t *testing.T, ciTest map[string]string, makeBody string) string {
+// it with an amf submodule directory, "git fetch" runs gitFetch, and other git
+// commands succeed and print nothing.
+func fakeTaskCommands(t *testing.T, ciTest map[string]string, gitFetch, makeBody string) string {
 	t.Helper()
 
 	checkout := t.TempDir()
 	for name, body := range ciTest {
 		writeScript(t, checkout, name, body)
 	}
+	if gitFetch == "" {
+		gitFetch = "true"
+	}
 
 	return fakeCommands(t, map[string]string{
-		"git": fmt.Sprintf(`if [ "$1" = clone ]; then
-	if [ "$#" -eq 3 ]; then cp -R %q "$3"; else mkdir %s; fi
-fi`, checkout, constant.FREE5GC_REPO),
+		"git": fmt.Sprintf(`case "$1" in
+clone)
+	if [ "$#" -eq 3 ]; then cp -R %q "$3"; else mkdir -p %s/NFs/amf; fi
+	;;
+fetch)
+	%s
+	;;
+esac`, checkout, constant.FREE5GC_REPO, gitFetch),
 		"make":   makeBody,
 		"docker": "echo 'Total reclaimed space: 9.874GB'",
 	})
@@ -206,7 +215,7 @@ func TestHandleTaskEndsWithCleanup(t *testing.T) {
 	calls := fakeTaskCommands(t, map[string]string{
 		"force_kill.sh": "echo 'Total reclaimed space: 0B'",
 		"ci-test-it.sh": "echo ok",
-	}, "echo built")
+	}, "", "echo built")
 
 	s := newTestTaskServer(t)
 	s.testCmdTimeout = 10 * time.Second
@@ -232,7 +241,7 @@ func TestHandleTaskCleansUpWhenTimedOutTestCannotBeStopped(t *testing.T) {
 	calls := fakeTaskCommands(t, map[string]string{
 		"force_kill.sh": "echo 'Error response from daemon: removal in progress'; exit 1",
 		"ci-test-it.sh": `[ "$2" = TestSlow ] && sleep 30; echo ok`,
-	}, "echo built")
+	}, "", "echo built")
 
 	s := newTestTaskServer(t)
 	s.testCmdTimeout = time.Second
@@ -253,4 +262,84 @@ func TestHandleTaskCleansUpWhenTimedOutTestCannotBeStopped(t *testing.T) {
 		t.Errorf("Expected the cleanup to prune docker")
 	}
 	checkWorkspaceRemoved(t, s)
+}
+
+// A prepare, fetch or make step that fails is reported under its own name, and
+// the task still ends with its cleanup (11-10: two make failures in a row were
+// followed by "parent snapshot ... does not exist" in the next task).
+func TestHandleTaskCleansUpAfterFailedStep(t *testing.T) {
+	ciTest := map[string]string{
+		"force_kill.sh": "echo 'Total reclaimed space: 0B'",
+		"ci-test-it.sh": "echo ok",
+	}
+	prepared := []step{{cconstant.TESTCASE_PREPARE_FREE5GC, cconstant.TASK_STATUS_SUCCESS}}
+	fetched := append(prepared, step{cconstant.TESTCASE_FETCH_PRS, cconstant.TASK_STATUS_SUCCESS})
+
+	for _, tc := range []struct {
+		name      string
+		fake      func(t *testing.T) string
+		wantSteps []step
+		wantPrune bool
+	}{
+		{
+			name: "PrepareFails",
+			fake: func(t *testing.T) string {
+				return fakeCommands(t, map[string]string{
+					"git":    "echo 'fatal: could not create work tree dir: No space left on device'; exit 128",
+					"docker": "echo 'Total reclaimed space: 9.874GB'",
+				})
+			},
+			wantSteps: []step{
+				{cconstant.TESTCASE_PREPARE_FREE5GC, cconstant.TASK_STATUS_FAILED},
+				{cconstant.TESTCASE_CLEANUP, cconstant.TASK_STATUS_SUCCESS},
+			},
+			// ci-test was not cloned: nothing ran on docker
+			wantPrune: false,
+		},
+		{
+			name: "FetchFails",
+			fake: func(t *testing.T) string {
+				return fakeTaskCommands(t, ciTest, "echo \"fatal: couldn't find remote ref pull/238/head\"; exit 128", "echo built")
+			},
+			wantSteps: append(prepared,
+				step{cconstant.TESTCASE_FETCH_PRS, cconstant.TASK_STATUS_FAILED},
+				step{cconstant.TESTCASE_CLEANUP, cconstant.TASK_STATUS_SUCCESS},
+			),
+			wantPrune: true,
+		},
+		{
+			name: "MakeFails",
+			fake: func(t *testing.T) string {
+				return fakeTaskCommands(t, ciTest, "", "echo 'failed to prepare extraction snapshot'; exit 2")
+			},
+			wantSteps: append(fetched,
+				step{cconstant.TESTCASE_MAKE_NF, cconstant.TASK_STATUS_FAILED},
+				step{cconstant.TESTCASE_CLEANUP, cconstant.TASK_STATUS_SUCCESS},
+			),
+			wantPrune: true,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			calls := tc.fake(t)
+
+			s := newTestTaskServer(t)
+			s.handleTask(model.ResponseRunnerHeartbeat{
+				Id:       1,
+				Tests:    []model.Test{{Name: "TestRegistration", Script: "ci-test-it.sh"}},
+				NFPrList: []model.NfPr{{NfName: "amf", PR: 238}},
+			})
+
+			outputs := takeTestOutputs(s)
+			checkSteps(t, outputs, tc.wantSteps)
+			for _, out := range outputs {
+				if out.Status == cconstant.TASK_STATUS_FAILED && out.Log == "" {
+					t.Errorf("Expected the failed step %s to report its output", out.TestName)
+				}
+			}
+			if pruned := strings.Contains(readCalls(t, calls), "docker system prune"); pruned != tc.wantPrune {
+				t.Errorf("Expected docker to be pruned: %v, pruned: %v", tc.wantPrune, pruned)
+			}
+			checkWorkspaceRemoved(t, s)
+		})
+	}
 }
