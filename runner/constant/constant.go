@@ -57,11 +57,15 @@ const (
 	CI_TEST_REPO     = "ci-test"
 	CI_TEST_REPO_URL = "https://github.com/free5gc/ci-test.git"
 
-	CLONE_CMD_TIMEOUT   = 30 * time.Second
-	FETCH_CMD_TIMEOUT   = 15 * time.Second
-	MAKE_CMD_TIMEOUT    = 30 * time.Minute
-	TEST_CMD_TIMEOUT    = 10 * time.Minute
-	CLEANUP_CMD_TIMEOUT = 30 * time.Second
+	CLONE_CMD_TIMEOUT = 30 * time.Second
+	FETCH_CMD_TIMEOUT = 15 * time.Second
+	MAKE_CMD_TIMEOUT  = 30 * time.Minute
+	TEST_CMD_TIMEOUT  = 10 * time.Minute
+	// force_kill.sh removes every container, network and volume
+	FORCE_KILL_CMD_TIMEOUT = 2 * time.Minute
+	// docker system prune removes about 10 GB of images and build cache after
+	// a task
+	CLEAN_IMAGES_CMD_TIMEOUT = 10 * time.Minute
 
 	FAIL_MESSAGE_1 = "exit status"
 	FAIL_MESSAGE_2 = "--- FAIL:"

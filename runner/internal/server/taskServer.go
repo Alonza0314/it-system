@@ -38,7 +38,9 @@ type taskServer struct {
 	currentId     uint64
 	currentCancel context.CancelFunc
 
-	testCmdTimeout time.Duration
+	testCmdTimeout        time.Duration
+	forceKillCmdTimeout   time.Duration
+	cleanImagesCmdTimeout time.Duration
 
 	*logger.RunnerLogger
 }
@@ -56,7 +58,9 @@ func newtaskServer(workspace string, msgChannel chan httpSenderMessage, taskChan
 		taskCtx:    ctx,
 		taskCancel: cancel,
 
-		testCmdTimeout: constant.TEST_CMD_TIMEOUT,
+		testCmdTimeout:        constant.TEST_CMD_TIMEOUT,
+		forceKillCmdTimeout:   constant.FORCE_KILL_CMD_TIMEOUT,
+		cleanImagesCmdTimeout: constant.CLEAN_IMAGES_CMD_TIMEOUT,
 
 		RunnerLogger: logger,
 	}
@@ -123,17 +127,10 @@ func (s *taskServer) finishIfCanceled(ctx context.Context, id uint64, repoDir st
 		return false
 	}
 
-	if _, err := os.Stat(repoDir); err == nil {
-		if output, err := s.forceKill(repoDir); err != nil {
-			s.TaskLog.Warnf("Failed to stop containers of canceled task ID: %d, error: %v", id, err)
-			s.TaskLog.Tracef("Output of force kill for task ID: %d: %s", id, output)
-		}
-		if output, err := s.cleanImages(repoDir); err != nil {
-			s.TaskLog.Warnf("Failed to clean docker images of canceled task ID: %d, error: %v", id, err)
-			s.TaskLog.Tracef("Output of clean images for task ID: %d: %s", id, output)
-		}
+	if output, err := s.cleanupTask(id, repoDir); err != nil {
+		s.TaskLog.Warnf("Failed to clean up canceled task ID: %d, error: %v", id, err)
+		s.TaskLog.Tracef("Output of cleanup for canceled task ID: %d: %s", id, output)
 	}
-	s.removeWorkspace()
 
 	s.TaskLog.Infof("Canceled task ID: %d stopped and cleaned up", id)
 	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_CANCELED, "Task canceled on the controller"))
@@ -182,19 +179,19 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 	defer s.setCurrentTask(0, nil)
 
 	if !s.handlePrepeareRepo(ctx, task.Id, repoDir, currentTimeStamp, slices.ContainsFunc(task.NFPrList, func(nfPr model.NfPr) bool { return nfPr.NfName == cconstant.FREE5GC }), task.NFPrList) {
-		s.finishIfCanceled(ctx, task.Id, repoDir)
+		s.endFailedStep(ctx, task.Id, repoDir)
 		return
 	}
 
 	f5gcDir := filepath.Join(repoDir, constant.FREE5GC_REPO)
 
 	if !s.handleFetchNfPr(ctx, task.Id, task.NFPrList, f5gcDir) {
-		s.finishIfCanceled(ctx, task.Id, repoDir)
+		s.endFailedStep(ctx, task.Id, repoDir)
 		return
 	}
 
 	if !s.handleMakeNf(ctx, task.Id, repoDir) {
-		s.finishIfCanceled(ctx, task.Id, repoDir)
+		s.endFailedStep(ctx, task.Id, repoDir)
 		return
 	}
 
@@ -221,6 +218,7 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		case cconstant.TASK_STATUS_TIMEOUT:
 			s.TaskLog.Warnf("Test: %s timed out for task ID: %d", test, task.Id)
 			if !s.handleSilentCleanup(task.Id, test.Name, repoDir) {
+				s.handleCleanup(task.Id, repoDir)
 				return
 			}
 			retryTests = append(retryTests, test)
@@ -243,6 +241,7 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		}
 		if status == cconstant.TASK_STATUS_TIMEOUT {
 			if !s.handleSilentCleanup(task.Id, test.Name, repoDir) {
+				s.handleCleanup(task.Id, repoDir)
 				return
 			}
 		}
@@ -252,14 +251,21 @@ func (s *taskServer) handleTask(task model.ResponseRunnerHeartbeat) {
 		return
 	}
 
-	if !s.handleCleanup(task.Id, repoDir) {
+	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
+
+	s.handleCleanup(task.Id, repoDir)
+}
+
+// endFailedStep ends a task whose prepare, fetch or make step did not finish.
+// The step has reported its failure; the cleanup then ends the task, so the
+// next task does not start from a half-built state. A canceled task is ended
+// by finishIfCanceled instead.
+func (s *taskServer) endFailedStep(ctx context.Context, id uint64, repoDir string) {
+	if s.finishIfCanceled(ctx, id, repoDir) {
 		return
 	}
 
-	s.TaskLog.Infof("All tests completed for task ID: %d", task.Id)
-
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, task.Id, "", true, cconstant.TASK_STATUS_SUCCESS, "All tests completed successfully"))
-
+	s.handleCleanup(id, repoDir)
 }
 
 func (s *taskServer) normalizeOutput(output string) string {
@@ -324,7 +330,7 @@ func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir,
 		}
 		s.TaskLog.Errorf("Failed to prepare repository for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("Repository prepared successfully for task ID: %d", id)
@@ -364,12 +370,12 @@ func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir,
 			}
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Fetch free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
-				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+fetchOutput))
+				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+fetchOutput))
 
 				return false
 			}
 			s.TaskLog.Errorf("Failed to fetch free5GC PR for task ID: %d, error: %v", id, err)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+fetchOutput))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+fetchOutput))
 
 			return false
 		} else {
@@ -388,12 +394,12 @@ func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir,
 			}
 			if ctx.Err() != nil {
 				s.TaskLog.Errorf("Checkout free5GC PR timed out for task ID: %d, error: %v", id, ctx.Err())
-				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+checkoutOutput))
+				s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_TIMEOUT, output+"\n"+checkoutOutput))
 
 				return false
 			}
 			s.TaskLog.Errorf("Failed to checkout free5GC PR for task ID: %d, error: %v", id, err)
-			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+checkoutOutput))
+			s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_PREPARE_FREE5GC, false, cconstant.TASK_STATUS_FAILED, output+"\n"+checkoutOutput))
 
 			return false
 		} else {
@@ -416,7 +422,7 @@ func (s *taskServer) handleFetchNfPr(ctx context.Context, id uint64, nfPrs []mod
 		}
 		s.TaskLog.Errorf("Failed to fetch NF-PRs for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_FETCH_PRS, false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("NF-PRs fetched successfully for task ID: %d", id)
@@ -434,7 +440,7 @@ func (s *taskServer) handleMakeNf(ctx context.Context, id uint64, repoDir string
 		}
 		s.TaskLog.Errorf("Failed to make NF for task ID: %d, error: %v", id, err)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, "", false, cconstant.TASK_STATUS_FAILED, output))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_MAKE_NF, false, cconstant.TASK_STATUS_FAILED, output))
 		return false
 	}
 	s.TaskLog.Infof("NF made successfully for task ID: %d", id)
@@ -477,36 +483,75 @@ func (s *taskServer) handleRunTest(ctx context.Context, id uint64, testName, tes
 	return cconstant.TASK_STATUS_FAILED
 }
 
-func (s *taskServer) handleCleanup(id uint64, repoDir string) bool {
-	output1, err := s.forceKill(repoDir)
+// handleCleanup cleans up after the task and reports the cleanup step as the
+// end of the task. It is the last step of every task that was not canceled.
+func (s *taskServer) handleCleanup(id uint64, repoDir string) {
+	output, err := s.cleanupTask(id, repoDir)
 	if err != nil {
-		s.TaskLog.Errorf("Failed to cleanup after tests for task ID: %d, error: %v", id, err)
-		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output1)
+		s.TaskLog.Errorf("Cleanup failed for task ID: %d, error: %v", id, err)
+		s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
 
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output1))
+		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output))
 
-		return false
+		return
 	}
-
-	output2, err := s.cleanImages(repoDir)
-	if err != nil {
-		s.TaskLog.Errorf("Failed to clean docker images for task ID: %d, err: %v", id, err)
-		s.TaskLog.Tracef("output of clean image for task ID: %d: %s", id, output2)
-
-		s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output1+output2))
-
-		return false
-	}
-	s.removeWorkspace()
 
 	s.TaskLog.Infof("Cleanup completed successfully for task ID: %d", id)
-	s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output1+output2)
+	s.TaskLog.Tracef("Output of cleanup for task ID: %d: %s", id, output)
 
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(false, id, cconstant.TESTCASE_CLEANUP, true, cconstant.TASK_STATUS_SUCCESS, output1+output2))
-
-	return true
+	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, true, cconstant.TASK_STATUS_SUCCESS, output))
 }
 
+// cleanupTask removes what a task leaves on the runner: its containers
+// (force_kill.sh), the docker images, build cache and volumes that no
+// container uses, and the workspace. Each part runs even if the one before it
+// failed, so the next task does not start from what this one left behind. The
+// docker parts are skipped when there is no ci-test checkout: the task has
+// not started anything then.
+func (s *taskServer) cleanupTask(id uint64, repoDir string) (string, error) {
+	defer s.removeWorkspace()
+
+	if _, err := os.Stat(repoDir); err != nil {
+		s.TaskLog.Infof("No ci-test checkout for task ID: %d, skipping docker cleanup", id)
+		return "No ci-test checkout, nothing to stop or prune\n", nil
+	}
+
+	output, killErr := s.forceKill(repoDir)
+	if killErr != nil {
+		s.TaskLog.Errorf("Failed to stop containers of task ID: %d, error: %v", id, killErr)
+		output += cleanupFailureNote("force_kill.sh", killErr, s.forceKillCmdTimeout)
+	}
+
+	pruneOutput, pruneErr := s.cleanImages(repoDir)
+	output += pruneOutput
+	if pruneErr != nil {
+		s.TaskLog.Errorf("Failed to clean docker images for task ID: %d, error: %v", id, pruneErr)
+		output += cleanupFailureNote("docker system prune", pruneErr, s.cleanImagesCmdTimeout)
+	}
+
+	return output, errors.Join(killErr, pruneErr)
+}
+
+// cleanupFailureNote is the line added to the cleanup log when a part fails.
+// A command that is killed at its timeout prints nothing about it, so without
+// this line the log just stops.
+func cleanupFailureNote(part string, err error, timeout time.Duration) string {
+	var exitErr *exec.ExitError
+
+	switch {
+	case errors.Is(err, context.DeadlineExceeded):
+		return fmt.Sprintf("\n[runner] %s timed out after %v\n", part, timeout)
+	case errors.As(err, &exitErr):
+		// what the command printed is already in the log
+		return fmt.Sprintf("\n[runner] %s failed: %v\n", part, exitErr)
+	default:
+		return fmt.Sprintf("\n[runner] %s failed: %v\n", part, err)
+	}
+}
+
+// handleSilentCleanup stops the containers of a test that timed out, so the
+// next test starts from a clean state. It returns false if they could not be
+// stopped; the task then ends.
 func (s *taskServer) handleSilentCleanup(id uint64, testName, repoDir string) bool {
 	output, err := s.forceKill(repoDir)
 	if err == nil {
@@ -517,8 +562,7 @@ func (s *taskServer) handleSilentCleanup(id uint64, testName, repoDir string) bo
 	}
 
 	s.TaskLog.Errorf("Silent cleanup after timeout failed for task ID: %d, test: %s, error: %v", id, testName, err)
-
-	s.msgChannel <- newHttpSenderMessage(constant.MSG_TYPE_TEST_OUTPUT, nil, s.buildRequestTestOutput(true, id, cconstant.TESTCASE_CLEANUP, false, cconstant.TASK_STATUS_FAILED, output))
+	s.TaskLog.Tracef("Output of silent cleanup for task ID: %d, test: %s: %s", id, testName, output)
 
 	return false
 }
@@ -772,8 +816,11 @@ func (s *taskServer) runTest(taskCtx context.Context, testName, testScript, repo
 	return output, nil
 }
 
+// forceKill and cleanImages wrap errors with %w, so cleanupFailureNote can
+// tell a timeout from a failure. They do not take the task's context: a
+// cleanup always runs to the end, also for a canceled task.
 func (s *taskServer) forceKill(repoDir string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), constant.CLEANUP_CMD_TIMEOUT)
+	ctx, cancel := context.WithTimeout(context.Background(), s.forceKillCmdTimeout)
 	defer cancel()
 
 	output, err := s.runCmd(
@@ -783,16 +830,16 @@ func (s *taskServer) forceKill(repoDir string) (string, error) {
 	)
 	if err != nil {
 		if ctx.Err() != nil {
-			return output, fmt.Errorf("cleanup timed out, error: %v", ctx.Err())
+			return output, fmt.Errorf("cleanup timed out, error: %w", ctx.Err())
 		}
-		return output, fmt.Errorf("failed to cleanup: %v", err)
+		return output, fmt.Errorf("failed to cleanup: %w", err)
 	}
 
 	return output, nil
 }
 
 func (s *taskServer) cleanImages(repoDir string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), constant.CLEANUP_CMD_TIMEOUT)
+	ctx, cancel := context.WithTimeout(context.Background(), s.cleanImagesCmdTimeout)
 	defer cancel()
 
 	output, err := s.runCmd(
@@ -807,9 +854,9 @@ func (s *taskServer) cleanImages(repoDir string) (string, error) {
 	)
 	if err != nil {
 		if ctx.Err() != nil {
-			return output, fmt.Errorf("clean images timed out, error: %v", ctx.Err())
+			return output, fmt.Errorf("clean images timed out, error: %w", ctx.Err())
 		}
-		return output, fmt.Errorf("failed to clean images: %v", err)
+		return output, fmt.Errorf("failed to clean images: %w", err)
 	}
 
 	return output, nil

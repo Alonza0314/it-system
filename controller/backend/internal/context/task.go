@@ -561,10 +561,17 @@ func (t *task) markCanceled() {
 	}
 }
 
+// setFinalStatus sets the status of a finished task from its steps. A cleanup
+// that ran and failed does not count: the task keeps the result of its tests,
+// and the cleanup step keeps its own status and log. A cleanup that never
+// reported still fails the task.
 func (t *task) setFinalStatus() {
 	t.status = constant.TASK_STATUS_SUCCESS
 
 	for _, p := range t.pipelines {
+		if p.name == constant.TESTCASE_CLEANUP && (p.status == constant.TASK_STATUS_FAILED || p.status == constant.TASK_STATUS_TIMEOUT) {
+			continue
+		}
 		if p.status == constant.TASK_STATUS_FAILED {
 			t.status = constant.TASK_STATUS_FAILED
 			return
