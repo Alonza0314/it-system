@@ -38,6 +38,8 @@ type taskServer struct {
 	currentId     uint64
 	currentCancel context.CancelFunc
 
+	cloneCmdTimeout       time.Duration
+	cloneAttempts         int
 	testCmdTimeout        time.Duration
 	forceKillCmdTimeout   time.Duration
 	cleanImagesCmdTimeout time.Duration
@@ -58,6 +60,8 @@ func newtaskServer(workspace string, msgChannel chan httpSenderMessage, taskChan
 		taskCtx:    ctx,
 		taskCancel: cancel,
 
+		cloneCmdTimeout:       constant.CLONE_CMD_TIMEOUT,
+		cloneAttempts:         constant.CLONE_ATTEMPTS,
 		testCmdTimeout:        constant.TEST_CMD_TIMEOUT,
 		forceKillCmdTimeout:   constant.FORCE_KILL_CMD_TIMEOUT,
 		cleanImagesCmdTimeout: constant.CLEAN_IMAGES_CMD_TIMEOUT,
@@ -323,7 +327,7 @@ func (s *taskServer) runCmd(ctx context.Context, dir, cmd string, args ...string
 // The handle* steps below do not report a failure when ctx is canceled: the
 // task was canceled on the controller and handleTask reports its end.
 func (s *taskServer) handlePrepeareRepo(ctx context.Context, id uint64, repoDir, currentTimeStamp string, fetchFree5gcPr bool, nfPrs []model.NfPr) bool {
-	output, err := s.prepareRepo(ctx, repoDir, currentTimeStamp)
+	output, err := s.prepareRepo(ctx, id, repoDir, currentTimeStamp)
 	if err != nil {
 		if ctx.Err() != nil {
 			return false
@@ -536,16 +540,21 @@ func (s *taskServer) cleanupTask(id uint64, repoDir string) (string, error) {
 // A command that is killed at its timeout prints nothing about it, so without
 // this line the log just stops.
 func cleanupFailureNote(part string, err error, timeout time.Duration) string {
+	return fmt.Sprintf("\n[runner] %s %s\n", part, failureReason(err, timeout))
+}
+
+// failureReason says in a few words why a command failed. What the command
+// printed is already in the log, and the error of runCmd repeats all of it.
+func failureReason(err error, timeout time.Duration) string {
 	var exitErr *exec.ExitError
 
 	switch {
 	case errors.Is(err, context.DeadlineExceeded):
-		return fmt.Sprintf("\n[runner] %s timed out after %v\n", part, timeout)
+		return fmt.Sprintf("timed out after %v", timeout)
 	case errors.As(err, &exitErr):
-		// what the command printed is already in the log
-		return fmt.Sprintf("\n[runner] %s failed: %v\n", part, exitErr)
+		return fmt.Sprintf("failed: %v", exitErr)
 	default:
-		return fmt.Sprintf("\n[runner] %s failed: %v\n", part, err)
+		return fmt.Sprintf("failed: %v", err)
 	}
 }
 
@@ -567,20 +576,62 @@ func (s *taskServer) handleSilentCleanup(id uint64, testName, repoDir string) bo
 	return false
 }
 
-func (s *taskServer) prepareRepo(ctx context.Context, repoDir, currentTimeStamp string) (string, error) {
-	prepareRepoCtx, prepareRepoCancel := context.WithTimeout(ctx, constant.CLONE_CMD_TIMEOUT)
-	defer prepareRepoCancel()
+// prepareRepo clones ci-test and free5gc into repoDir. Each attempt has its
+// own timeout. A clone that fails or times out is removed and tried again:
+// the connections to GitHub of one attempt can be slow while those of the
+// next one are fast. A task canceled on the controller is not tried again.
+// The output has what each attempt printed, and a line for each attempt that
+// failed, as a command killed at its timeout prints nothing about it.
+func (s *taskServer) prepareRepo(ctx context.Context, id uint64, repoDir, currentTimeStamp string) (string, error) {
+	attempts := max(s.cloneAttempts, 1)
+	output := ""
+	failures := make([]string, 0, attempts)
+	allTimedOut := true
 
-	output, err := s.cloneRepo(prepareRepoCtx, repoDir, currentTimeStamp)
-	if err != nil {
-		if prepareRepoCtx.Err() != nil {
-			return output, fmt.Errorf("prepare repo timed out: %v", prepareRepoCtx.Err())
+	for attempt := 1; attempt <= attempts; attempt++ {
+		attemptCtx, cancel := context.WithTimeout(ctx, s.cloneCmdTimeout)
+		attemptOutput, err := s.cloneRepo(attemptCtx, repoDir, currentTimeStamp)
+		cancel()
+		output += attemptOutput
+		if err == nil {
+			return output, nil
+		}
+		if ctx.Err() != nil {
+			// canceled on the controller: handlePrepeareRepo reports nothing
+			return output, fmt.Errorf("prepare repo canceled: %w", ctx.Err())
 		}
 
-		return output, fmt.Errorf("failed to prepare repo: %v", err)
+		reason := failureReason(err, s.cloneCmdTimeout)
+		failures = append(failures, fmt.Sprintf("attempt %d %s", attempt, reason))
+		allTimedOut = allTimedOut && errors.Is(err, context.DeadlineExceeded)
+		s.TaskLog.Warnf("Clone attempt %d of %d for task ID: %d %s, last output: %s", attempt, attempts, id, reason, lastLines(attemptOutput, 3))
+
+		note := fmt.Sprintf("\n[runner] clone attempt %d of %d %s", attempt, attempts, reason)
+		if attempt == attempts {
+			output += note + "\n"
+			break
+		}
+
+		// git does not clone into a directory that is not empty
+		if err := os.RemoveAll(repoDir); err != nil {
+			output += fmt.Sprintf("%s, and the partial clone could not be removed: %v\n", note, err)
+			return output, fmt.Errorf("failed to prepare repo: %s, and could not remove the partial clone: %w", strings.Join(failures, "; "), err)
+		}
+		output += note + ", retrying\n"
 	}
 
-	return output, nil
+	if allTimedOut {
+		return output, fmt.Errorf("prepare repo timed out after %d attempts of %v: %w", attempts, s.cloneCmdTimeout, context.DeadlineExceeded)
+	}
+
+	return output, fmt.Errorf("failed to prepare repo after %d attempts: %s", attempts, strings.Join(failures, "; "))
+}
+
+// lastLines returns the last n lines of output on one line, for the journal.
+func lastLines(output string, n int) string {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+
+	return strings.Join(lines[max(len(lines)-n, 0):], " | ")
 }
 
 func (s *taskServer) cloneRepo(ctx context.Context, repoDir, currentTimeStamp string) (string, error) {
