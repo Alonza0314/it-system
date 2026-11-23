@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -238,6 +239,15 @@ func (p *Processor) GetTask(id uint64) (*model.ResponseGetTask, *model.ErrorDeta
 }
 
 func (p *Processor) SubmitTask(req *model.RequestSubmitTask, username string) (*model.ResponseSubmitTask, *model.ErrorDetail) {
+	// The runner checks out each PR of an NF in turn in the same directory,
+	// so only the last one would be tested. The frontend has the same check.
+	if duplicates := duplicateNfs(req.NFPrList); len(duplicates) > 0 {
+		return nil, &model.ErrorDetail{
+			HttpStatus: http.StatusBadRequest,
+			Detail:     fmt.Sprintf("NF selected more than once: %s", strings.Join(duplicates, ", ")),
+		}
+	}
+
 	nowTime := time.Now().Unix()
 	if err := p.itContext.CreateTask(username, nowTime, req.Tests, req.NFPrList); err != nil {
 		return nil, &model.ErrorDetail{
@@ -249,6 +259,21 @@ func (p *Processor) SubmitTask(req *model.RequestSubmitTask, username string) (*
 	return &model.ResponseSubmitTask{
 		Message: "Task submitted successfully",
 	}, nil
+}
+
+// duplicateNfs returns the NFs that appear more than once in nfPrList, each
+// once, in the order they first repeat, like the frontend's message.
+func duplicateNfs(nfPrList []model.NfPr) []string {
+	seen := make(map[string]bool, len(nfPrList))
+	duplicates := make([]string, 0)
+	for _, nfPr := range nfPrList {
+		if seen[nfPr.NfName] && !slices.Contains(duplicates, nfPr.NfName) {
+			duplicates = append(duplicates, nfPr.NfName)
+		}
+		seen[nfPr.NfName] = true
+	}
+
+	return duplicates
 }
 
 // RerunTask submits a new task, owned by username, with the testcases and
