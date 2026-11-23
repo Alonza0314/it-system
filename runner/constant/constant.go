@@ -57,8 +57,15 @@ const (
 	CI_TEST_REPO     = "ci-test"
 	CI_TEST_REPO_URL = "https://github.com/free5gc/ci-test.git"
 
-	CLONE_CMD_TIMEOUT = 30 * time.Second
-	FETCH_CMD_TIMEOUT = 15 * time.Second
+	// Cloning ci-test and free5gc with its submodules (about 93 MB) usually
+	// takes about 10 seconds. A connection to GitHub that gets only about
+	// 300 KB/s makes it take 2 to 3 minutes. Each try opens new connections,
+	// which are often faster, so a clone that fails is tried again.
+	CLONE_CMD_TIMEOUT = 5 * time.Minute
+	CLONE_ATTEMPTS    = 2
+	// fetching a PR downloads a few KB, over the same, sometimes slow,
+	// connections
+	FETCH_CMD_TIMEOUT = 2 * time.Minute
 	MAKE_CMD_TIMEOUT  = 30 * time.Minute
 	TEST_CMD_TIMEOUT  = 10 * time.Minute
 	// force_kill.sh removes every container, network and volume

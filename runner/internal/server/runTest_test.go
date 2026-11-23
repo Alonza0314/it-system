@@ -35,6 +35,7 @@ func newTestTaskServer(t *testing.T) *taskServer {
 	t.Helper()
 
 	s := newtaskServer(t.TempDir(), make(chan httpSenderMessage, 16), nil, make(chan uint64, 1), newTestLogger())
+	s.cloneCmdTimeout = 10 * time.Second
 	s.testCmdTimeout = 200 * time.Millisecond
 	s.forceKillCmdTimeout = 10 * time.Second
 	s.cleanImagesCmdTimeout = 10 * time.Second
